@@ -1,6 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.model;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.Supported;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -11,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.opaluchlukasz.junit2spock.core.Util.SEPARATOR;
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 
 public class ClassModelBuilder {
     private List<ImportDeclaration> imports = new LinkedList<>();
@@ -55,7 +56,12 @@ public class ClassModelBuilder {
 
         StringBuilder builder = new StringBuilder();
         Optional.ofNullable(packageDeclaration).ifPresent(builder::append);
-        imports.forEach(builder::append);
+
+        List<String> supported = Supported.imports();
+
+        imports.stream()
+                .filter(importDeclaration -> !supported.contains(importDeclaration.getName().getFullyQualifiedName()))
+                .forEach(builder::append);
 
         builder.append(SEPARATOR).append("class ")
                 .append(className)
@@ -66,7 +72,7 @@ public class ClassModelBuilder {
 
         fields.forEach(field -> builder.append(field.toString()));
 
-        methods.forEach(methodModel -> builder.append(methodModel.asGroovyMethod()));
+        methods.forEach(methodModel -> builder.append(methodModel.asGroovyMethod(1)));
 
         builder.append("}");
 

@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.model;
 
+import com.github.opaluchlukasz.junit2spock.core.util.TypeUtil;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -7,9 +8,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.opaluchlukasz.junit2spock.core.Util.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.model.MethodDeclarationHelper.isPrivate;
 import static com.github.opaluchlukasz.junit2spock.core.model.MethodDeclarationHelper.isTestMethod;
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indent;
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
 import static java.util.stream.Collectors.joining;
 
 public class MethodModel {
@@ -24,10 +27,10 @@ public class MethodModel {
         }
     }
 
-    public String asGroovyMethod() {
+    public String asGroovyMethod(int baseIndentationInTabs) {
         StringBuilder methodBuilder = new StringBuilder();
 
-        methodBuilder.append(methodModifier());
+        indent(methodBuilder, baseIndentationInTabs).append(methodModifier());
 
         returnedType().ifPresent(type -> methodBuilder.append(type).append(" "));
 
@@ -37,17 +40,19 @@ public class MethodModel {
                 .collect(joining(", ", "(", ") {" + SEPARATOR)));
 
         methodBuilder.append(body.stream()
-                .map(Object::toString)
-                .collect(joining(SEPARATOR, "\t", "")));
+                .map(node -> indentation(baseIndentationInTabs + 1) + node.toString())
+                .collect(joining(SEPARATOR)));
 
-        methodBuilder.append("}");
+        indent(methodBuilder, baseIndentationInTabs).append("}");
         methodBuilder.append(SEPARATOR).append(SEPARATOR);
 
         return methodBuilder.toString();
     }
 
     private Optional<String> returnedType() {
-        return Optional.ofNullable(methodDeclaration.getReturnType2()).map(Object::toString);
+        return Optional.ofNullable(methodDeclaration.getReturnType2())
+                .filter(type -> !TypeUtil.isVoid(type))
+                .map(Object::toString);
     }
 
     private String methodModifier() {

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static com.github.opaluchlukasz.junit2spock.core.Util.SEPARATOR;
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.find;

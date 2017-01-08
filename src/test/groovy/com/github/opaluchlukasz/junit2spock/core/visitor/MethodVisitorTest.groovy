@@ -25,7 +25,7 @@ class MethodVisitorTest extends Specification {
         method.accept(regularMethodVisitor)
 
         then:
-        regularMethodVisitor.methodModel().asGroovyMethod().contains('private') == expected
+        regularMethodVisitor.methodModel().asGroovyMethod(0).contains('private') == expected
 
         where:
         modifier          | expected
