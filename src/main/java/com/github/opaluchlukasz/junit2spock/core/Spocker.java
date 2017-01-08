@@ -14,7 +14,7 @@ public class Spocker {
         parser.setSource(source.toCharArray());
         parser.setKind(K_COMPILATION_UNIT);
 
-        final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+        CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
         TestClassVisitor visitor = new TestClassVisitor();
         cu.accept(visitor);
