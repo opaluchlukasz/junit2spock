@@ -1,6 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.visitor
 
-import com.github.opaluchlukasz.junit2spock.core.builder.MethodBuilder
+import com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.MethodDeclaration
 import spock.lang.Specification
@@ -15,7 +15,7 @@ class MethodVisitorTest extends Specification {
         given:
         def ast = AST.newAST(AST.JLS8)
 
-        MethodDeclaration method = MethodBuilder.aMethod(ast)
+        MethodDeclaration method = MethodDeclarationBuilder.aMethod(ast)
                 .withName('dummy')
                 .withModifier(modifier)
                 .build()

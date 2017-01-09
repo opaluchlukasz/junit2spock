@@ -2,6 +2,7 @@ package com.github.opaluchlukasz.junit2spock.core.model;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.Supported;
+import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;

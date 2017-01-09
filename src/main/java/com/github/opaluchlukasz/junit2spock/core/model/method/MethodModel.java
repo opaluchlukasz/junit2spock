@@ -1,30 +1,22 @@
-package com.github.opaluchlukasz.junit2spock.core.model;
+package com.github.opaluchlukasz.junit2spock.core.model.method;
 
-import com.github.opaluchlukasz.junit2spock.core.util.TypeUtil;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.opaluchlukasz.junit2spock.core.model.MethodDeclarationHelper.isPrivate;
-import static com.github.opaluchlukasz.junit2spock.core.model.MethodDeclarationHelper.isTestMethod;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indent;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
+import static com.github.opaluchlukasz.junit2spock.core.util.TypeUtil.isVoid;
 import static java.util.stream.Collectors.joining;
 
-public class MethodModel {
+public abstract class MethodModel {
 
-    private final MethodDeclaration methodDeclaration;
-    private final List<ASTNode> body = new LinkedList<>();
+    final MethodDeclaration methodDeclaration;
 
-    public MethodModel(MethodDeclaration methodDeclaration) {
+    MethodModel(MethodDeclaration methodDeclaration) {
         this.methodDeclaration = methodDeclaration;
-        if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
-            this.body.addAll(methodDeclaration.getBody().statements());
-        }
     }
 
     public String asGroovyMethod(int baseIndentationInTabs) {
@@ -39,7 +31,7 @@ public class MethodModel {
                 .map(Object::toString)
                 .collect(joining(", ", "(", ") {" + SEPARATOR)));
 
-        methodBuilder.append(body.stream()
+        methodBuilder.append(body().stream()
                 .map(node -> indentation(baseIndentationInTabs + 1) + node.toString())
                 .collect(joining(SEPARATOR)));
 
@@ -49,18 +41,13 @@ public class MethodModel {
         return methodBuilder.toString();
     }
 
+    protected abstract List<Object> body();
+
     private Optional<String> returnedType() {
         return Optional.ofNullable(methodDeclaration.getReturnType2())
-                .filter(type -> !TypeUtil.isVoid(type))
+                .filter(type -> !isVoid(type))
                 .map(Object::toString);
     }
 
-    private String methodModifier() {
-        if (isPrivate(methodDeclaration)) {
-            return "private ";
-        } else if (isTestMethod(methodDeclaration)) {
-            return "def ";
-        }
-        return "";
-    }
+    protected abstract String methodModifier();
 }

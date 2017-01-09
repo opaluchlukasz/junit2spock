@@ -1,6 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.visitor;
 
-import com.github.opaluchlukasz.junit2spock.core.model.MethodModel;
+import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
+import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModelFactory;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -10,7 +11,7 @@ public class MethodVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(MethodDeclaration methodDeclaration) {
-        methodModel = new MethodModel(methodDeclaration);
+        methodModel = MethodModelFactory.get(methodDeclaration);
         return true;
     }
 

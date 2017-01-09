@@ -2,6 +2,7 @@ package com.github.opaluchlukasz.junit2spock.core;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
@@ -22,6 +23,12 @@ public class ASTNodeFactory {
 
     public SimpleName simpleName(String name) {
         return ast.newSimpleName(name);
+    }
+
+    public MethodInvocation methodInvocation(String name) {
+        MethodInvocation methodInvocation = ast.newMethodInvocation();
+        methodInvocation.setName(simpleName(name));
+        return methodInvocation;
     }
 
     public SimpleType simpleType(String name) {

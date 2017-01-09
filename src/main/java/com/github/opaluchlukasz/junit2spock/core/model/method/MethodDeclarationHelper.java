@@ -1,4 +1,4 @@
-package com.github.opaluchlukasz.junit2spock.core.model;
+package com.github.opaluchlukasz.junit2spock.core.model.method;
 
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
