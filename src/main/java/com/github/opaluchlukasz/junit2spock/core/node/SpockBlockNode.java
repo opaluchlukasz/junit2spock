@@ -14,6 +14,14 @@ public final class SpockBlockNode {
         return new SpockBlockNode("given");
     }
 
+    public static SpockBlockNode when() {
+        return new SpockBlockNode("when");
+    }
+
+    public static SpockBlockNode then() {
+        return new SpockBlockNode("then");
+    }
+
     public static SpockBlockNode expect() {
         return new SpockBlockNode("expect");
     }

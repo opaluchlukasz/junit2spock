@@ -10,7 +10,7 @@ public class MyTests {
     public void multiplicationOfZeroIntegersShouldReturnZero() {
         MyClass tester = new MyClass();
 
-        assertEquals("10 x 0 must be 0", 0, tester.multiply(10, 0));
+        junit.framework.Assert.assertEquals("10 x 0 must be 0", 0, tester.multiply(10, 0));
         assertEquals("0 x 10 must be 0", 0, tester.multiply(0, 10));
         assertEquals("0 x 0 must be 0", 0, tester.multiply(0, 0));
     }

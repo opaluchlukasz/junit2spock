@@ -4,10 +4,12 @@ import org.eclipse.jdt.core.dom.ImportDeclaration
 import org.eclipse.jdt.core.dom.PrimitiveType
 import org.eclipse.jdt.core.dom.SimpleName
 import org.eclipse.jdt.core.dom.SimpleType
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement
 import spock.lang.Specification
 import spock.lang.Subject
 
 import static org.eclipse.jdt.core.dom.PrimitiveType.CHAR
+import static org.eclipse.jdt.core.dom.PrimitiveType.INT
 
 class ASTNodeFactoryTest extends Specification {
 
@@ -56,5 +58,18 @@ class ASTNodeFactoryTest extends Specification {
         type.isPrimitiveType()
         type.primitiveTypeCode == CHAR
         type.toString() == CHAR.toString()
+    }
+
+    def 'should create variable declaration with given name and default type'() {
+        given:
+        def someVar = 'someVar'
+
+        when:
+        VariableDeclarationStatement statement = astNodeFactory.variableDeclarationStatement(someVar)
+
+        then:
+        statement.type instanceof PrimitiveType
+        ((PrimitiveType) statement.type).primitiveTypeCode == INT
+        statement.toString() == "${INT.toString()} someVar;\n" as String
     }
 }

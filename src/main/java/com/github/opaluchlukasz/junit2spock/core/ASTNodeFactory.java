@@ -6,6 +6,8 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class ASTNodeFactory {
 
@@ -29,6 +31,13 @@ public class ASTNodeFactory {
         MethodInvocation methodInvocation = ast.newMethodInvocation();
         methodInvocation.setName(simpleName(name));
         return methodInvocation;
+    }
+
+    public VariableDeclarationStatement variableDeclarationStatement(String name) {
+        VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
+        VariableDeclarationStatement variableDeclaration = ast.newVariableDeclarationStatement(variableDeclarationFragment);
+        variableDeclarationFragment.setName(simpleName(name));
+        return variableDeclaration;
     }
 
     public SimpleType simpleType(String name) {
