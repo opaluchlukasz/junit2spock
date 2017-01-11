@@ -3,7 +3,7 @@ import org.junit.Assert.assertEquals;
 import spock.lang.Specification;
 
 class MyTests extends Specification {
-	def multiplicationOfZeroIntegersShouldReturnZero() {
+	def 'multiplication of zero integers should return zero'() {
 		given:
 		MyClass tester=new MyClass();
 

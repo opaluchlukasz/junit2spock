@@ -26,7 +26,7 @@ public abstract class MethodModel {
 
         returnedType().ifPresent(type -> methodBuilder.append(type).append(" "));
 
-        methodBuilder.append(methodDeclaration.getName());
+        methodBuilder.append(getMethodName());
         methodBuilder.append(methodDeclaration.parameters().stream()
                 .map(Object::toString)
                 .collect(joining(", ", "(", ") {" + SEPARATOR)));
@@ -40,6 +40,8 @@ public abstract class MethodModel {
 
         return methodBuilder.toString();
     }
+
+    protected abstract String getMethodName();
 
     protected abstract List<Object> body();
 

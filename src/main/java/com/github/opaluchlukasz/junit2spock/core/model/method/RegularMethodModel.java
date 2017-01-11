@@ -19,6 +19,11 @@ public class RegularMethodModel extends MethodModel {
     }
 
     @Override
+    protected String getMethodName() {
+        return methodDeclaration.getName().toString();
+    }
+
+    @Override
     protected List<Object> body() {
         return body;
     }

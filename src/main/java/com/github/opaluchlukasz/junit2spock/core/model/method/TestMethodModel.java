@@ -12,6 +12,9 @@ import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expe
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.when;
+import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.splitByCharacterTypeCamelCase;
+import static org.apache.commons.lang3.StringUtils.wrapIfMissing;
 
 public class TestMethodModel extends MethodModel {
 
@@ -23,6 +26,22 @@ public class TestMethodModel extends MethodModel {
             body.addAll(methodDeclaration.getBody().statements());
         }
         addSpockSpecificBlocksToBody();
+    }
+
+    @Override
+    protected List<Object> body() {
+        return body;
+    }
+
+    @Override
+    protected String methodModifier() {
+        return "def ";
+    }
+
+    @Override
+    protected String getMethodName() {
+        return wrapIfMissing(join(splitByCharacterTypeCamelCase(methodDeclaration.getName().toString()), ' '), "'")
+                .toLowerCase();
     }
 
     private void addSpockSpecificBlocksToBody() {
@@ -70,15 +89,5 @@ public class TestMethodModel extends MethodModel {
             }
         }
         return 0;
-    }
-
-    @Override
-    protected List<Object> body() {
-        return body;
-    }
-
-    @Override
-    protected String methodModifier() {
-        return "def ";
     }
 }

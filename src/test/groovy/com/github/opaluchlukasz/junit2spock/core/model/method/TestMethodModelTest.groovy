@@ -73,6 +73,16 @@ class TestMethodModelTest extends Specification {
         testMethodModel.body().get(4) == then()
     }
 
+    def 'should return human readable test name'() {
+        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
+                .withName('shouldReturnTrueWhenConditionIsMet')
+                .build()
+        TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
+
+        expect:
+        testMethodModel.methodName == "'should return true when condition is met'"
+    }
+
     private static TestMethodModel aTestMethodModel(MethodDeclaration methodDeclaration) {
         new TestMethodModel(methodDeclaration)
     }
