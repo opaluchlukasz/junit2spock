@@ -1,5 +1,8 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.model.method.feature.TestMethodFeature;
+import com.github.opaluchlukasz.junit2spock.core.model.method.feature.TestMethodFeatureProvider;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -12,6 +15,7 @@ import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expe
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.when;
+import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeClassifier.isMethodInvocation;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.commons.lang3.StringUtils.splitByCharacterTypeCamelCase;
 import static org.apache.commons.lang3.StringUtils.wrapIfMissing;
@@ -20,12 +24,16 @@ public class TestMethodModel extends MethodModel {
 
     private final List<Object> body = new LinkedList<>();
 
+    private final ASTNodeFactory astNodeFactory;
+
     TestMethodModel(MethodDeclaration methodDeclaration) {
         super(methodDeclaration);
+        astNodeFactory = new ASTNodeFactory(methodDeclaration.getAST());
         if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
             body.addAll(methodDeclaration.getBody().statements());
         }
         addSpockSpecificBlocksToBody();
+        applyTestMethodFeatures();
     }
 
     @Override
@@ -62,6 +70,19 @@ public class TestMethodModel extends MethodModel {
         }
     }
 
+    private void applyTestMethodFeatures() {
+        List<TestMethodFeature> testMethodFeatures = new TestMethodFeatureProvider(astNodeFactory).testMethodFeatures();
+        for (int i = 0; i < body.size(); i++) {
+            Object bodyNode = body.get(i);
+            for(TestMethodFeature testMethodFeature : testMethodFeatures) {
+                if (testMethodFeature.applicable(bodyNode)) {
+                    body.remove(bodyNode);
+                    body.add(i, testMethodFeature.apply(bodyNode));
+                }
+            }
+        }
+    }
+
     private boolean isWhenThenStrategy(int index) {
         if (index == 0) {
             return false;
@@ -78,14 +99,8 @@ public class TestMethodModel extends MethodModel {
 
     private int thenExpectBlockStart() {
         for (int i = 0; i < body.size(); i++) {
-            if (body.get(i) instanceof ExpressionStatement) {
-                Expression expression = ((ExpressionStatement) body.get(i)).getExpression();
-                if (expression instanceof MethodInvocation) {
-                    MethodInvocation methodInvocation = ((MethodInvocation) expression);
-                    if (methodInvocation.getName().getIdentifier().equals("assertEquals")) {
-                        return i;
-                    }
-                }
+            if (isMethodInvocation(body.get(i), "assertEquals")) {
+                return i;
             }
         }
         return 0;

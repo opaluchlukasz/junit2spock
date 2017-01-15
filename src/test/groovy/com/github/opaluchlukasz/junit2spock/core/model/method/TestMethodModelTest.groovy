@@ -23,7 +23,8 @@ class TestMethodModelTest extends Specification {
 
     def 'should add expect block if test has single statement'() {
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
-                .withBodyExpression(nodeFactory.methodInvocation('assertEquals'))
+                .withBodyExpression(nodeFactory.methodInvocation('assertEquals',
+                [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
@@ -35,7 +36,8 @@ class TestMethodModelTest extends Specification {
     def 'should add given before expect when setup performed'() {
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
                 .withBodyStatement(nodeFactory.variableDeclarationStatement('object'))
-                .withBodyExpression(nodeFactory.methodInvocation('assertEquals'))
+                .withBodyExpression(nodeFactory.methodInvocation('assertEquals',
+                [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
@@ -47,8 +49,9 @@ class TestMethodModelTest extends Specification {
 
     def 'should add when/then when last statement before assertions is method invocation'() {
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
-                .withBodyExpression(nodeFactory.methodInvocation('someMethod'))
-                .withBodyExpression(nodeFactory.methodInvocation('assertEquals'))
+                .withBodyExpression(nodeFactory.methodInvocation('someMethod', []))
+                .withBodyExpression(nodeFactory.methodInvocation('assertEquals',
+                [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
@@ -61,8 +64,9 @@ class TestMethodModelTest extends Specification {
     def 'should add given before when/then when setup performed'() {
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
                 .withBodyStatement(nodeFactory.variableDeclarationStatement('object'))
-                .withBodyExpression(nodeFactory.methodInvocation('someMethod'))
-                .withBodyExpression(nodeFactory.methodInvocation('assertEquals'))
+                .withBodyExpression(nodeFactory.methodInvocation('someMethod', []))
+                .withBodyExpression(nodeFactory.methodInvocation('assertEquals',
+                [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
