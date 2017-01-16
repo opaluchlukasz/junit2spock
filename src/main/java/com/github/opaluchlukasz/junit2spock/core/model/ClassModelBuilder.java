@@ -1,19 +1,13 @@
 package com.github.opaluchlukasz.junit2spock.core.model;
 
-import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
-import com.github.opaluchlukasz.junit2spock.core.Supported;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
-import spock.lang.Specification;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
-
-import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 
 public class ClassModelBuilder {
     private List<ImportDeclaration> imports = new LinkedList<>();
@@ -50,34 +44,7 @@ public class ClassModelBuilder {
         return this;
     }
 
-    public String build() {
-        ASTNodeFactory astNodeFactory = new ASTNodeFactory();
-
-        imports.add(astNodeFactory.importDeclaration(Specification.class));
-
-        StringBuilder builder = new StringBuilder();
-        Optional.ofNullable(packageDeclaration).ifPresent(builder::append);
-
-        List<String> supported = Supported.imports();
-
-        imports.stream()
-                .filter(importDeclaration -> !supported.contains(importDeclaration.getName().getFullyQualifiedName()))
-                .forEach(builder::append);
-
-        builder.append(SEPARATOR).append("class ")
-                .append(className)
-                .append(" extends ")
-                .append(Specification.class.getSimpleName())
-                .append(" {")
-                .append(SEPARATOR);
-
-        fields.forEach(field -> builder.append(field.toString()));
-
-        methods.forEach(methodModel -> builder.append(methodModel.asGroovyMethod(1)));
-
-        builder.append("}");
-
-        builder.append(SEPARATOR);
-        return builder.toString();
+    public ClassModel build() {
+        return new ClassModel(className, packageDeclaration, fields, methods, imports);
     }
 }

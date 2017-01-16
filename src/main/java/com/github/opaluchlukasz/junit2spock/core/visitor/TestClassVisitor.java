@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.visitor;
 
+import com.github.opaluchlukasz.junit2spock.core.model.ClassModel;
 import com.github.opaluchlukasz.junit2spock.core.model.ClassModelBuilder;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -44,7 +45,7 @@ public class TestClassVisitor extends ASTVisitor {
         return false;
     }
 
-    public String asGroovyClass() {
+    public ClassModel classModel() {
         return classModelBuilder.build();
     }
 }

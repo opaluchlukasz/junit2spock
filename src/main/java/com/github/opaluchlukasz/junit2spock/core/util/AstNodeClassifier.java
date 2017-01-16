@@ -13,12 +13,25 @@ public final class AstNodeClassifier {
     public static boolean isMethodInvocation(Object bodyElement, String methodName) {
         if (bodyElement instanceof ExpressionStatement) {
             Expression expression = ((ExpressionStatement) bodyElement).getExpression();
-            if (expression instanceof MethodInvocation) {
-                MethodInvocation methodInvocation = ((MethodInvocation) expression);
-                if (methodInvocation.getName().getIdentifier().equals(methodName)) {
-                    return true;
-                }
+            if (isMethodInvocation(expression, methodName)) {
+                return true;
             }
-        } return false;
+        }
+        if (bodyElement instanceof Expression) {
+            if (isMethodInvocation(((Expression) bodyElement), methodName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isMethodInvocation(Expression expression, String methodName) {
+        if (expression instanceof MethodInvocation) {
+            MethodInvocation methodInvocation = ((MethodInvocation) expression);
+            if (methodInvocation.getName().getIdentifier().equals(methodName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

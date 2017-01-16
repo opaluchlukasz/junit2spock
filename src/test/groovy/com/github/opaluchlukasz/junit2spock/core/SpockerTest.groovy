@@ -8,12 +8,12 @@ class SpockerTest extends Specification {
 
     def 'should return groovy class for java source'() {
         given:
-        Spocker spocker = new Spocker()
         String source = readFromResources('MyTest.java')
         String expected = normalize(readFromResources('MyTest.groovy'))
+        Spocker spocker = new Spocker(source)
 
         expect:
-        normalize(spocker.parse(source)) == expected
+        normalize(spocker.asGroovyClass()) == expected
     }
 
     private String readFromResources(String filename) {

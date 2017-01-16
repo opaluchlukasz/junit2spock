@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core;
 
+import com.github.opaluchlukasz.junit2spock.core.model.ClassModel;
 import com.github.opaluchlukasz.junit2spock.core.visitor.TestClassVisitor;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -9,7 +10,9 @@ import static org.eclipse.jdt.core.dom.ASTParser.K_COMPILATION_UNIT;
 
 public class Spocker {
 
-    public String parse(String source) {
+    private final ClassModel classModel;
+
+    public Spocker(String source) {
         ASTParser parser = ASTParser.newParser(AST.JLS8);
         parser.setSource(source.toCharArray());
         parser.setKind(K_COMPILATION_UNIT);
@@ -18,7 +21,14 @@ public class Spocker {
 
         TestClassVisitor visitor = new TestClassVisitor();
         cu.accept(visitor);
+        classModel = visitor.classModel();
+    }
 
-        return visitor.asGroovyClass();
+    public String asGroovyClass() {
+        return classModel.asGroovyClass();
+    }
+
+    public String getFileName() {
+        return classModel.className;
     }
 }

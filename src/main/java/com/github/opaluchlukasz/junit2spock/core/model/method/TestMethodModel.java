@@ -22,6 +22,7 @@ import static org.apache.commons.lang3.StringUtils.wrapIfMissing;
 
 public class TestMethodModel extends MethodModel {
 
+    private static final String ASSERT_EQUALS = "assertEquals";
     private final List<Object> body = new LinkedList<>();
 
     private final ASTNodeFactory astNodeFactory;
@@ -99,7 +100,7 @@ public class TestMethodModel extends MethodModel {
 
     private int thenExpectBlockStart() {
         for (int i = 0; i < body.size(); i++) {
-            if (isMethodInvocation(body.get(i), "assertEquals")) {
+            if (isMethodInvocation(body.get(i), ASSERT_EQUALS)) {
                 return i;
             }
         }

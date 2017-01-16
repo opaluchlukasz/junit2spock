@@ -13,15 +13,17 @@ import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS;
 
 public class AssertEqualsFeature implements TestMethodFeature {
 
+    static final String ASSERT_EQUALS = "assertEquals";
+
     private final ASTNodeFactory astNodeFactory;
 
-    public AssertEqualsFeature(ASTNodeFactory astNodeFactory) {
+    AssertEqualsFeature(ASTNodeFactory astNodeFactory) {
         this.astNodeFactory = astNodeFactory;
     }
 
     @Override
     public boolean applicable(Object astNode) {
-        return isMethodInvocation(astNode, "assertEquals");
+        return isMethodInvocation(astNode, ASSERT_EQUALS);
     }
 
     @Override

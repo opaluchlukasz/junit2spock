@@ -2,7 +2,6 @@ package com.github.opaluchlukasz.junit2spock;
 
 import com.github.opaluchlukasz.junit2spock.core.Spocker;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,29 +34,28 @@ public class App {
                 (filePath, fileAttr) -> fileAttr.isRegularFile() && filePath.getFileName().toString().matches(".*\\.java"))
                 .collect(toList());
 
-        Spocker spocker = new Spocker();
-
-        paths.stream().map(path -> parse(spocker, path)).filter(Optional::isPresent).map(Optional::get).forEach(pair -> save(pair, args[1]));
+        paths.stream().map(App::parse).filter(Optional::isPresent).map(Optional::get).forEach(spocker -> save(spocker, args[1]));
     }
 
-    private static void save(Pair<Path, String> toBeSaved, String outputPath) {
+    private static void save(Spocker toBeSaved, String outputPath) {
         try {
-            File outputFile = new File(format("%s/%s.groovy", outputPath, toBeSaved.getLeft().getFileName().toString().split(Pattern.quote("."))[0]));
+            File outputFile = new File(format("%s/%s.groovy", outputPath, toBeSaved.getFileName().split(Pattern.quote("."))[0]));
             outputFile.getParentFile().mkdirs();
             outputFile.createNewFile();
-            FileUtils.writeStringToFile(outputFile, toBeSaved.getRight(), UTF_8);
+            FileUtils.writeStringToFile(outputFile, toBeSaved.asGroovyClass(), UTF_8);
         } catch (IOException ex) {
             LOG.error("Unable to save output file", ex);
         }
     }
 
-    private static Optional<Pair<Path, String>> parse(Spocker spocker, Path path) {
+    private static Optional<Spocker> parse(Path path) {
         try {
-            return Optional.of(Pair.of(path, spocker.parse(readAllLines(path, UTF_8).stream().collect(joining(SEPARATOR)))));
+            Spocker spocker = new Spocker(readAllLines(path, UTF_8).stream().collect(joining(SEPARATOR)));
+            return Optional.of(spocker);
         } catch (IOException ex) {
             LOG.error("Unable to read path", ex);
         } catch (Exception ex) {
-            LOG.error("Unable to parse parse", ex);
+            LOG.error("Unable to parse file", ex);
         }
         return Optional.empty();
     }
