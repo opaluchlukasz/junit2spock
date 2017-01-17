@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static java.lang.String.format;
@@ -39,7 +38,7 @@ public class App {
 
     private static void save(Spocker toBeSaved, String outputPath) {
         try {
-            File outputFile = new File(format("%s/%s.groovy", outputPath, toBeSaved.getFileName().split(Pattern.quote("."))[0]));
+            File outputFile = new File(format("%s/%s", outputPath, toBeSaved.getGroovyFilePath()));
             outputFile.getParentFile().mkdirs();
             outputFile.createNewFile();
             FileUtils.writeStringToFile(outputFile, toBeSaved.asGroovyClass(), UTF_8);
