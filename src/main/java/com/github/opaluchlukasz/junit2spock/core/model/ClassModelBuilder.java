@@ -5,6 +5,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.Type;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class ClassModelBuilder {
     private List<FieldDeclaration> fields = new LinkedList<>();
     private String className;
     private PackageDeclaration packageDeclaration;
+    private Type superclassType;
 
     public ClassModelBuilder withClassName(SimpleName className) {
         if (this.className != null) {
@@ -44,7 +46,12 @@ public class ClassModelBuilder {
         return this;
     }
 
+    public ClassModelBuilder withSuperType(Type superclassType) {
+        this.superclassType = superclassType;
+        return this;
+    }
+
     public ClassModel build() {
-        return new ClassModel(className, packageDeclaration, fields, methods, imports);
+        return new ClassModel(className, superclassType, packageDeclaration, fields, methods, imports);
     }
 }
