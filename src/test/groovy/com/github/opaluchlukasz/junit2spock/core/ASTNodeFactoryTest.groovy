@@ -4,6 +4,7 @@ import org.eclipse.jdt.core.dom.ImportDeclaration
 import org.eclipse.jdt.core.dom.PrimitiveType
 import org.eclipse.jdt.core.dom.SimpleName
 import org.eclipse.jdt.core.dom.SimpleType
+import org.eclipse.jdt.core.dom.TypeLiteral
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement
 import spock.lang.Specification
 import spock.lang.Subject
@@ -71,5 +72,17 @@ class ASTNodeFactoryTest extends Specification {
         statement.type instanceof PrimitiveType
         ((PrimitiveType) statement.type).primitiveTypeCode == INT
         statement.toString() == "${INT.toString()} someVar;\n" as String
+    }
+
+    def 'should create type literal'() {
+        given:
+        def someType = 'SomeType'
+
+        when:
+        TypeLiteral typeLiteral = astNodeFactory.typeLiteral(someType)
+
+        then:
+        typeLiteral.type instanceof SimpleType
+        ((SimpleType) typeLiteral.type).name.fullyQualifiedName == someType
     }
 }

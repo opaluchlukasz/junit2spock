@@ -11,6 +11,13 @@ class MyTests extends Specification {
 		multiply(0,10) == 0
 		multiply(0,0) == 0	}
 
+	def 'empty'() {
+		when:
+		new ArrayList<Object>().get(0);
+
+		then:
+		thrown(IndexOutOfBoundsException)	}
+
 	private String helper() {
 		return "bar";
 	}

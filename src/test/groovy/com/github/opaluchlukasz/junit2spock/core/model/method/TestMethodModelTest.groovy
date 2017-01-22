@@ -3,9 +3,12 @@ package com.github.opaluchlukasz.junit2spock.core.model.method
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.MethodDeclaration
+import org.eclipse.jdt.core.dom.MethodInvocation
+import org.eclipse.jdt.core.dom.SimpleName
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
+import static com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel.THROWN
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expect
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then
@@ -75,6 +78,24 @@ class TestMethodModelTest extends Specification {
         testMethodModel.body().get(0) == given()
         testMethodModel.body().get(2) == when()
         testMethodModel.body().get(4) == then()
+    }
+
+    def 'should add thrown method invocation when expected exception declared'() {
+        def exceptionName = NullPointerException.getSimpleName()
+        def testAnnotation = nodeFactory.annotation('Test', ['expected': nodeFactory.typeLiteral(exceptionName)])
+        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
+                .withAnnotation(testAnnotation)
+                .build()
+        TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
+
+        expect:
+        testMethodModel.body().size() == 2
+        testMethodModel.body().get(0) == expect()
+        testMethodModel.body().get(1) instanceof MethodInvocation
+        MethodInvocation methodInvocation = testMethodModel.body().get(1)
+        methodInvocation.name.identifier == THROWN
+        methodInvocation.arguments().size() == 1
+        ((SimpleName) methodInvocation.arguments().get(0)).identifier == nodeFactory.simpleName(exceptionName).identifier
     }
 
     def 'should return human readable test name'() {

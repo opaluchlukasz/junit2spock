@@ -2,18 +2,24 @@ package com.github.opaluchlukasz.junit2spock.core;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -67,6 +73,30 @@ public class ASTNodeFactory {
         return infixExpression;
     }
 
+    public Annotation annotation(String name) {
+        MarkerAnnotation annotation = ast.newMarkerAnnotation();
+        annotation.setTypeName(simpleName(name));
+        return annotation;
+    }
+
+    public Annotation annotation(String name, Map<String, Expression> values) {
+        if (values.isEmpty()) {
+            return annotation(name);
+        } else {
+            NormalAnnotation annotation = ast.newNormalAnnotation();
+            annotation.setTypeName(simpleName(name));
+            List<MemberValuePair> valuePairs = values.entrySet().stream()
+                    .map(entrySet -> {
+                        MemberValuePair memberValuePair = ast.newMemberValuePair();
+                        memberValuePair.setName(simpleName(entrySet.getKey()));
+                        memberValuePair.setValue(entrySet.getValue());
+                        return memberValuePair;
+                    }).collect(toList());
+            annotation.values().addAll(valuePairs);
+            return annotation;
+        }
+    }
+
     public Expression clone(Object expression) {
         if (expression instanceof NumberLiteral) {
             return numberLiteral(((NumberLiteral) expression).getToken());
@@ -79,6 +109,12 @@ public class ASTNodeFactory {
 
     public SimpleType simpleType(String name) {
         return ast.newSimpleType(simpleName(name));
+    }
+
+    public TypeLiteral typeLiteral(String typeName) {
+        TypeLiteral typeLiteral = ast.newTypeLiteral();
+        typeLiteral.setType(simpleType(typeName));
+        return typeLiteral;
     }
 
     public PrimitiveType primitiveType(PrimitiveType.Code code) {

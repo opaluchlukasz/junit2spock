@@ -15,6 +15,11 @@ public class MyTests {
         assertEquals("0 x 0 must be 0", 0, tester.multiply(0, 0));
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void empty() {
+        new ArrayList<Object>().get(0);
+    }
+
     private String helper() {
         return "bar";
     }
