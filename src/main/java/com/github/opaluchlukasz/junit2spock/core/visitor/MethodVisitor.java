@@ -18,5 +18,4 @@ public class MethodVisitor extends ASTVisitor {
     public MethodModel methodModel() {
         return methodModel;
     }
-
 }

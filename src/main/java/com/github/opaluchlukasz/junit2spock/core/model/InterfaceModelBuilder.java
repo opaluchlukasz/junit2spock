@@ -10,45 +10,45 @@ import org.eclipse.jdt.core.dom.Type;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ClassModelBuilder {
+public class InterfaceModelBuilder {
     private List<ImportDeclaration> imports = new LinkedList<>();
     private List<MethodModel> methods = new LinkedList<>();
     private List<FieldDeclaration> fields = new LinkedList<>();
-    private String className;
+    private String interfaceName;
     private PackageDeclaration packageDeclaration;
     private Type superclassType;
 
-    public ClassModelBuilder withClassName(SimpleName className) {
-        this.className = className.getFullyQualifiedName();
+    public InterfaceModelBuilder withInterfaceName(SimpleName className) {
+        this.interfaceName = className.getFullyQualifiedName();
         return this;
     }
 
-    public ClassModelBuilder withImport(ImportDeclaration node) {
+    public InterfaceModelBuilder withImport(ImportDeclaration node) {
         imports.add(node);
         return this;
     }
 
-    public ClassModelBuilder withMethod(MethodModel methodModel) {
+    public InterfaceModelBuilder withMethod(MethodModel methodModel) {
         methods.add(methodModel);
         return this;
     }
 
-    public ClassModelBuilder withPackageDeclaration(PackageDeclaration packageDeclaration) {
+    public InterfaceModelBuilder withPackageDeclaration(PackageDeclaration packageDeclaration) {
         this.packageDeclaration = packageDeclaration;
         return this;
     }
 
-    public ClassModelBuilder withField(FieldDeclaration node) {
+    public InterfaceModelBuilder withField(FieldDeclaration node) {
         fields.add(node);
         return this;
     }
 
-    public ClassModelBuilder withSuperType(Type superclassType) {
+    public InterfaceModelBuilder withSuperType(Type superclassType) {
         this.superclassType = superclassType;
         return this;
     }
 
     public TypeModel build() {
-        return new ClassModel(className, superclassType, packageDeclaration, fields, methods, imports);
+        return new InterfaceModel(interfaceName, superclassType, packageDeclaration, fields, methods, imports);
     }
 }

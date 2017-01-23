@@ -1,10 +1,14 @@
 package com.github.opaluchlukasz.junit2spock.core;
 
-import com.github.opaluchlukasz.junit2spock.core.model.ClassModel;
+import com.github.opaluchlukasz.junit2spock.core.model.TypeModel;
+import com.github.opaluchlukasz.junit2spock.core.visitor.InterfaceVisitor;
 import com.github.opaluchlukasz.junit2spock.core.visitor.TestClassVisitor;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+
+import java.util.List;
 
 import static java.io.File.separator;
 import static java.util.regex.Matcher.quoteReplacement;
@@ -12,7 +16,7 @@ import static org.eclipse.jdt.core.dom.ASTParser.K_COMPILATION_UNIT;
 
 public class Spocker {
 
-    private final ClassModel classModel;
+    private final TypeModel typeModel;
 
     public Spocker(String source) {
         ASTParser parser = ASTParser.newParser(AST.JLS8);
@@ -21,22 +25,37 @@ public class Spocker {
 
         CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
-        TestClassVisitor visitor = new TestClassVisitor();
-        cu.accept(visitor);
-        classModel = visitor.classModel();
+        TypeDeclaration typeDeclaration = typeDeclaration(cu);
+
+        if (typeDeclaration.isInterface()) {
+            InterfaceVisitor visitor = new InterfaceVisitor();
+            cu.accept(visitor);
+            typeModel = visitor.classModel();
+        } else {
+            TestClassVisitor visitor = new TestClassVisitor();
+            cu.accept(visitor);
+            typeModel = visitor.classModel();
+        }
+    }
+
+    private TypeDeclaration typeDeclaration(CompilationUnit cu) {
+        List<TypeDeclaration> types = cu.types();
+        if (types.size() > 1) {
+            throw new IllegalArgumentException("Inner types not supported");
+        }
+        return types.get(0);
     }
 
     public String asGroovyClass() {
-        return classModel.asGroovyClass();
+        return typeModel.asGroovyClass();
     }
 
     public String getGroovyFilePath() {
         StringBuilder path = new StringBuilder();
-        if (classModel.packageDeclaration != null) {
-            path.append(classModel.packageDeclaration.getName().getFullyQualifiedName().replace(quoteReplacement("."), separator))
-                    .append(separator);
-        }
-        path.append(classModel.className).append(".groovy");
+        typeModel.packageDeclaration()
+                .ifPresent(declaration -> path.append(declaration.replace(quoteReplacement("."), separator))
+                        .append(separator));
+        path.append(typeModel.typeName()).append(".groovy");
         return path.toString();
     }
 }

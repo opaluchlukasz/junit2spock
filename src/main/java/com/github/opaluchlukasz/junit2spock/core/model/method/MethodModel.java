@@ -20,16 +20,9 @@ public abstract class MethodModel {
     }
 
     public String asGroovyMethod(int baseIndentationInTabs) {
-        StringBuilder methodBuilder = new StringBuilder();
-
-        indent(methodBuilder, baseIndentationInTabs).append(methodModifier());
-
-        returnedType().ifPresent(type -> methodBuilder.append(type).append(" "));
-
-        methodBuilder.append(getMethodName());
-        methodBuilder.append(methodDeclaration.parameters().stream()
-                .map(Object::toString)
-                .collect(joining(", ", "(", ") {" + SEPARATOR)));
+        StringBuilder methodBuilder = methodDeclarationBuilder(baseIndentationInTabs);
+        methodBuilder.append(" {");
+        methodBuilder.append(SEPARATOR);
 
         methodBuilder.append(body().stream()
                 .map(node -> indentation(baseIndentationInTabs + 1) + node.toString())
@@ -39,6 +32,25 @@ public abstract class MethodModel {
         methodBuilder.append(SEPARATOR).append(SEPARATOR);
 
         return methodBuilder.toString();
+    }
+
+    public String methodDeclaration(int baseIndentationInTabs) {
+        return methodDeclarationBuilder(baseIndentationInTabs).toString();
+    }
+
+    private StringBuilder methodDeclarationBuilder(int baseIndentationInTabs) {
+        StringBuilder methodBuilder = new StringBuilder();
+        new StringBuilder();
+
+        indent(methodBuilder, baseIndentationInTabs).append(methodModifier());
+
+        returnedType().ifPresent(type -> methodBuilder.append(type).append(" "));
+
+        methodBuilder.append(getMethodName());
+        methodBuilder.append(methodDeclaration.parameters().stream()
+                .map(Object::toString)
+                .collect(joining(", ", "(", ")")));
+        return methodBuilder;
     }
 
     protected abstract String getMethodName();
