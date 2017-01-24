@@ -10,6 +10,7 @@ import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -115,6 +116,10 @@ public class ASTNodeFactory {
         TypeLiteral typeLiteral = ast.newTypeLiteral();
         typeLiteral.setType(simpleType(typeName));
         return typeLiteral;
+    }
+
+    public NullLiteral nullLiteral() {
+        return ast.newNullLiteral();
     }
 
     public PrimitiveType primitiveType(PrimitiveType.Code code) {

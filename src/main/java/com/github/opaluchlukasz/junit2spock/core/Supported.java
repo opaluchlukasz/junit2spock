@@ -9,7 +9,8 @@ import static java.util.stream.Collectors.toList;
 
 public enum Supported {
     TEST_ANNOTATION(Test.class.getName(), false),
-    ASSERT_EQUALS("org.junit.Assert.assertEquals", true);
+    ASSERT_EQUALS("org.junit.Assert.assertEquals", true),
+    ASSERT_NOT_NULL("org.junit.Assert.assertNotNull", true);
 
     private String imported;
     private boolean testMethodFeature;

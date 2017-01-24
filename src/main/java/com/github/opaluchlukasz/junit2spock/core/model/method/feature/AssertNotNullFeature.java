@@ -8,38 +8,38 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import java.util.List;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
-import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS;
+import static org.eclipse.jdt.core.dom.InfixExpression.Operator.NOT_EQUALS;
 
-public class AssertEqualsFeature implements TestMethodFeature {
+public class AssertNotNullFeature implements TestMethodFeature {
 
-    public static final String ASSERT_EQUALS = "assertEquals";
+    public static final String ASSERT_NOT_NULL = "assertNotNull";
 
     private final ASTNodeFactory astNodeFactory;
 
-    AssertEqualsFeature(ASTNodeFactory astNodeFactory) {
+    AssertNotNullFeature(ASTNodeFactory astNodeFactory) {
         this.astNodeFactory = astNodeFactory;
     }
 
     @Override
     public boolean applicable(Object astNode) {
-        return methodInvocation(astNode, ASSERT_EQUALS).isPresent();
+        return methodInvocation(astNode, ASSERT_NOT_NULL).isPresent();
     }
 
     @Override
     public InfixExpression apply(Object object) {
-        MethodInvocation methodInvocation = methodInvocation(object, ASSERT_EQUALS).get();
+        MethodInvocation methodInvocation = methodInvocation(object, ASSERT_NOT_NULL).get();
         List arguments = methodInvocation.arguments();
+        if (arguments.size() == 1) {
+            return astNodeFactory.infixExpression(NOT_EQUALS,
+                    argumentAsExpression(arguments.get(0)),
+                    astNodeFactory.nullLiteral());
+        }
         if (arguments.size() == 2) {
-            return astNodeFactory.infixExpression(EQUALS,
+            return astNodeFactory.infixExpression(NOT_EQUALS,
                     argumentAsExpression(arguments.get(1)),
-                    argumentAsExpression(arguments.get(0)));
+                    astNodeFactory.nullLiteral());
         }
-        if (arguments.size() == 3) {
-            return astNodeFactory.infixExpression(EQUALS,
-                    argumentAsExpression(arguments.get(2)),
-                    argumentAsExpression(arguments.get(1)));
-        }
-        throw new UnsupportedOperationException("Supported only 2-, 3-arity assertEquals invocation");
+        throw new UnsupportedOperationException("Supported only 1-, 2-arity assertEquals invocation");
     }
 
     private Expression argumentAsExpression(Object argument) {
