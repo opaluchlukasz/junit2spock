@@ -38,7 +38,7 @@ public class App {
 
     private static void save(Spocker toBeSaved, String outputPath) {
         try {
-            File outputFile = new File(format("%s/%s", outputPath, toBeSaved.getGroovyFilePath()));
+            File outputFile = new File(format("%s/%s", outputPath, toBeSaved.outputFilePath()));
             outputFile.getParentFile().mkdirs();
             outputFile.createNewFile();
             FileUtils.writeStringToFile(outputFile, toBeSaved.asGroovyClass(), UTF_8);

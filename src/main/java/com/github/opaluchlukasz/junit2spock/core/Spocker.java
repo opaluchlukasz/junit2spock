@@ -50,7 +50,7 @@ public class Spocker {
         return typeModel.asGroovyClass();
     }
 
-    public String getGroovyFilePath() {
+    public String outputFilePath() {
         StringBuilder path = new StringBuilder();
         typeModel.packageDeclaration()
                 .ifPresent(declaration -> path.append(declaration.replace(quoteReplacement("."), separator))

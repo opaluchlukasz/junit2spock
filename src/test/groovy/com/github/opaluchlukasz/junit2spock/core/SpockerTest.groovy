@@ -26,6 +26,15 @@ class SpockerTest extends Specification {
         normalize(spocker.asGroovyClass()) == expected
     }
 
+    def 'should return output file path'() {
+        given:
+        String source = readFromResources('MyTest.java')
+        Spocker spocker = new Spocker(source)
+
+        expect:
+        spocker.outputFilePath() == 'foo\\bar\\MyTest.groovy'
+    }
+
     private String readFromResources(String filename) {
         new Scanner(getClass().getClassLoader().getResourceAsStream(filename), UTF_8.toString()).useDelimiter("\\A").next()
     }

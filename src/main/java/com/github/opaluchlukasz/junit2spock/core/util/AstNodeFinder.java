@@ -24,23 +24,27 @@ public final class AstNodeFinder {
     }
 
     private static Optional<MethodInvocation> methodInvocation(Object bodyElement, String methodName) {
+        if (bodyElement instanceof MethodInvocation) {
+            return methodInvocationOf((MethodInvocation) bodyElement, methodName);
+        }
         if (bodyElement instanceof ExpressionStatement) {
             Expression expression = ((ExpressionStatement) bodyElement).getExpression();
-            return methodInvocation(expression, methodName);
+            return methodInvocationFrom(expression, methodName);
         }
         if (bodyElement instanceof Expression) {
-            return methodInvocation((Expression) bodyElement, methodName);
+            return methodInvocationFrom((Expression) bodyElement, methodName);
         }
         return empty();
     }
 
-    private static Optional<MethodInvocation> methodInvocation(Expression expression, String methodName) {
+    private static Optional<MethodInvocation> methodInvocationFrom(Expression expression, String methodName) {
         if (expression instanceof MethodInvocation) {
-            MethodInvocation methodInvocation = ((MethodInvocation) expression);
-            if (methodInvocation.getName().getIdentifier().equals(methodName)) {
-                return Optional.of(methodInvocation);
-            }
+            return methodInvocationOf(((MethodInvocation) expression), methodName);
         }
         return empty();
+    }
+
+    private static Optional<MethodInvocation> methodInvocationOf(MethodInvocation methodInvocation, String methodName) {
+        return methodInvocation.getName().getIdentifier().equals(methodName) ? Optional.of(methodInvocation) : empty();
     }
 }

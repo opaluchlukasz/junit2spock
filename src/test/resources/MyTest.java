@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class MyTests {
+public class MyTest {
 
     @Test
     public void multiplicationOfZeroIntegersShouldReturnZero() {

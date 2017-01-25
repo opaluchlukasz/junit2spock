@@ -1,7 +1,7 @@
 package foo.bar;
 import spock.lang.Specification;
 
-class MyTests extends Specification {
+class MyTest extends Specification {
 	def 'multiplication of zero integers should return zero'() {
 		given:
 		MyClass tester=new MyClass();
