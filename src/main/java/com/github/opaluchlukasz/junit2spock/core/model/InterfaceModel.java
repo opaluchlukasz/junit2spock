@@ -1,6 +1,5 @@
 package com.github.opaluchlukasz.junit2spock.core.model;
 
-import com.github.opaluchlukasz.junit2spock.core.Supported;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
@@ -12,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.opaluchlukasz.junit2spock.core.SupportedJunitFeatures.imports;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static java.util.Collections.unmodifiableList;
 
@@ -45,7 +45,7 @@ public class InterfaceModel implements TypeModel {
         StringBuilder builder = new StringBuilder();
         Optional.ofNullable(packageDeclaration).ifPresent(builder::append);
 
-        List<String> supported = Supported.imports();
+        List<String> supported = imports();
 
         imports.stream()
                 .filter(importDeclaration -> !supported.contains(importDeclaration.getName().getFullyQualifiedName()))

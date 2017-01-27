@@ -1,7 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method.feature;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
-import com.github.opaluchlukasz.junit2spock.core.Supported;
+import com.github.opaluchlukasz.junit2spock.core.SupportedJunitFeatures;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public class TestMethodFeatureProvider {
     }
 
     public List<TestMethodFeature> testMethodFeatures() {
-        return Supported.testMethodFeatures().stream()
+        return SupportedJunitFeatures.testMethodFeatures().stream()
                 .map(supported -> TestMethodFeatureFactory.provide(supported, astNodeFactory))
                 .collect(toList());
     }

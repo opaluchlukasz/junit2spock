@@ -1,10 +1,12 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
+import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.opaluchlukasz.junit2spock.core.groovism.GroovismChainProvider.provide;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indent;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
@@ -14,9 +16,11 @@ import static java.util.stream.Collectors.joining;
 public abstract class MethodModel {
 
     final MethodDeclaration methodDeclaration;
+    final Groovism groovism;
 
     MethodModel(MethodDeclaration methodDeclaration) {
         this.methodDeclaration = methodDeclaration;
+        groovism = provide();
     }
 
     public String asGroovyMethod(int baseIndentationInTabs) {
@@ -26,6 +30,7 @@ public abstract class MethodModel {
 
         methodBuilder.append(body().stream()
                 .map(node -> indentation(baseIndentationInTabs + 1) + node.toString())
+                .map(groovism::apply)
                 .collect(joining(SEPARATOR)));
 
         indent(methodBuilder, baseIndentationInTabs).append("}");

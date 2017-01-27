@@ -6,7 +6,7 @@ import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
-public enum Supported {
+public enum SupportedJunitFeatures {
     TEST_ANNOTATION(of("org.junit.Test"), false),
     ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals"), true),
     ASSERT_NOT_NULL(of("org.junit.Assert.assertNotNull", "junit.framework.Assert.assertEquals"), true);
@@ -14,7 +14,7 @@ public enum Supported {
     private List<String> imports;
     private boolean testMethodFeature;
 
-    Supported(List<String> imports, boolean testMethodFeature) {
+    SupportedJunitFeatures(List<String> imports, boolean testMethodFeature) {
         this.imports = imports;
         this.testMethodFeature = testMethodFeature;
     }
@@ -25,7 +25,7 @@ public enum Supported {
                 .collect(toList());
     }
 
-    public static List<Supported> testMethodFeatures() {
+    public static List<SupportedJunitFeatures> testMethodFeatures() {
         return stream(values())
                 .filter(supported -> supported.testMethodFeature)
                 .collect(toList());

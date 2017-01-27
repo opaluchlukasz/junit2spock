@@ -4,7 +4,7 @@ import spock.lang.Specification;
 class MyTest extends Specification {
 	def 'multiplication of zero integers should return zero'() {
 		given:
-		MyClass tester=new MyClass();
+		MyClass tester=new MyClass()
 
 		expect:
 		multiply(10,0) == 0
@@ -13,13 +13,13 @@ class MyTest extends Specification {
 
 	def 'empty'() {
 		when:
-		new ArrayList<Object>().get(0);
+		new ArrayList<Object>().get(0)
 
 		then:
 		thrown(IndexOutOfBoundsException)	}
 
 	private String helper() {
-		return "bar";
+		return "bar"
 	}
 
 }

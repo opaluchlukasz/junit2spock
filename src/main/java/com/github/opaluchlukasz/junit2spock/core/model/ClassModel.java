@@ -1,7 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.model;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
-import com.github.opaluchlukasz.junit2spock.core.Supported;
+import com.github.opaluchlukasz.junit2spock.core.SupportedJunitFeatures;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
 import com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -57,7 +57,7 @@ public class ClassModel implements TypeModel {
         StringBuilder builder = new StringBuilder();
         Optional.ofNullable(packageDeclaration).ifPresent(builder::append);
 
-        List<String> supported = Supported.imports();
+        List<String> supported = SupportedJunitFeatures.imports();
 
         imports.stream()
                 .filter(importDeclaration -> !supported.contains(importDeclaration.getName().getFullyQualifiedName()))
