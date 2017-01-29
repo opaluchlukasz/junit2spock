@@ -26,21 +26,35 @@ class AssertNotNullFeatureTest extends Specification {
     def 'should return true for assertNotNull method invocation'() {
         given:
         MethodInvocation methodInvocation = nodeFactory.methodInvocation(ASSERT_NOT_NULL,
-                [nodeFactory.numberLiteral("0")])
+                [nodeFactory.numberLiteral('0')])
 
         expect:
         assertNotNullFeature.applicable(methodInvocation)
     }
 
-    def 'should return Spock\' expression for assertNotNull method invocation'() {
-        given:
-        MethodInvocation methodInvocation = nodeFactory.methodInvocation(ASSERT_NOT_NULL,
-                [nodeFactory.numberLiteral("0")])
-
+    def 'should return Spock\' expression for proper assertNotNull method invocation'() {
         when:
         InfixExpression expression = assertNotNullFeature.apply(methodInvocation)
 
         then:
         expression.toString() == '0 != null'
+
+        where:
+        methodInvocation << [nodeFactory.methodInvocation(ASSERT_NOT_NULL, [nodeFactory.numberLiteral('0')]),
+                             nodeFactory.methodInvocation(ASSERT_NOT_NULL, [nodeFactory.stringLiteral('equal to null'),
+                                                                            nodeFactory.numberLiteral('0')])]
+    }
+
+    def 'should throw an exception for incorrect assertNotNull method invocation'() {
+        MethodInvocation methodInvocation = nodeFactory.methodInvocation(ASSERT_NOT_NULL,
+                [nodeFactory.numberLiteral('0'), nodeFactory.numberLiteral('0'), nodeFactory.numberLiteral('0')])
+
+
+        when:
+        assertNotNullFeature.apply(methodInvocation)
+
+        then:
+        UnsupportedOperationException ex = thrown()
+        ex.message == 'Supported only 1-, 2-arity assertNotNull invocation'
     }
 }

@@ -39,7 +39,7 @@ public class AssertNotNullFeature implements TestMethodFeature {
                     argumentAsExpression(arguments.get(1)),
                     astNodeFactory.nullLiteral());
         }
-        throw new UnsupportedOperationException("Supported only 1-, 2-arity assertEquals invocation");
+        throw new UnsupportedOperationException("Supported only 1-, 2-arity assertNotNull invocation");
     }
 
     private Expression argumentAsExpression(Object argument) {

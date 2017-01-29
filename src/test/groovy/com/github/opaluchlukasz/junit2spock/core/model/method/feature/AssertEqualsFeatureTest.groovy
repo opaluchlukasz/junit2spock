@@ -1,6 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method.feature
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
 import spock.lang.Specification
@@ -29,5 +30,36 @@ class AssertEqualsFeatureTest extends Specification {
 
         expect:
         assertEqualsFeature.applicable(methodInvocation)
+    }
+
+    def 'should return Spock\' expression for proper assertEquals method invocation'() {
+        when:
+        InfixExpression expression = assertEqualsFeature.apply(methodInvocation)
+
+        then:
+        expression.toString() == '0 == 0'
+
+        where:
+        methodInvocation << [nodeFactory.methodInvocation(ASSERT_EQUALS, [nodeFactory.numberLiteral("0"),
+                                                                          nodeFactory.numberLiteral("0")]),
+                             nodeFactory.methodInvocation(ASSERT_EQUALS, [nodeFactory.stringLiteral('equal to null'),
+                                                                          nodeFactory.numberLiteral('0'),
+                                                                          nodeFactory.numberLiteral('0')])]
+    }
+
+    def 'should throw an exception for incorrect assertEquals method invocation'() {
+        MethodInvocation methodInvocation = nodeFactory.methodInvocation(ASSERT_EQUALS,
+                [nodeFactory.numberLiteral('0'),
+                 nodeFactory.numberLiteral('0'),
+                 nodeFactory.numberLiteral('0'),
+                 nodeFactory.numberLiteral('0')])
+
+
+        when:
+        assertEqualsFeature.apply(methodInvocation)
+
+        then:
+        UnsupportedOperationException ex = thrown()
+        ex.message == 'Supported only 2-, 3-arity assertEquals invocation'
     }
 }

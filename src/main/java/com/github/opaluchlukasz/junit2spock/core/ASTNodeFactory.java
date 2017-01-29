@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -57,6 +58,12 @@ public class ASTNodeFactory {
         NumberLiteral numberLiteral = ast.newNumberLiteral();
         numberLiteral.setToken(token);
         return numberLiteral;
+    }
+
+    public StringLiteral stringLiteral(String token) {
+        StringLiteral stringLiteral = ast.newStringLiteral();
+        stringLiteral.setLiteralValue(token);
+        return stringLiteral;
     }
 
     public VariableDeclarationStatement variableDeclarationStatement(String name) {
