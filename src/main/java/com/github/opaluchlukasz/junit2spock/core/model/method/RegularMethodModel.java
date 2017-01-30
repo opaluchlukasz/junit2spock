@@ -20,7 +20,7 @@ public class RegularMethodModel extends MethodModel {
 
     @Override
     protected String getMethodName() {
-        return methodDeclaration.getName().toString();
+        return methodDeclaration().getName().toString();
     }
 
     @Override
@@ -30,7 +30,7 @@ public class RegularMethodModel extends MethodModel {
 
     @Override
     protected String methodModifier() {
-        if (isPrivate(methodDeclaration)) {
+        if (isPrivate(methodDeclaration())) {
             return "private ";
         }
         return "";

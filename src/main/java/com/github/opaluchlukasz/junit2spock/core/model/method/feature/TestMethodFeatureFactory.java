@@ -6,7 +6,7 @@ import com.github.opaluchlukasz.junit2spock.core.SupportedJunitFeatures;
 final class TestMethodFeatureFactory {
 
     private TestMethodFeatureFactory() {
-        // NOOP
+        //NOOP
     }
 
     static TestMethodFeature provide(SupportedJunitFeatures supportedJunitFeatures, ASTNodeFactory astNodeFactory) {

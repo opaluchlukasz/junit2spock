@@ -15,8 +15,8 @@ import static java.util.stream.Collectors.joining;
 
 public abstract class MethodModel {
 
-    final MethodDeclaration methodDeclaration;
-    final Groovism groovism;
+    private final MethodDeclaration methodDeclaration;
+    private final Groovism groovism;
 
     MethodModel(MethodDeclaration methodDeclaration) {
         this.methodDeclaration = methodDeclaration;
@@ -61,6 +61,14 @@ public abstract class MethodModel {
     protected abstract String getMethodName();
 
     protected abstract List<Object> body();
+
+    protected MethodDeclaration methodDeclaration() {
+        return methodDeclaration;
+    }
+
+    protected Groovism groovism() {
+        return groovism;
+    }
 
     private Optional<String> returnedType() {
         return Optional.ofNullable(methodDeclaration.getReturnType2())

@@ -20,17 +20,20 @@ import static java.nio.file.Files.readAllLines;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
-public class App {
+public final class App {
 
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
+
+    private App() {
+        //NOOP
+    }
 
     public static void main(String... args) throws IOException {
         if (args.length != 2) {
             throw new IllegalArgumentException("Source and output directory should be passed as arguments");
         }
         List<Path> paths = find(Paths.get(args[0]),
-                Integer.MAX_VALUE,
-                (filePath, fileAttr) -> fileAttr.isRegularFile() && filePath.getFileName().toString().matches(".*\\.java"))
+                Integer.MAX_VALUE, (filePath, fileAttr) -> fileAttr.isRegularFile() && filePath.getFileName().toString().matches(".*\\.java"))
                 .collect(toList());
 
         paths.stream().map(App::parse).filter(Optional::isPresent).map(Optional::get).forEach(spocker -> save(spocker, args[1]));

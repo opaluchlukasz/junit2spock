@@ -47,7 +47,7 @@ public class ASTNodeFactory {
         return ast.newSimpleName(name);
     }
 
-    public MethodInvocation methodInvocation(String name,List<ASTNode> arguments) {
+    public MethodInvocation methodInvocation(String name, List<ASTNode> arguments) {
         MethodInvocation methodInvocation = ast.newMethodInvocation();
         methodInvocation.setName(simpleName(name));
         arguments.forEach(astNode -> methodInvocation.arguments().add(astNode));
@@ -94,12 +94,7 @@ public class ASTNodeFactory {
             NormalAnnotation annotation = ast.newNormalAnnotation();
             annotation.setTypeName(simpleName(name));
             List<MemberValuePair> valuePairs = values.entrySet().stream()
-                    .map(entrySet -> {
-                        MemberValuePair memberValuePair = ast.newMemberValuePair();
-                        memberValuePair.setName(simpleName(entrySet.getKey()));
-                        memberValuePair.setValue(entrySet.getValue());
-                        return memberValuePair;
-                    }).collect(toList());
+                    .map(this::memberValuePair).collect(toList());
             annotation.values().addAll(valuePairs);
             return annotation;
         }
@@ -140,5 +135,12 @@ public class ASTNodeFactory {
         List cloned = (List) methodInvocation.arguments().stream().map(this::clone).collect(toList());
         clonedMethodInvocation.arguments().addAll(cloned);
         return clonedMethodInvocation;
+    }
+
+    private MemberValuePair memberValuePair(Map.Entry<String, Expression> entrySet) {
+        MemberValuePair memberValuePair = ast.newMemberValuePair();
+        memberValuePair.setName(simpleName(entrySet.getKey()));
+        memberValuePair.setValue(entrySet.getValue());
+        return memberValuePair;
     }
 }

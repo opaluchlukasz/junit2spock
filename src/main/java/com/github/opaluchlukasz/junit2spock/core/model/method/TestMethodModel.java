@@ -77,7 +77,7 @@ public class TestMethodModel extends MethodModel {
 
     @Override
     protected String getMethodName() {
-        return wrapIfMissing(join(splitByCharacterTypeCamelCase(methodDeclaration.getName().toString()), ' '), "'")
+        return wrapIfMissing(join(splitByCharacterTypeCamelCase(methodDeclaration().getName().toString()), ' '), "'")
                 .toLowerCase();
     }
 

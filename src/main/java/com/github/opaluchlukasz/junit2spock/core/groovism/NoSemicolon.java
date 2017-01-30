@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public class NoSemicolon extends Groovism {
 
-     NoSemicolon(Optional<Groovism> next) {
+    NoSemicolon(Optional<Groovism> next) {
         super(next);
     }
 
