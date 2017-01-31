@@ -22,6 +22,7 @@ class ClassModelTest extends Specification {
         def testClass = new ClassModelBuilder()
                 .withClassName(astNodeFactory.simpleName(testClassName))
                 .withMethod(new TestMethodModel(methodDeclaration))
+                .withAST(ast)
                 .build()
 
         then:
@@ -51,6 +52,7 @@ class ClassModelTest extends Specification {
         when:
         def classModel = new ClassModelBuilder()
                 .withMethod(new TestMethodModel(methodDeclaration))
+                .withAST(ast)
                 .build()
 
         then:

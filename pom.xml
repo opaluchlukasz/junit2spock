@@ -146,7 +146,6 @@
                             <mainClass>com.github.opaluchlukasz.junit2spock.App</mainClass>
                         </manifest>
                     </archive>
-
                 </configuration>
                 <executions>
                     <execution>

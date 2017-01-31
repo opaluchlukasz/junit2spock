@@ -100,7 +100,17 @@ public class ASTNodeFactory {
         }
     }
 
-    public Expression clone(Object expression) {
+    public ASTNode clone(Object astNode) {
+        if (astNode instanceof Expression) {
+            return clone(((Expression) astNode));
+        }
+        if (astNode instanceof SimpleType) {
+            return simpleType(((SimpleType) astNode).getName().getFullyQualifiedName());
+        }
+        throw new UnsupportedOperationException("Unsupported astNode type:" + astNode.getClass().getName());
+    }
+
+    public Expression clone(Expression expression) {
         if (expression instanceof NumberLiteral) {
             return numberLiteral(((NumberLiteral) expression).getToken());
         }

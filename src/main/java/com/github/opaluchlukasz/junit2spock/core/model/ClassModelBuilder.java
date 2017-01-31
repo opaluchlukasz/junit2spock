@@ -1,6 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.model;
 
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -17,6 +18,7 @@ public class ClassModelBuilder {
     private String className;
     private PackageDeclaration packageDeclaration;
     private Type superclassType;
+    private AST ast;
 
     public ClassModelBuilder withClassName(SimpleName className) {
         this.className = className.getFullyQualifiedName();
@@ -48,7 +50,12 @@ public class ClassModelBuilder {
         return this;
     }
 
+    public ClassModelBuilder withAST(AST ast) {
+        this.ast = ast;
+        return this;
+    }
+
     public TypeModel build() {
-        return new ClassModel(className, superclassType, packageDeclaration, fields, methods, imports);
+        return new ClassModel(className, superclassType, packageDeclaration, fields, methods, imports, ast);
     }
 }

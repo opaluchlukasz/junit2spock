@@ -43,7 +43,7 @@ public class AssertNotNullFeature implements TestMethodFeature {
     }
 
     private Expression argumentAsExpression(Object argument) {
-        return argument instanceof Expression ? astNodeFactory.clone(argument) :
+        return argument instanceof Expression ? astNodeFactory.clone((Expression) argument) :
                 astNodeFactory.simpleName(argument.toString());
     }
 }

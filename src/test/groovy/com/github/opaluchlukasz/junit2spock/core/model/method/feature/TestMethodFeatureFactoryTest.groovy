@@ -4,7 +4,7 @@ import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import spock.lang.Shared
 import spock.lang.Specification
 
-import static com.github.opaluchlukasz.junit2spock.core.SupportedJunitFeatures.TEST_ANNOTATION
+import static com.github.opaluchlukasz.junit2spock.core.SupportedTestFeatures.TEST_ANNOTATION
 import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.TestMethodFeatureFactory.provide
 
 class TestMethodFeatureFactoryTest extends Specification {

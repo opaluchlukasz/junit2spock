@@ -6,6 +6,9 @@ import static org.junit.Assert.assertEquals;
 
 public class MyTest {
 
+    @Mock
+    public Object mocked;
+
     @Test
     public void multiplicationOfZeroIntegersShouldReturnZero() {
         MyClass tester = new MyClass();

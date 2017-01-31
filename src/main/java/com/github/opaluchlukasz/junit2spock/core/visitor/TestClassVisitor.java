@@ -15,6 +15,7 @@ public class TestClassVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(TypeDeclaration node) {
+        classModelBuilder.withAST(node.getAST());
         classModelBuilder.withClassName(node.getName());
         classModelBuilder.withSuperType(node.getSuperclassType());
         return true;
