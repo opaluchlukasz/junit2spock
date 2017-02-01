@@ -9,9 +9,10 @@ class MyTest extends Specification {
 		MyClass tester=new MyClass()
 
 		expect:
-		multiply(10,0) == 0
-		multiply(0,10) == 0
-		multiply(0,0) == 0	}
+		tester.multiply(10,0) == 0
+		tester.multiply(0,10) == 0
+		hashocde() == 0
+		new String("some string") == "some string"	}
 
 	def 'empty'() {
 		when:

@@ -3,7 +3,9 @@ package com.github.opaluchlukasz.junit2spock.core;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -16,6 +18,7 @@ import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -111,11 +114,32 @@ public class ASTNodeFactory {
     }
 
     public Expression clone(Expression expression) {
+        if (expression == null) {
+            return null;
+        }
         if (expression instanceof NumberLiteral) {
             return numberLiteral(((NumberLiteral) expression).getToken());
         }
+        if (expression instanceof NullLiteral) {
+            return nullLiteral();
+        }
+        if (expression instanceof StringLiteral) {
+            return stringLiteral(((StringLiteral) expression).getLiteralValue());
+        }
         if (expression instanceof MethodInvocation) {
             return methodInvocation((MethodInvocation) expression);
+        }
+        if (expression instanceof SimpleName) {
+            return simpleName(((SimpleName) expression).getFullyQualifiedName());
+        }
+        if (expression instanceof ThisExpression) {
+            return ast.newThisExpression();
+        }
+        if (expression instanceof FieldAccess) {
+            return fieldAccess((FieldAccess) expression);
+        }
+        if (expression instanceof ClassInstanceCreation) {
+            return classInstanceCreation((ClassInstanceCreation) expression);
         }
         throw new UnsupportedOperationException("Unsupported expression type:" + expression.getClass().getName());
     }
@@ -144,6 +168,7 @@ public class ASTNodeFactory {
 
         List cloned = (List) methodInvocation.arguments().stream().map(this::clone).collect(toList());
         clonedMethodInvocation.arguments().addAll(cloned);
+        clonedMethodInvocation.setExpression(clone(methodInvocation.getExpression()));
         return clonedMethodInvocation;
     }
 
@@ -152,5 +177,21 @@ public class ASTNodeFactory {
         memberValuePair.setName(simpleName(entrySet.getKey()));
         memberValuePair.setValue(entrySet.getValue());
         return memberValuePair;
+    }
+
+    private Expression fieldAccess(FieldAccess toBeCopied) {
+        FieldAccess fieldAccess = ast.newFieldAccess();
+        fieldAccess.setExpression(clone(toBeCopied.getExpression()));
+        fieldAccess.setName((SimpleName) clone(toBeCopied.getName()));
+        return fieldAccess;
+    }
+
+    private Expression classInstanceCreation(ClassInstanceCreation toBeCloned) {
+        ClassInstanceCreation clonedClassInstanceCreation = ast.newClassInstanceCreation();
+        clonedClassInstanceCreation.setExpression(clone(toBeCloned.getExpression()));
+        clonedClassInstanceCreation.setType(simpleType(toBeCloned.getType().toString()));
+        List cloned = (List) toBeCloned.arguments().stream().map(this::clone).collect(toList());
+        clonedClassInstanceCreation.arguments().addAll(cloned);
+        return clonedClassInstanceCreation;
     }
 }
