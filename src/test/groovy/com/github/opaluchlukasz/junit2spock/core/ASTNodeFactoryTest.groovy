@@ -2,10 +2,14 @@ package com.github.opaluchlukasz.junit2spock.core
 
 import org.eclipse.jdt.core.dom.Annotation
 import org.eclipse.jdt.core.dom.BooleanLiteral
+import org.eclipse.jdt.core.dom.CharacterLiteral
 import org.eclipse.jdt.core.dom.ImportDeclaration
 import org.eclipse.jdt.core.dom.InfixExpression
+import org.eclipse.jdt.core.dom.InstanceofExpression
 import org.eclipse.jdt.core.dom.NullLiteral
 import org.eclipse.jdt.core.dom.NumberLiteral
+import org.eclipse.jdt.core.dom.PostfixExpression
+import org.eclipse.jdt.core.dom.PrefixExpression
 import org.eclipse.jdt.core.dom.PrimitiveType
 import org.eclipse.jdt.core.dom.SimpleName
 import org.eclipse.jdt.core.dom.SimpleType
@@ -16,6 +20,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.LESS_EQUALS
+import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.DECREMENT
 import static org.eclipse.jdt.core.dom.PrimitiveType.CHAR
 import static org.eclipse.jdt.core.dom.PrimitiveType.INT
 
@@ -153,5 +158,39 @@ class ASTNodeFactoryTest extends Specification {
 
         then:
         infixExpression.toString() == '1 <= 2'
+    }
+
+    def 'should create prefix expression'() {
+        when:
+        PrefixExpression prefixExpression = astNodeFactory.prefixExpression(DECREMENT, astNodeFactory.simpleName('a'))
+
+        then:
+        prefixExpression.toString() == '--a'
+    }
+
+    def 'should create postfix expression'() {
+        when:
+        PostfixExpression postfixExpression = astNodeFactory.postfixExpression(astNodeFactory.simpleName('a'),
+                PostfixExpression.Operator.DECREMENT)
+
+        then:
+        postfixExpression.toString() == 'a--'
+    }
+
+    def 'should create instanceof expression'() {
+        when:
+        InstanceofExpression instanceofExpression = astNodeFactory
+                .instanceofExpression(astNodeFactory.numberLiteral("1"), astNodeFactory.simpleType('Integer'))
+
+        then:
+        instanceofExpression.toString() == '1 instanceof Integer'
+    }
+
+    def 'should create character literal expression'() {
+        when:
+        CharacterLiteral characterLiteral = astNodeFactory.characterLiteral('a' as char)
+
+        then:
+        characterLiteral.toString() == "'a'"
     }
 }

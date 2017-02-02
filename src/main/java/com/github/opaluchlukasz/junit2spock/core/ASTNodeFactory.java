@@ -4,22 +4,27 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.PostfixExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -108,10 +113,20 @@ public class ASTNodeFactory {
         if (astNode instanceof Expression) {
             return clone(((Expression) astNode));
         }
-        if (astNode instanceof SimpleType) {
-            return simpleType(((SimpleType) astNode).getName().getFullyQualifiedName());
+        if (astNode instanceof Type) {
+            return clone(((Type) astNode));
         }
         throw new UnsupportedOperationException("Unsupported astNode type:" + astNode.getClass().getName());
+    }
+
+    public Type clone(Type type) {
+        if (type instanceof SimpleType) {
+            return simpleType(((SimpleType) type).getName().getFullyQualifiedName());
+        }
+        if (type instanceof PrimitiveType) {
+            return primitiveType(((PrimitiveType) type).getPrimitiveTypeCode());
+        }
+        throw new UnsupportedOperationException("Unsupported astNode type:" + type.getClass().getName());
     }
 
     public Expression clone(Expression expression) {
@@ -130,6 +145,30 @@ public class ASTNodeFactory {
         if (expression instanceof BooleanLiteral) {
             return booleanLiteral(((BooleanLiteral) expression).booleanValue());
         }
+        if (expression instanceof CharacterLiteral) {
+            return characterLiteral(((CharacterLiteral) expression).charValue());
+        }
+        if (expression instanceof InstanceofExpression) {
+            InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+            return instanceofExpression(clone(instanceofExpression.getLeftOperand()),
+                    clone(instanceofExpression.getRightOperand()));
+        }
+        if (expression instanceof PrefixExpression) {
+            PrefixExpression prefixExpression = (PrefixExpression) expression;
+            return prefixExpression(prefixExpression.getOperator(),
+                    clone(prefixExpression.getOperand()));
+        }
+        if (expression instanceof PostfixExpression) {
+            PostfixExpression postfixExpression = (PostfixExpression) expression;
+            return postfixExpression(clone(postfixExpression.getOperand()),
+                    postfixExpression.getOperator());
+        }
+        if (expression instanceof InfixExpression) {
+            InfixExpression infixExpression = (InfixExpression) expression;
+            return infixExpression(infixExpression.getOperator(),
+                    clone(infixExpression.getLeftOperand()),
+                    clone(infixExpression.getRightOperand()));
+        }
         if (expression instanceof MethodInvocation) {
             return methodInvocation((MethodInvocation) expression);
         }
@@ -146,6 +185,33 @@ public class ASTNodeFactory {
             return classInstanceCreation((ClassInstanceCreation) expression);
         }
         throw new UnsupportedOperationException("Unsupported expression type:" + expression.getClass().getName());
+    }
+
+    public PostfixExpression postfixExpression(Expression expression, PostfixExpression.Operator operator) {
+        PostfixExpression postfixExpression = ast.newPostfixExpression();
+        postfixExpression.setOperator(operator);
+        postfixExpression.setOperand(expression);
+        return postfixExpression;
+    }
+
+    public PrefixExpression prefixExpression(PrefixExpression.Operator operator, Expression expression) {
+        PrefixExpression prefixExpression = ast.newPrefixExpression();
+        prefixExpression.setOperator(operator);
+        prefixExpression.setOperand(expression);
+        return prefixExpression;
+    }
+
+    public InstanceofExpression instanceofExpression(Expression expression, Type type) {
+        InstanceofExpression instanceofExpression = ast.newInstanceofExpression();
+        instanceofExpression.setLeftOperand(expression);
+        instanceofExpression.setRightOperand(type);
+        return instanceofExpression;
+    }
+
+    public CharacterLiteral characterLiteral(char c) {
+        CharacterLiteral characterLiteral = ast.newCharacterLiteral();
+        characterLiteral.setCharValue(c);
+        return characterLiteral;
     }
 
     public BooleanLiteral booleanLiteral(boolean value) {
