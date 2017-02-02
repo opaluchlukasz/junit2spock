@@ -3,6 +3,7 @@ package com.github.opaluchlukasz.junit2spock.core;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
@@ -84,7 +85,7 @@ public class ASTNodeFactory {
         return infixExpression;
     }
 
-    public Annotation annotation(String name) {
+    private Annotation annotation(String name) {
         MarkerAnnotation annotation = ast.newMarkerAnnotation();
         annotation.setTypeName(simpleName(name));
         return annotation;
@@ -126,6 +127,9 @@ public class ASTNodeFactory {
         if (expression instanceof StringLiteral) {
             return stringLiteral(((StringLiteral) expression).getLiteralValue());
         }
+        if (expression instanceof BooleanLiteral) {
+            return booleanLiteral(((BooleanLiteral) expression).booleanValue());
+        }
         if (expression instanceof MethodInvocation) {
             return methodInvocation((MethodInvocation) expression);
         }
@@ -142,6 +146,10 @@ public class ASTNodeFactory {
             return classInstanceCreation((ClassInstanceCreation) expression);
         }
         throw new UnsupportedOperationException("Unsupported expression type:" + expression.getClass().getName());
+    }
+
+    public BooleanLiteral booleanLiteral(boolean value) {
+        return ast.newBooleanLiteral(value);
     }
 
     public SimpleType simpleType(String name) {

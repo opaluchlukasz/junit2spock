@@ -1,6 +1,11 @@
 package com.github.opaluchlukasz.junit2spock.core
 
+import org.eclipse.jdt.core.dom.Annotation
+import org.eclipse.jdt.core.dom.BooleanLiteral
 import org.eclipse.jdt.core.dom.ImportDeclaration
+import org.eclipse.jdt.core.dom.InfixExpression
+import org.eclipse.jdt.core.dom.NullLiteral
+import org.eclipse.jdt.core.dom.NumberLiteral
 import org.eclipse.jdt.core.dom.PrimitiveType
 import org.eclipse.jdt.core.dom.SimpleName
 import org.eclipse.jdt.core.dom.SimpleType
@@ -10,6 +15,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement
 import spock.lang.Specification
 import spock.lang.Subject
 
+import static org.eclipse.jdt.core.dom.InfixExpression.Operator.LESS_EQUALS
 import static org.eclipse.jdt.core.dom.PrimitiveType.CHAR
 import static org.eclipse.jdt.core.dom.PrimitiveType.INT
 
@@ -96,5 +102,56 @@ class ASTNodeFactoryTest extends Specification {
 
         then:
         stringLiteral.literalValue == someString
+        stringLiteral.toString() == "\"$someString\""
+    }
+
+    def 'should create number literal'() {
+        when:
+        NumberLiteral numberLiteral = astNodeFactory.numberLiteral("5d")
+
+        then:
+        numberLiteral.token == "5d"
+        numberLiteral.toString() == "5d"
+    }
+
+    def 'should create null literal'() {
+        when:
+        NullLiteral nullLiteral = astNodeFactory.nullLiteral()
+
+        then:
+        nullLiteral.toString() == 'null'
+    }
+
+    def 'should create boolean literal'() {
+        when:
+        BooleanLiteral booleanLiteral = astNodeFactory.booleanLiteral(false)
+
+        then:
+        booleanLiteral.toString() == 'false'
+    }
+
+    def 'should create marker annotation'() {
+        when:
+        Annotation annotation = astNodeFactory.annotation('Some', [] as Map)
+
+        then:
+        annotation.toString() == '@Some'
+    }
+
+    def 'should create annotation with parameters'() {
+        when:
+        Annotation annotation = astNodeFactory.annotation('Some', ['foo': astNodeFactory.stringLiteral('bar')] as Map)
+
+        then:
+        annotation.toString() == '@Some(foo="bar")'
+    }
+
+    def 'should create infix expression'() {
+        when:
+        InfixExpression infixExpression = astNodeFactory
+                .infixExpression(LESS_EQUALS, astNodeFactory.numberLiteral("1"), astNodeFactory.numberLiteral("2"))
+
+        then:
+        infixExpression.toString() == '1 <= 2'
     }
 }
