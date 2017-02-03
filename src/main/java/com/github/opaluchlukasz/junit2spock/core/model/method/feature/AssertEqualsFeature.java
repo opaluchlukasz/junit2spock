@@ -13,6 +13,7 @@ import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS;
 public class AssertEqualsFeature implements TestMethodFeature {
 
     public static final String ASSERT_EQUALS = "assertEquals";
+    public static final String ASSERT_ARRAY_EQUALS = "assertArrayEquals";
 
     private final ASTNodeFactory astNodeFactory;
 
@@ -22,12 +23,12 @@ public class AssertEqualsFeature implements TestMethodFeature {
 
     @Override
     public boolean applicable(Object astNode) {
-        return methodInvocation(astNode, ASSERT_EQUALS).isPresent();
+        return methodInvocation(astNode, ASSERT_EQUALS, ASSERT_ARRAY_EQUALS).isPresent();
     }
 
     @Override
     public InfixExpression apply(Object object) {
-        MethodInvocation methodInvocation = methodInvocation(object, ASSERT_EQUALS).get();
+        MethodInvocation methodInvocation = methodInvocation(object, ASSERT_EQUALS, ASSERT_ARRAY_EQUALS).get();
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 2) {
             return astNodeFactory.infixExpression(EQUALS,
@@ -39,7 +40,7 @@ public class AssertEqualsFeature implements TestMethodFeature {
                     argumentAsExpression(arguments.get(2)),
                     argumentAsExpression(arguments.get(1)));
         }
-        throw new UnsupportedOperationException("Supported only 2-, 3-arity assertEquals invocation");
+        throw new UnsupportedOperationException("Supported only 2-, 3-arity assertEquals/assertArrayEquals invocation");
     }
 
     private Expression argumentAsExpression(Object argument) {

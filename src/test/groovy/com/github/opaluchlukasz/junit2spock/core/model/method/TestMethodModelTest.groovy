@@ -8,6 +8,7 @@ import org.eclipse.jdt.core.dom.SimpleName
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
+import static com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel.THEN_BLOCK_START
 import static com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel.THROWN
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expect
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given
@@ -24,9 +25,9 @@ class TestMethodModelTest extends Specification {
         aTestMethodModel(aMethod(newAST(AST.JLS8)).build()).methodModifier() == 'def '
     }
 
-    def 'should add expect block if test has single statement'() {
+    def 'should add expect block if test has single statement'(String methodName) {
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
-                .withBodyExpression(nodeFactory.methodInvocation('assertEquals',
+                .withBodyExpression(nodeFactory.methodInvocation(methodName,
                 [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
@@ -34,12 +35,16 @@ class TestMethodModelTest extends Specification {
         expect:
         testMethodModel.body().size() == 2
         testMethodModel.body().get(0) == expect()
+
+        where:
+        methodName << THEN_BLOCK_START
     }
 
-    def 'should add given before expect when setup performed'() {
+    def 'should add given before expect when setup performed'(String methodName) {
+        given:
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
                 .withBodyStatement(nodeFactory.variableDeclarationStatement('object'))
-                .withBodyExpression(nodeFactory.methodInvocation('assertEquals',
+                .withBodyExpression(nodeFactory.methodInvocation(methodName,
                 [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
@@ -48,12 +53,16 @@ class TestMethodModelTest extends Specification {
         testMethodModel.body().size() == 4
         testMethodModel.body().get(0) == given()
         testMethodModel.body().get(2) == expect()
+
+        where:
+        methodName << THEN_BLOCK_START
     }
 
-    def 'should add when/then when last statement before assertions is method invocation'() {
+    def 'should add when/then when last statement before assertions is method invocation'(String methodName) {
+        given:
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
                 .withBodyExpression(nodeFactory.methodInvocation('someMethod', []))
-                .withBodyExpression(nodeFactory.methodInvocation('assertEquals',
+                .withBodyExpression(nodeFactory.methodInvocation(methodName,
                 [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
@@ -62,13 +71,16 @@ class TestMethodModelTest extends Specification {
         testMethodModel.body().size() == 4
         testMethodModel.body().get(0) == when()
         testMethodModel.body().get(2) == then()
+
+        where:
+        methodName << THEN_BLOCK_START
     }
 
-    def 'should add given before when/then when setup performed'() {
+    def 'should add given before when/then when setup performed'(String methodName) {
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
                 .withBodyStatement(nodeFactory.variableDeclarationStatement('object'))
                 .withBodyExpression(nodeFactory.methodInvocation('someMethod', []))
-                .withBodyExpression(nodeFactory.methodInvocation('assertEquals',
+                .withBodyExpression(nodeFactory.methodInvocation(methodName,
                 [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
@@ -78,9 +90,13 @@ class TestMethodModelTest extends Specification {
         testMethodModel.body().get(0) == given()
         testMethodModel.body().get(2) == when()
         testMethodModel.body().get(4) == then()
+
+        where:
+        methodName << THEN_BLOCK_START
     }
 
     def 'should add thrown method invocation when expected exception declared'() {
+        given:
         def exceptionName = NullPointerException.getSimpleName()
         def testAnnotation = nodeFactory.annotation('Test', ['expected': nodeFactory.typeLiteral(exceptionName)])
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
@@ -99,6 +115,7 @@ class TestMethodModelTest extends Specification {
     }
 
     def 'should return human readable test name'() {
+        given:
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
                 .withName('shouldReturnTrueWhenConditionIsMet')
                 .build()

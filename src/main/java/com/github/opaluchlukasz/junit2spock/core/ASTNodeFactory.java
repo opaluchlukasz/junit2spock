@@ -3,9 +3,13 @@ package com.github.opaluchlukasz.junit2spock.core;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.Dimension;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
@@ -116,7 +120,14 @@ public class ASTNodeFactory {
         if (astNode instanceof Type) {
             return clone(((Type) astNode));
         }
+        if (astNode instanceof Dimension) {
+            return dimension();
+        }
         throw new UnsupportedOperationException("Unsupported astNode type:" + astNode.getClass().getName());
+    }
+
+    public Dimension dimension() {
+        return ast.newDimension();
     }
 
     public Type clone(Type type) {
@@ -126,7 +137,15 @@ public class ASTNodeFactory {
         if (type instanceof PrimitiveType) {
             return primitiveType(((PrimitiveType) type).getPrimitiveTypeCode());
         }
+        if (type instanceof ArrayType) {
+            ArrayType arrayType = (ArrayType) type;
+            return arrayType(clone(arrayType.getElementType()), arrayType.dimensions().size());
+        }
         throw new UnsupportedOperationException("Unsupported astNode type:" + type.getClass().getName());
+    }
+
+    public ArrayType arrayType(Type type, int dimensions) {
+        return ast.newArrayType(type, dimensions);
     }
 
     public Expression clone(Expression expression) {
@@ -147,6 +166,11 @@ public class ASTNodeFactory {
         }
         if (expression instanceof CharacterLiteral) {
             return characterLiteral(((CharacterLiteral) expression).charValue());
+        }
+        if (expression instanceof ArrayInitializer) {
+            ArrayInitializer arrayInitializer = (ArrayInitializer) expression;
+            List expressions = (List) arrayInitializer.expressions().stream().map(this::clone).collect(toList());
+            return arrayInitializer(expressions);
         }
         if (expression instanceof InstanceofExpression) {
             InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
@@ -184,7 +208,28 @@ public class ASTNodeFactory {
         if (expression instanceof ClassInstanceCreation) {
             return classInstanceCreation((ClassInstanceCreation) expression);
         }
+        if (expression instanceof ArrayCreation) {
+            ArrayCreation arrayCreation = (ArrayCreation) expression;
+            List dimensions = (List) arrayCreation.dimensions().stream().map(this::clone).collect(toList());
+            return arrayCreation((ArrayType) clone(arrayCreation.getType()),
+                    dimensions,
+                    (ArrayInitializer) clone(arrayCreation.getInitializer()));
+        }
         throw new UnsupportedOperationException("Unsupported expression type:" + expression.getClass().getName());
+    }
+
+    public ArrayInitializer arrayInitializer(List expressions) {
+        ArrayInitializer clonedArrayInitializer = ast.newArrayInitializer();
+        clonedArrayInitializer.expressions().addAll(expressions);
+        return clonedArrayInitializer;
+    }
+
+    public ArrayCreation arrayCreation(ArrayType arrayType, List dimensions, ArrayInitializer arrayInitializer) {
+        ArrayCreation clonedArrayCreation = ast.newArrayCreation();
+        clonedArrayCreation.setType(arrayType);
+        clonedArrayCreation.setInitializer(arrayInitializer);
+        clonedArrayCreation.dimensions().addAll(dimensions);
+        return clonedArrayCreation;
     }
 
     public PostfixExpression postfixExpression(Expression expression, PostfixExpression.Operator operator) {

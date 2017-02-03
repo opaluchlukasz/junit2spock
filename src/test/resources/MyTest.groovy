@@ -12,7 +12,8 @@ class MyTest extends Specification {
 		tester.multiply(10,0) == 0
 		tester.multiply(0,10) == 0
 		hashocde() == 0
-		new String("some string") == "some string"	}
+		new String("some string") == "some string"
+		new int[1] == new int[1]	}
 
 	def 'empty'() {
 		when:

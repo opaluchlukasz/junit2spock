@@ -2,6 +2,7 @@ package foo.bar;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class MyTest {
@@ -17,6 +18,7 @@ public class MyTest {
         assertEquals("0 x 10 must be 0", 0, tester.multiply(0, 10));
         assertEquals("0 x 0 must be 0", 0, hashocde());
         assertEquals("some string", new String("some string"));
+        assertArrayEquals(new int[1], new int[1]);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)

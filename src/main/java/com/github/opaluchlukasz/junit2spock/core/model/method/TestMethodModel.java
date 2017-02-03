@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.annotatedWith;
+import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertEqualsFeature.ASSERT_ARRAY_EQUALS;
 import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertEqualsFeature.ASSERT_EQUALS;
 import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertNotNullFeature.ASSERT_NOT_NULL;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expect;
@@ -32,6 +33,7 @@ import static org.apache.commons.lang3.StringUtils.wrapIfMissing;
 public class TestMethodModel extends MethodModel {
 
     private static final String THROWN = "thrown";
+    public static final String[] THEN_BLOCK_START = {ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, THROWN};
     private final List<Object> body = new LinkedList<>();
 
     private final ASTNodeFactory astNodeFactory;
@@ -128,7 +130,7 @@ public class TestMethodModel extends MethodModel {
 
     private int thenExpectBlockStart() {
         for (int i = 0; i < body.size(); i++) {
-            if (methodInvocation(body.get(i), ASSERT_EQUALS, ASSERT_NOT_NULL, THROWN).isPresent()) {
+            if (methodInvocation(body.get(i), THEN_BLOCK_START).isPresent()) {
                 return i;
             }
         }

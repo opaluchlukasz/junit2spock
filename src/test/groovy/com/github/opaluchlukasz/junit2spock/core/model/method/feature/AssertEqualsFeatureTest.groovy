@@ -60,6 +60,6 @@ class AssertEqualsFeatureTest extends Specification {
 
         then:
         UnsupportedOperationException ex = thrown()
-        ex.message == 'Supported only 2-, 3-arity assertEquals invocation'
+        ex.message == 'Supported only 2-, 3-arity assertEquals/assertArrayEquals invocation'
     }
 }

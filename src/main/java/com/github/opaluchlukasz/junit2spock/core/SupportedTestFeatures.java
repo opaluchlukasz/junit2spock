@@ -9,7 +9,8 @@ import static java.util.stream.Collectors.toList;
 public enum SupportedTestFeatures {
     MOCKITO(of("org.mockito"), false),
     TEST_ANNOTATION(of("org.junit.Test"), false),
-    ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals"), true),
+    ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals",
+            "org.junit.Assert.assertArrayEquals", "junit.framework.Assert.assertArrayEquals"), true),
     ASSERT_NOT_NULL(of("org.junit.Assert.assertNotNull", "junit.framework.Assert.assertEquals"), true);
 
     private List<String> imports;
