@@ -2,6 +2,7 @@ package com.github.opaluchlukasz.junit2spock.core
 
 import spock.lang.Specification
 
+import static java.io.File.separator
 import static java.nio.charset.StandardCharsets.UTF_8
 
 class SpockerTest extends Specification {
@@ -32,7 +33,7 @@ class SpockerTest extends Specification {
         Spocker spocker = new Spocker(source)
 
         expect:
-        spocker.outputFilePath() == 'foo\\bar\\MyTest.groovy'
+        spocker.outputFilePath() == "foo${separator}bar${separator}MyTest.groovy"
     }
 
     private String readFromResources(String filename) {
