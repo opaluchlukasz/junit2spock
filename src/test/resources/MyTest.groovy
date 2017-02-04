@@ -14,7 +14,8 @@ class MyTest extends Specification {
 		hashocde() == 0
 		new String("some string") == "some string"
 		new int[1] == new int[1]
-		true	}
+		true
+		!false	}
 
 	def 'empty'() {
 		when:

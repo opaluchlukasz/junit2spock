@@ -21,6 +21,7 @@ public class MyTest {
         assertEquals("some string", new String("some string"));
         assertArrayEquals(new int[1], new int[1]);
         assertTrue(true);
+        assertFalse(false);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
