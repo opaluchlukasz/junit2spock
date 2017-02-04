@@ -11,7 +11,8 @@ public enum SupportedTestFeatures {
     TEST_ANNOTATION(of("org.junit.Test"), false),
     ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals",
             "org.junit.Assert.assertArrayEquals", "junit.framework.Assert.assertArrayEquals"), true),
-    ASSERT_NOT_NULL(of("org.junit.Assert.assertNotNull", "junit.framework.Assert.assertEquals"), true);
+    ASSERT_NOT_NULL(of("org.junit.Assert.assertNotNull", "junit.framework.Assert.assertEquals"), true),
+    ASSERT_TRUE(of("org.junit.Assert.assertTrue", "junit.framework.Assert.assertTrue"), true);
 
     private List<String> imports;
     private boolean testMethodFeature;

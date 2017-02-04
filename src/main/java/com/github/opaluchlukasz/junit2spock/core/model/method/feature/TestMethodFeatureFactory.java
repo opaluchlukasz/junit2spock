@@ -15,6 +15,8 @@ final class TestMethodFeatureFactory {
                 return new AssertEqualsFeature(astNodeFactory);
             case ASSERT_NOT_NULL:
                 return new AssertNotNullFeature(astNodeFactory);
+            case ASSERT_TRUE:
+                return new AssertTrueFeature(astNodeFactory);
             default:
                 throw new UnsupportedOperationException("Unsupported test method feature: " + supportedTestFeatures.name());
         }

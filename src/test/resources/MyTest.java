@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MyTest {
 
@@ -19,6 +20,7 @@ public class MyTest {
         assertEquals("0 x 0 must be 0", 0, hashocde());
         assertEquals("some string", new String("some string"));
         assertArrayEquals(new int[1], new int[1]);
+        assertTrue(true);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
