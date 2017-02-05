@@ -11,12 +11,13 @@ public enum SupportedTestFeatures {
     TEST_ANNOTATION(of("org.junit.Test"), false),
     ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals",
             "org.junit.Assert.assertArrayEquals", "junit.framework.Assert.assertArrayEquals"), true),
-    ASSERT_NOT_NULL(of("org.junit.Assert.assertNotNull", "junit.framework.Assert.assertEquals"), true),
+    ASSERT_NOT_NULL(of("org.junit.Assert.assertNotNull", "junit.framework.Assert.assertNotNull"), true),
+    ASSERT_NULL(of("org.junit.Assert.assertNull", "junit.framework.Assert.assertNull"), true),
     ASSERT_TRUE(of("org.junit.Assert.assertTrue", "junit.framework.Assert.assertTrue"), true),
     ASSERT_FALSE(of("org.junit.Assert.assertFalse", "junit.framework.Assert.assertFalse"), true);
 
-    private List<String> imports;
-    private boolean testMethodFeature;
+    private final List<String> imports;
+    private final boolean testMethodFeature;
 
     SupportedTestFeatures(List<String> imports, boolean testMethodFeature) {
         this.imports = imports;

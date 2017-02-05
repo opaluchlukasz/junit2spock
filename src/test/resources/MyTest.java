@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class MyTest {
@@ -22,6 +23,7 @@ public class MyTest {
         assertArrayEquals(new int[1], new int[1]);
         assertTrue(true);
         assertFalse(false);
+        assertNull(null);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)

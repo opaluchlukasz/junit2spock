@@ -15,6 +15,8 @@ final class TestMethodFeatureFactory {
                 return new AssertEqualsFeature(astNodeFactory);
             case ASSERT_NOT_NULL:
                 return new AssertNotNullFeature(astNodeFactory);
+            case ASSERT_NULL:
+                return new AssertNullFeature(astNodeFactory);
             case ASSERT_TRUE:
                 return new AssertTrueFeature(astNodeFactory);
             case ASSERT_FALSE:

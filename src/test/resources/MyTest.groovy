@@ -15,7 +15,8 @@ class MyTest extends Specification {
 		new String("some string") == "some string"
 		new int[1] == new int[1]
 		true
-		!false	}
+		!false
+		null == null	}
 
 	def 'empty'() {
 		when:
