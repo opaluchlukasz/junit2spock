@@ -14,7 +14,6 @@ class MyTest extends Specification {
 		hashocde() == 0
 		new String("some string") == "some string"
 		new int[1] == new int[1]
-		true
 		!false
 		null == null	}
 
@@ -24,6 +23,15 @@ class MyTest extends Specification {
 
 		then:
 		thrown(IndexOutOfBoundsException)	}
+
+	def 'mocking test'() {
+		given:
+		LinkedList mockedList=mock(LinkedList.class)
+
+		when:
+		mockedList.get(0) >> "first"
+		then:
+		mockedList.get(0) == "first"	}
 
 	private String helper() {
 		return "bar"

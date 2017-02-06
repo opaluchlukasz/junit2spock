@@ -11,6 +11,8 @@ final class TestMethodFeatureFactory {
 
     static TestMethodFeature provide(SupportedTestFeatures supportedTestFeatures, ASTNodeFactory astNodeFactory) {
         switch (supportedTestFeatures) {
+            case THEN_RETURN:
+                return new ThenReturnFeature(astNodeFactory);
             case ASSERT_EQUALS:
                 return new AssertEqualsFeature(astNodeFactory);
             case ASSERT_NOT_NULL:

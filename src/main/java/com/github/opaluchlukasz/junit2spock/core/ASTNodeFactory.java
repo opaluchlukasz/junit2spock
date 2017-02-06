@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -61,8 +62,13 @@ public class ASTNodeFactory {
     }
 
     public MethodInvocation methodInvocation(String name, List<ASTNode> arguments) {
+        return methodInvocation(name, arguments, null);
+    }
+
+    public MethodInvocation methodInvocation(String name, List<ASTNode> arguments, Expression expression) {
         MethodInvocation methodInvocation = ast.newMethodInvocation();
         methodInvocation.setName(simpleName(name));
+        Optional.ofNullable(expression).ifPresent(ex -> methodInvocation.setExpression(ex));
         arguments.forEach(astNode -> methodInvocation.arguments().add(astNode));
         return methodInvocation;
     }

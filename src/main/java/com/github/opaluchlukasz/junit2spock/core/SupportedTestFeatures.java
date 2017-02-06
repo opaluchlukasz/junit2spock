@@ -4,10 +4,12 @@ import java.util.List;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public enum SupportedTestFeatures {
     MOCKITO(of("org.mockito"), false),
+    THEN_RETURN(emptyList(), true),
     TEST_ANNOTATION(of("org.junit.Test"), false),
     ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals",
             "org.junit.Assert.assertArrayEquals", "junit.framework.Assert.assertArrayEquals"), true),

@@ -21,7 +21,6 @@ public class MyTest {
         assertEquals("0 x 0 must be 0", 0, hashocde());
         assertEquals("some string", new String("some string"));
         assertArrayEquals(new int[1], new int[1]);
-        assertTrue(true);
         assertFalse(false);
         assertNull(null);
     }
@@ -29,6 +28,15 @@ public class MyTest {
     @Test(expected = IndexOutOfBoundsException.class)
     public void empty() {
         new ArrayList<Object>().get(0);
+    }
+
+    @Test
+    public void mockingTest() {
+        LinkedList mockedList = mock(LinkedList.class);
+
+        when(mockedList.get(0)).thenReturn("first");
+
+        assertTrue(mockedList.get(0) == "first");
     }
 
     private String helper() {
