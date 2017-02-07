@@ -10,7 +10,8 @@ class RegularMethodModelTest extends Specification {
 
     private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
-    def 'should return human readable test name'() {
+    def 'should return unchanged test name'() {
+        given:
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
                 .withName('someMethodName')
                 .build()
@@ -19,6 +20,12 @@ class RegularMethodModelTest extends Specification {
         expect:
         regularMethodModel.methodName == 'someMethodName'
     }
+
+    def 'should return empty string as a method suffix'() {
+        expect:
+        aRegularMethodModel(aMethod(nodeFactory.ast).build()).methodSuffix() == ''
+    }
+
 
     private static RegularMethodModel aRegularMethodModel(MethodDeclaration methodDeclaration) {
         new RegularMethodModel(methodDeclaration)

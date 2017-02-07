@@ -15,23 +15,25 @@ class MyTest extends Specification {
 		new String("some string") == "some string"
 		new int[1] == new int[1]
 		!false
-		null == null	}
+		null == null
+	}
 
 	def 'empty'() {
 		when:
 		new ArrayList<Object>().get(0)
 
 		then:
-		thrown(IndexOutOfBoundsException)	}
+		thrown(IndexOutOfBoundsException)
+	}
 
 	def 'mocking test'() {
 		given:
 		LinkedList mockedList=mock(LinkedList.class)
 
-		when:
+		expect:
 		mockedList.get(0) >> "first"
-		then:
-		mockedList.get(0) == "first"	}
+		mockedList.get(0) == "first"
+	}
 
 	private String helper() {
 		return "bar"

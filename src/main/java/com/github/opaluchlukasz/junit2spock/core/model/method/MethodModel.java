@@ -31,7 +31,7 @@ public abstract class MethodModel {
         methodBuilder.append(body().stream()
                 .map(node -> indentation(baseIndentationInTabs + 1) + node.toString())
                 .map(groovism::apply)
-                .collect(joining(SEPARATOR)));
+                .collect(joining(SEPARATOR, "", methodSuffix())));
 
         indent(methodBuilder, baseIndentationInTabs).append("}");
         methodBuilder.append(SEPARATOR).append(SEPARATOR);
@@ -57,6 +57,8 @@ public abstract class MethodModel {
                 .collect(joining(", ", "(", ")")));
         return methodBuilder;
     }
+
+    protected abstract String methodSuffix();
 
     protected abstract String getMethodName();
 

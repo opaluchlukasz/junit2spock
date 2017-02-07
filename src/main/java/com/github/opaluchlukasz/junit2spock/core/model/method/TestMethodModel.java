@@ -23,11 +23,13 @@ import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.Ass
 import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertNotNullFeature.ASSERT_NOT_NULL;
 import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertNullFeature.ASSERT_NULL;
 import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertTrueFeature.ASSERT_TRUE;
+import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.ThenReturnFeature.THEN_RETURN;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expect;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.when;
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.commons.lang3.StringUtils.splitByCharacterTypeCamelCase;
@@ -37,7 +39,7 @@ public class TestMethodModel extends MethodModel {
 
     private static final String THROWN = "thrown";
     public static final String[] THEN_BLOCK_START = {ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, ASSERT_TRUE,
-        ASSERT_FALSE, ASSERT_NULL, THROWN};
+        ASSERT_FALSE, ASSERT_NULL, THROWN, THEN_RETURN};
     private final List<Object> body = new LinkedList<>();
 
     private final ASTNodeFactory astNodeFactory;
@@ -52,6 +54,11 @@ public class TestMethodModel extends MethodModel {
         addThrownSupport(methodDeclaration);
         addSpockSpecificBlocksToBody();
         applyTestMethodFeatures();
+    }
+
+    @Override
+    protected String methodSuffix() {
+        return SEPARATOR;
     }
 
     private void addThrownSupport(MethodDeclaration methodDeclaration) {

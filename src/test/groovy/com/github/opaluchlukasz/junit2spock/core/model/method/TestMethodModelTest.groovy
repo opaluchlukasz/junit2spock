@@ -14,6 +14,7 @@ import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expe
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.when
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
 import static org.eclipse.jdt.core.dom.AST.newAST
 
 class TestMethodModelTest extends Specification {
@@ -25,6 +26,11 @@ class TestMethodModelTest extends Specification {
         aTestMethodModel(aMethod(newAST(AST.JLS8)).build()).methodModifier() == 'def '
     }
 
+    def 'should return line separator as a method suffix'() {
+        expect:
+        aTestMethodModel(aMethod(newAST(AST.JLS8)).build()).methodSuffix() == SEPARATOR
+    }
+
     def 'should add expect block if test has single statement'(String methodName) {
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
                 .withBodyExpression(nodeFactory.methodInvocation(methodName,
@@ -33,7 +39,6 @@ class TestMethodModelTest extends Specification {
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
         expect:
-        testMethodModel.body().size() == 2
         testMethodModel.body().get(0) == expect()
 
         where:
@@ -50,7 +55,6 @@ class TestMethodModelTest extends Specification {
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
         expect:
-        testMethodModel.body().size() == 4
         testMethodModel.body().get(0) == given()
         testMethodModel.body().get(2) == expect()
 
@@ -68,7 +72,6 @@ class TestMethodModelTest extends Specification {
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
         expect:
-        testMethodModel.body().size() == 4
         testMethodModel.body().get(0) == when()
         testMethodModel.body().get(2) == then()
 
@@ -86,7 +89,6 @@ class TestMethodModelTest extends Specification {
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
         expect:
-        testMethodModel.body().size() == 6
         testMethodModel.body().get(0) == given()
         testMethodModel.body().get(2) == when()
         testMethodModel.body().get(4) == then()
@@ -105,7 +107,6 @@ class TestMethodModelTest extends Specification {
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
         expect:
-        testMethodModel.body().size() == 2
         testMethodModel.body().get(0) == expect()
         testMethodModel.body().get(1) instanceof MethodInvocation
         MethodInvocation methodInvocation = testMethodModel.body().get(1)

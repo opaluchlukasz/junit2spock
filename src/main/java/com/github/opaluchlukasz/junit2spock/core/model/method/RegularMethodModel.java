@@ -19,6 +19,11 @@ public class RegularMethodModel extends MethodModel {
     }
 
     @Override
+    protected String methodSuffix() {
+        return "";
+    }
+
+    @Override
     protected String getMethodName() {
         return methodDeclaration().getName().toString();
     }
