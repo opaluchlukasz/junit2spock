@@ -30,8 +30,8 @@ class MyTest extends Specification {
 		given:
 		LinkedList mockedList=mock(LinkedList.class)
 
-		expect:
 		mockedList.get(0) >> "first"
+		expect:
 		mockedList.get(0) == "first"
 	}
 

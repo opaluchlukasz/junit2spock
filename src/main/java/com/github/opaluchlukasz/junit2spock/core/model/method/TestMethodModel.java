@@ -39,7 +39,8 @@ public class TestMethodModel extends MethodModel {
 
     private static final String THROWN = "thrown";
     public static final String[] THEN_BLOCK_START = {ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, ASSERT_TRUE,
-        ASSERT_FALSE, ASSERT_NULL, THROWN, THEN_RETURN};
+        ASSERT_FALSE, ASSERT_NULL, THROWN};
+    private static final String[] MOCKING  = {THEN_RETURN};
     private final List<Object> body = new LinkedList<>();
 
     private final ASTNodeFactory astNodeFactory;
@@ -132,7 +133,7 @@ public class TestMethodModel extends MethodModel {
             if (body.get(index - 1) instanceof ExpressionStatement) {
                 Expression expression = ((ExpressionStatement) body.get(index - 1)).getExpression();
                 if (expression instanceof MethodInvocation) {
-                    return true;
+                    return !methodInvocation(body.get(index - 1), MOCKING).isPresent();
                 }
             }
         }
