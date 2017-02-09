@@ -6,15 +6,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.isPrivate;
-import static java.util.Optional.empty;
-
-public class RegularMethodModel extends MethodModel {
+public class FixtureMethodModel extends MethodModel {
 
     private final List<Object> body = new LinkedList<>();
+    private final String fixtureMethodName;
 
-    RegularMethodModel(MethodDeclaration methodDeclaration) {
+    FixtureMethodModel(MethodDeclaration methodDeclaration, String fixtureMethodName) {
         super(methodDeclaration);
+        this.fixtureMethodName = fixtureMethodName;
         if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
             this.body.addAll(methodDeclaration.getBody().statements());
         }
@@ -27,7 +26,7 @@ public class RegularMethodModel extends MethodModel {
 
     @Override
     protected String getMethodName() {
-        return methodDeclaration().getName().toString();
+        return fixtureMethodName;
     }
 
     @Override
@@ -37,9 +36,6 @@ public class RegularMethodModel extends MethodModel {
 
     @Override
     protected Optional<String> methodModifier() {
-        if (isPrivate(methodDeclaration())) {
-            return Optional.of("private");
-        }
-        return empty();
+        return Optional.of("def");
     }
 }

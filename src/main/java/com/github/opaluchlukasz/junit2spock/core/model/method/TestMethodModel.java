@@ -85,8 +85,8 @@ public class TestMethodModel extends MethodModel {
     }
 
     @Override
-    protected String methodModifier() {
-        return "def ";
+    protected Optional<String> methodModifier() {
+        return Optional.of("def");
     }
 
     @Override

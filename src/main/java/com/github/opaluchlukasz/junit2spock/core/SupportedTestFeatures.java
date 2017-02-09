@@ -9,6 +9,10 @@ import static java.util.stream.Collectors.toList;
 
 public enum SupportedTestFeatures {
     MOCKITO(of("org.mockito"), false),
+    BEFORE(of("org.junit.Before"), false),
+    BEFORE_CLASS(of("org.junit.BeforeClass"), false),
+    AFTER(of("org.junit.After"), false),
+    AFTER_CLASS(of("org.junit.AfterClass"), false),
     THEN_RETURN(emptyList(), true),
     TEST_ANNOTATION(of("org.junit.Test"), false),
     ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals",

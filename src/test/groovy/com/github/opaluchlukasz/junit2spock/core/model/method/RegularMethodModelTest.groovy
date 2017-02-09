@@ -26,7 +26,6 @@ class RegularMethodModelTest extends Specification {
         aRegularMethodModel(aMethod(nodeFactory.ast).build()).methodSuffix() == ''
     }
 
-
     private static RegularMethodModel aRegularMethodModel(MethodDeclaration methodDeclaration) {
         new RegularMethodModel(methodDeclaration)
     }

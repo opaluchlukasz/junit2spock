@@ -23,7 +23,7 @@ class TestMethodModelTest extends Specification {
 
     def 'should return \'def\' as a method modifier'() {
         expect:
-        aTestMethodModel(aMethod(newAST(AST.JLS8)).build()).methodModifier() == 'def '
+        aTestMethodModel(aMethod(newAST(AST.JLS8)).build()).methodModifier().get() == 'def'
     }
 
     def 'should return line separator as a method suffix'() {

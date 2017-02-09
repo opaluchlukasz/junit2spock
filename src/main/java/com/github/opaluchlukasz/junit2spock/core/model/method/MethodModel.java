@@ -45,9 +45,9 @@ public abstract class MethodModel {
 
     private StringBuilder methodDeclarationBuilder(int baseIndentationInTabs) {
         StringBuilder methodBuilder = new StringBuilder();
-        new StringBuilder();
 
-        indent(methodBuilder, baseIndentationInTabs).append(methodModifier());
+        indent(methodBuilder, baseIndentationInTabs);
+        methodModifier().ifPresent(methodModifier -> methodBuilder.append(methodModifier).append(" "));
 
         returnedType().ifPresent(type -> methodBuilder.append(type).append(" "));
 
@@ -78,5 +78,5 @@ public abstract class MethodModel {
                 .map(Object::toString);
     }
 
-    protected abstract String methodModifier();
+    protected abstract Optional<String> methodModifier();
 }

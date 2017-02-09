@@ -1,5 +1,6 @@
 package foo.bar;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -11,6 +12,11 @@ public class MyTest {
 
     @Mock
     public Object mocked;
+
+    @Before
+    public void before() {
+        when(mockedList.get(1)).thenReturn("second");
+    }
 
     @Test
     public void multiplicationOfZeroIntegersShouldReturnZero() {
@@ -33,7 +39,6 @@ public class MyTest {
     @Test
     public void mockingTest() {
         LinkedList mockedList = mock(LinkedList.class);
-
         when(mockedList.get(0)).thenReturn("first");
 
         assertTrue(mockedList.get(0) == "first");
