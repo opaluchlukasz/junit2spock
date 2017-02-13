@@ -3,11 +3,9 @@ package com.github.opaluchlukasz.junit2spock.core.groovism
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static java.util.Optional.empty
-
 class NoSemicolonTest extends Specification {
 
-    @Subject private NoSemicolon noSemicolon = new NoSemicolon(empty())
+    @Subject private NoSemicolon noSemicolon = new NoSemicolon()
 
     def 'should replace all semicolons at the end of the line'() {
         expect:

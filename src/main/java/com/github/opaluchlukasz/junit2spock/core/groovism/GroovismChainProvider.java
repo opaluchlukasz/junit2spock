@@ -1,7 +1,5 @@
 package com.github.opaluchlukasz.junit2spock.core.groovism;
 
-import static java.util.Optional.empty;
-
 public final class GroovismChainProvider {
 
     private GroovismChainProvider() {
@@ -9,6 +7,6 @@ public final class GroovismChainProvider {
     }
 
     public static Groovism provide() {
-        return new NoSemicolon(empty());
+        return new NoSemicolon(new NoClassKeyword());
     }
 }
