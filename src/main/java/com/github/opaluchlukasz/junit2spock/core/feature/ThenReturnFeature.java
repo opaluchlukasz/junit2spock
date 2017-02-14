@@ -1,4 +1,4 @@
-package com.github.opaluchlukasz.junit2spock.core.model.method.feature;
+package com.github.opaluchlukasz.junit2spock.core.feature;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import org.eclipse.jdt.core.dom.Expression;
@@ -10,7 +10,7 @@ import java.util.List;
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
 
-public class ThenReturnFeature implements TestMethodFeature {
+public class ThenReturnFeature implements Feature {
 
     public static final String THEN_RETURN = "thenReturn";
     public static final String WHEN = "when";

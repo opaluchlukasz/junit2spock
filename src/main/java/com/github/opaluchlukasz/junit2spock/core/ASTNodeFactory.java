@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Dimension;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 public class ASTNodeFactory {
@@ -86,10 +88,14 @@ public class ASTNodeFactory {
     }
 
     public VariableDeclarationStatement variableDeclarationStatement(String name) {
+        VariableDeclarationFragment variableDeclarationFragment = variableDeclarationFragment(name);
+        return ast.newVariableDeclarationStatement(variableDeclarationFragment);
+    }
+
+    public VariableDeclarationFragment variableDeclarationFragment(String name) {
         VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
-        VariableDeclarationStatement variableDeclaration = ast.newVariableDeclarationStatement(variableDeclarationFragment);
         variableDeclarationFragment.setName(simpleName(name));
-        return variableDeclaration;
+        return variableDeclarationFragment;
     }
 
     public InfixExpression infixExpression(InfixExpression.Operator operator, Expression leftOperand, Expression rightOperand) {
@@ -243,6 +249,15 @@ public class ASTNodeFactory {
         postfixExpression.setOperator(operator);
         postfixExpression.setOperand(expression);
         return postfixExpression;
+    }
+
+    public FieldDeclaration fieldDeclaration(VariableDeclarationFragment variableDeclarationFragment,
+                                             Type type,
+                                             ASTNode... modifiers) {
+        FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(variableDeclarationFragment);
+        fieldDeclaration.setType(type);
+        stream(modifiers).forEach(modifier -> fieldDeclaration.modifiers().add(modifier));
+        return fieldDeclaration;
     }
 
     public PrefixExpression prefixExpression(PrefixExpression.Operator operator, Expression expression) {

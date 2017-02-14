@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.opaluchlukasz.junit2spock.core.SupportedTestFeatures.imports;
+import static com.github.opaluchlukasz.junit2spock.core.SupportedTestFeature.imports;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static java.util.Collections.unmodifiableList;
 

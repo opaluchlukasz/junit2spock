@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.dom.ArrayInitializer
 import org.eclipse.jdt.core.dom.BooleanLiteral
 import org.eclipse.jdt.core.dom.CharacterLiteral
 import org.eclipse.jdt.core.dom.Dimension
+import org.eclipse.jdt.core.dom.FieldDeclaration
 import org.eclipse.jdt.core.dom.ImportDeclaration
 import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.InstanceofExpression
@@ -23,6 +24,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
+import static java.util.Collections.emptyMap
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.LESS_EQUALS
 import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.DECREMENT
 import static org.eclipse.jdt.core.dom.PrimitiveType.CHAR
@@ -30,7 +32,9 @@ import static org.eclipse.jdt.core.dom.PrimitiveType.INT
 
 class ASTNodeFactoryTest extends Specification {
 
-    @Subject @Shared private ASTNodeFactory astNodeFactory = new ASTNodeFactory()
+    @Subject
+    @Shared
+    private ASTNodeFactory astNodeFactory = new ASTNodeFactory()
 
     def 'should create import declaration'() {
         given:
@@ -206,9 +210,9 @@ class ASTNodeFactoryTest extends Specification {
     def 'should create multidimensional array initializer'() {
         given:
         ArrayInitializer arrayInitializer1 = astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('11'),
-                                                                             astNodeFactory.numberLiteral('12')])
+                                                                              astNodeFactory.numberLiteral('12')])
         ArrayInitializer arrayInitializer2 = astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('13'),
-                                                                             astNodeFactory.numberLiteral('14')])
+                                                                              astNodeFactory.numberLiteral('14')])
         ArrayInitializer multidimensionalArrayInitializer = astNodeFactory.arrayInitializer([arrayInitializer1,
                                                                                              arrayInitializer2])
 
@@ -232,5 +236,20 @@ class ASTNodeFactoryTest extends Specification {
         [astNodeFactory.numberLiteral('2'),
          astNodeFactory.numberLiteral('2')] | astNodeFactory.arrayInitializer([astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('2'), astNodeFactory.numberLiteral('3')]),
                                                                                astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('0'), astNodeFactory.numberLiteral('5')])]) | 'new int[2][2]{{2,3},{0,5}}'
+    }
+
+    def 'should create field declaration with modifiers'() {
+        given:
+        def variableDeclarationFragment = astNodeFactory.variableDeclarationFragment('someField')
+        FieldDeclaration fieldDeclaration = astNodeFactory
+                .fieldDeclaration(variableDeclarationFragment, astNodeFactory.simpleType('Comparable'), *modifiers)
+
+        expect:
+        fieldDeclaration.toString() == expectedLiteral
+
+        where:
+        modifiers                                                   | expectedLiteral
+        []                                                          | 'Comparable someField;\n'
+        [astNodeFactory.annotation('Immutable', emptyMap())]        | '@Immutable Comparable someField;\n'
     }
 }

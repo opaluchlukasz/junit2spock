@@ -1,15 +1,15 @@
-package com.github.opaluchlukasz.junit2spock.core.model.method.feature;
+package com.github.opaluchlukasz.junit2spock.core.feature;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
-import com.github.opaluchlukasz.junit2spock.core.SupportedTestFeatures;
+import com.github.opaluchlukasz.junit2spock.core.SupportedTestFeature;
 
-final class TestMethodFeatureFactory {
+final class FeatureFactory {
 
-    private TestMethodFeatureFactory() {
+    private FeatureFactory() {
         //NOOP
     }
 
-    static TestMethodFeature provide(SupportedTestFeatures supportedTestFeatures, ASTNodeFactory astNodeFactory) {
+    static Feature provide(SupportedTestFeature supportedTestFeatures, ASTNodeFactory astNodeFactory) {
         switch (supportedTestFeatures) {
             case THEN_RETURN:
                 return new ThenReturnFeature(astNodeFactory);
@@ -23,8 +23,10 @@ final class TestMethodFeatureFactory {
                 return new AssertTrueFeature(astNodeFactory);
             case ASSERT_FALSE:
                 return new AssertFalseFeature(astNodeFactory);
+            case MOCK_DECLARATION:
+                return new MockDeclarationFeature(astNodeFactory);
             default:
-                throw new UnsupportedOperationException("Unsupported test method feature: " + supportedTestFeatures.name());
+                throw new UnsupportedOperationException("Unsupported feature: " + supportedTestFeatures.name());
         }
     }
 }

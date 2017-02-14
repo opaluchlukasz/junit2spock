@@ -1,4 +1,4 @@
-package com.github.opaluchlukasz.junit2spock.core.model.method.feature;
+package com.github.opaluchlukasz.junit2spock.core.feature;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import org.eclipse.jdt.core.dom.Expression;
@@ -10,7 +10,7 @@ import java.util.List;
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS;
 
-public class AssertEqualsFeature implements TestMethodFeature {
+public class AssertEqualsFeature implements Feature {
 
     public static final String ASSERT_EQUALS = "assertEquals";
     public static final String ASSERT_ARRAY_EQUALS = "assertArrayEquals";

@@ -1,4 +1,4 @@
-package com.github.opaluchlukasz.junit2spock.core.model.method.feature
+package com.github.opaluchlukasz.junit2spock.core.feature
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import org.eclipse.jdt.core.dom.Expression
@@ -7,7 +7,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertFalseFeature.ASSERT_FALSE
+import static com.github.opaluchlukasz.junit2spock.core.feature.AssertFalseFeature.ASSERT_FALSE
 
 class AssertFalseFeatureTest extends Specification {
 

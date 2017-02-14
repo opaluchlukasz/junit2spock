@@ -1,4 +1,4 @@
-package com.github.opaluchlukasz.junit2spock.core.model.method.feature
+package com.github.opaluchlukasz.junit2spock.core.feature
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import org.eclipse.jdt.core.dom.InfixExpression
@@ -7,8 +7,8 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.ThenReturnFeature.THEN_RETURN
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.ThenReturnFeature.WHEN
+import static com.github.opaluchlukasz.junit2spock.core.feature.ThenReturnFeature.THEN_RETURN
+import static com.github.opaluchlukasz.junit2spock.core.feature.ThenReturnFeature.WHEN
 
 class ThenReturnFeatureTest extends Specification {
 

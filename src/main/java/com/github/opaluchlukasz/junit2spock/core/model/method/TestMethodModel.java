@@ -1,8 +1,8 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
-import com.github.opaluchlukasz.junit2spock.core.model.method.feature.TestMethodFeature;
-import com.github.opaluchlukasz.junit2spock.core.model.method.feature.TestMethodFeatureProvider;
+import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
+import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -17,13 +17,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.annotatedWith;
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertEqualsFeature.ASSERT_ARRAY_EQUALS;
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertEqualsFeature.ASSERT_EQUALS;
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertFalseFeature.ASSERT_FALSE;
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertNotNullFeature.ASSERT_NOT_NULL;
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertNullFeature.ASSERT_NULL;
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.AssertTrueFeature.ASSERT_TRUE;
-import static com.github.opaluchlukasz.junit2spock.core.model.method.feature.ThenReturnFeature.THEN_RETURN;
+import static com.github.opaluchlukasz.junit2spock.core.feature.AssertEqualsFeature.ASSERT_ARRAY_EQUALS;
+import static com.github.opaluchlukasz.junit2spock.core.feature.AssertEqualsFeature.ASSERT_EQUALS;
+import static com.github.opaluchlukasz.junit2spock.core.feature.AssertFalseFeature.ASSERT_FALSE;
+import static com.github.opaluchlukasz.junit2spock.core.feature.AssertNotNullFeature.ASSERT_NOT_NULL;
+import static com.github.opaluchlukasz.junit2spock.core.feature.AssertNullFeature.ASSERT_NULL;
+import static com.github.opaluchlukasz.junit2spock.core.feature.AssertTrueFeature.ASSERT_TRUE;
+import static com.github.opaluchlukasz.junit2spock.core.feature.ThenReturnFeature.THEN_RETURN;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expect;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then;
@@ -114,10 +114,10 @@ public class TestMethodModel extends MethodModel {
     }
 
     private void applyTestMethodFeatures() {
-        List<TestMethodFeature> testMethodFeatures = new TestMethodFeatureProvider(astNodeFactory).testMethodFeatures();
+        List<Feature> testMethodFeatures = new FeatureProvider(astNodeFactory).testMethodFeatures();
         for (int i = 0; i < body.size(); i++) {
             Object bodyNode = body.get(i);
-            for (TestMethodFeature testMethodFeature : testMethodFeatures) {
+            for (Feature testMethodFeature : testMethodFeatures) {
                 if (testMethodFeature.applicable(bodyNode)) {
                     body.remove(bodyNode);
                     body.add(i, testMethodFeature.apply(bodyNode));
