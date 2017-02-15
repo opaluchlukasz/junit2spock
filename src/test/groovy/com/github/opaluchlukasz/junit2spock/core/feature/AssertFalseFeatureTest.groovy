@@ -17,7 +17,7 @@ class AssertFalseFeatureTest extends Specification {
 
     def 'should return false for non assertFalse method invocation'() {
         expect:
-        !assertFalseFeature.applicable(node)
+        !assertFalseFeature.applicable(node).isPresent()
 
         where:
         node << [new Object(), nodeFactory.methodInvocation('someMethod', [])]
@@ -29,7 +29,7 @@ class AssertFalseFeatureTest extends Specification {
                 [nodeFactory.booleanLiteral(true)])
 
         expect:
-        assertFalseFeature.applicable(methodInvocation)
+        assertFalseFeature.applicable(methodInvocation).isPresent()
     }
 
     def 'should return Spock\' expression for proper assertFalse method invocation'() {

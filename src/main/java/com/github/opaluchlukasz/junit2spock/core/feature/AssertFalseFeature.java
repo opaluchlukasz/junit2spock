@@ -5,11 +5,12 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.NOT;
 
-public class AssertFalseFeature implements Feature {
+public class AssertFalseFeature extends Feature<MethodInvocation> {
 
     public static final String ASSERT_FALSE = "assertFalse";
 
@@ -20,13 +21,12 @@ public class AssertFalseFeature implements Feature {
     }
 
     @Override
-    public boolean applicable(Object astNode) {
-        return methodInvocation(astNode, ASSERT_FALSE).isPresent();
+    public Optional<MethodInvocation> applicable(Object astNode) {
+        return methodInvocation(astNode, ASSERT_FALSE);
     }
 
     @Override
-    public Expression apply(Object object) {
-        MethodInvocation methodInvocation = methodInvocation(object, ASSERT_FALSE).get();
+    public Expression apply(Object object, MethodInvocation methodInvocation) {
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 1) {
             return astNodeFactory.prefixExpression(NOT, argumentAsExpression(arguments.get(0)));

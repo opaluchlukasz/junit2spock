@@ -17,7 +17,7 @@ class AssertTrueFeatureTest extends Specification {
 
     def 'should return false for non assertTrue method invocation'() {
         expect:
-        !assertTrueFeature.applicable(node)
+        !assertTrueFeature.applicable(node).isPresent()
 
         where:
         node << [new Object(), nodeFactory.methodInvocation('someMethod', [])]
@@ -29,7 +29,7 @@ class AssertTrueFeatureTest extends Specification {
                 [nodeFactory.booleanLiteral(true)])
 
         expect:
-        assertTrueFeature.applicable(methodInvocation)
+        assertTrueFeature.applicable(methodInvocation).isPresent()
     }
 
     def 'should return Spock\' expression for proper assertTrue method invocation'() {

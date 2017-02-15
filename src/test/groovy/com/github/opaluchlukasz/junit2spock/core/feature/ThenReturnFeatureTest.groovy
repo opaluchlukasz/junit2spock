@@ -18,7 +18,7 @@ class ThenReturnFeatureTest extends Specification {
 
     def 'should return false for non thenReturn method invocation'() {
         expect:
-        !thenReturnFeature.applicable(node)
+        !thenReturnFeature.applicable(node).isPresent()
 
         where:
         node << [new Object(),
@@ -35,7 +35,7 @@ class ThenReturnFeatureTest extends Specification {
                         nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation('someMethod', [])]))
 
         expect:
-        thenReturnFeature.applicable(methodInvocation)
+        thenReturnFeature.applicable(methodInvocation).isPresent()
     }
 
     def 'should return Spock\' expression for proper thenReturn method invocation'() {
@@ -47,7 +47,7 @@ class ThenReturnFeatureTest extends Specification {
         InfixExpression expression = thenReturnFeature.apply(methodInvocation)
 
         expect:
-        expression.toString() == "$stubbedMethod() >> true"
+        expression.toString() == "$stubbedMethod() >> true" as String
     }
 
     def 'should throw an exception for incorrect thenReturn method invocation'() {
@@ -57,7 +57,7 @@ class ThenReturnFeatureTest extends Specification {
 
 
         when:
-        thenReturnFeature.apply(methodInvocation)
+        thenReturnFeature.apply(methodInvocation, methodInvocation)
 
         then:
         UnsupportedOperationException ex = thrown()

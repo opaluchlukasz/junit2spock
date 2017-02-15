@@ -57,16 +57,11 @@ public class ClassModel implements TypeModel {
         List<FieldDeclaration> result = new LinkedList<>();
         List<Feature> features = new FeatureProvider(astNodeFactory).fieldFeatures();
         for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
-            boolean applied = false;
+            FieldDeclaration toApply = fieldDeclaration;
             for (Feature feature : features) {
-                if (feature.applicable(fieldDeclaration)) {
-                    result.add((FieldDeclaration) feature.apply(fieldDeclaration));
-                    applied = true;
-                }
+                toApply = (FieldDeclaration) feature.apply(fieldDeclaration);
             }
-            if (!applied) {
-                result.add(fieldDeclaration);
-            }
+            result.add(toApply);
         }
         return result;
     }

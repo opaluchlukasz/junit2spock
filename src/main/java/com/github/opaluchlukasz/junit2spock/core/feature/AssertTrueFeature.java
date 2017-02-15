@@ -5,10 +5,11 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 
-public class AssertTrueFeature implements Feature {
+public class AssertTrueFeature extends Feature<MethodInvocation> {
 
     public static final String ASSERT_TRUE = "assertTrue";
 
@@ -19,13 +20,12 @@ public class AssertTrueFeature implements Feature {
     }
 
     @Override
-    public boolean applicable(Object astNode) {
-        return methodInvocation(astNode, ASSERT_TRUE).isPresent();
+    public Optional<MethodInvocation> applicable(Object astNode) {
+        return methodInvocation(astNode, ASSERT_TRUE);
     }
 
     @Override
-    public Expression apply(Object object) {
-        MethodInvocation methodInvocation = methodInvocation(object, ASSERT_TRUE).get();
+    public Expression apply(Object object, MethodInvocation methodInvocation) {
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 1) {
             return argumentAsExpression(arguments.get(0));

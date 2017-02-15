@@ -13,11 +13,11 @@ class AssertEqualsFeatureTest extends Specification {
 
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
-    @Subject AssertEqualsFeature assertEqualsFeature = new AssertEqualsFeature(nodeFactory)
+    @Subject private AssertEqualsFeature assertEqualsFeature = new AssertEqualsFeature(nodeFactory)
 
     def 'should return false for non assertEquals method invocation'() {
         expect:
-        !assertEqualsFeature.applicable(node)
+        !assertEqualsFeature.applicable(node).isPresent()
 
         where:
         node << [new Object(), nodeFactory.methodInvocation('someMethod', [])]
@@ -40,8 +40,8 @@ class AssertEqualsFeatureTest extends Specification {
         expression.toString() == '0 == 0'
 
         where:
-        methodInvocation << [nodeFactory.methodInvocation(ASSERT_EQUALS, [nodeFactory.numberLiteral("0"),
-                                                                          nodeFactory.numberLiteral("0")]),
+        methodInvocation << [nodeFactory.methodInvocation(ASSERT_EQUALS, [nodeFactory.numberLiteral('0'),
+                                                                          nodeFactory.numberLiteral('0')]),
                              nodeFactory.methodInvocation(ASSERT_EQUALS, [nodeFactory.stringLiteral('equal to null'),
                                                                           nodeFactory.numberLiteral('0'),
                                                                           nodeFactory.numberLiteral('0')])]

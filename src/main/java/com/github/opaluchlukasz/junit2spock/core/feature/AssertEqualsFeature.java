@@ -6,11 +6,12 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS;
 
-public class AssertEqualsFeature implements Feature {
+public class AssertEqualsFeature extends Feature<MethodInvocation> {
 
     public static final String ASSERT_EQUALS = "assertEquals";
     public static final String ASSERT_ARRAY_EQUALS = "assertArrayEquals";
@@ -22,13 +23,12 @@ public class AssertEqualsFeature implements Feature {
     }
 
     @Override
-    public boolean applicable(Object astNode) {
-        return methodInvocation(astNode, ASSERT_EQUALS, ASSERT_ARRAY_EQUALS).isPresent();
+    public Optional<MethodInvocation> applicable(Object astNode) {
+        return methodInvocation(astNode, ASSERT_EQUALS, ASSERT_ARRAY_EQUALS);
     }
 
     @Override
-    public InfixExpression apply(Object object) {
-        MethodInvocation methodInvocation = methodInvocation(object, ASSERT_EQUALS, ASSERT_ARRAY_EQUALS).get();
+    public InfixExpression apply(Object object, MethodInvocation methodInvocation) {
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 2) {
             return astNodeFactory.infixExpression(EQUALS,

@@ -13,7 +13,7 @@ class MockDeclarationFeatureTest extends Specification {
 
     def 'should return false for non-mock declarations'() {
         expect:
-        !mockDeclarationFeature.applicable(node)
+        !mockDeclarationFeature.applicable(node).isPresent()
 
         where:
         node << [new Object(), nodeFactory.fieldDeclaration(nodeFactory.variableDeclarationFragment('variable'),
@@ -26,7 +26,7 @@ class MockDeclarationFeatureTest extends Specification {
                 nodeFactory.simpleType('SomeClass'), nodeFactory.annotation('Mock'))
 
         expect:
-        mockDeclarationFeature.applicable(fieldDeclaration)
+        mockDeclarationFeature.applicable(fieldDeclaration).isPresent()
     }
 
     def 'should return Spock\'s mock for mockito mock'() {

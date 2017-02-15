@@ -117,12 +117,11 @@ public class TestMethodModel extends MethodModel {
         List<Feature> testMethodFeatures = new FeatureProvider(astNodeFactory).testMethodFeatures();
         for (int i = 0; i < body.size(); i++) {
             Object bodyNode = body.get(i);
+            body.remove(bodyNode);
             for (Feature testMethodFeature : testMethodFeatures) {
-                if (testMethodFeature.applicable(bodyNode)) {
-                    body.remove(bodyNode);
-                    body.add(i, testMethodFeature.apply(bodyNode));
-                }
+                bodyNode = testMethodFeature.apply(bodyNode);
             }
+            body.add(i, bodyNode);
         }
     }
 

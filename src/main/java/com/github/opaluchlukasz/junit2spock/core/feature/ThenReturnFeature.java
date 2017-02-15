@@ -6,11 +6,12 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
 
-public class ThenReturnFeature implements Feature {
+public class ThenReturnFeature extends Feature<MethodInvocation> {
 
     public static final String THEN_RETURN = "thenReturn";
     public static final String WHEN = "when";
@@ -22,19 +23,17 @@ public class ThenReturnFeature implements Feature {
     }
 
     @Override
-    public boolean applicable(Object astNode) {
+    public Optional<MethodInvocation> applicable(Object astNode) {
         return methodInvocation(astNode, THEN_RETURN)
                 .flatMap(thenReturnInvocation -> methodInvocation(thenReturnInvocation.getExpression(), WHEN))
-                .filter(whenInvocation -> whenInvocation.arguments().size() == 1)
-                .isPresent();
+                .filter(whenInvocation -> whenInvocation.arguments().size() == 1);
     }
 
     @Override
-    public InfixExpression apply(Object object) {
+    public InfixExpression apply(Object object, MethodInvocation whenMethodInvocation) {
         MethodInvocation methodInvocation = methodInvocation(object, THEN_RETURN).get();
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 1) {
-            MethodInvocation whenMethodInvocation = methodInvocation(methodInvocation.getExpression(), WHEN).get();
             return astNodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
                     argumentAsExpression(whenMethodInvocation.arguments().get(0)),
                     argumentAsExpression(arguments.get(0)));

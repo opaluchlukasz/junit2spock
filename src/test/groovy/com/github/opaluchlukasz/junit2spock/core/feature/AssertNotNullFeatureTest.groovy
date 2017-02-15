@@ -17,7 +17,7 @@ class AssertNotNullFeatureTest extends Specification {
 
     def 'should return false for non assertNotNull method invocation'() {
         expect:
-        !assertNotNullFeature.applicable(node)
+        !assertNotNullFeature.applicable(node).isPresent()
 
         where:
         node << [new Object(), nodeFactory.methodInvocation('someMethod', [])]
@@ -29,7 +29,7 @@ class AssertNotNullFeatureTest extends Specification {
                 [nodeFactory.numberLiteral('0')])
 
         expect:
-        assertNotNullFeature.applicable(methodInvocation)
+        assertNotNullFeature.applicable(methodInvocation).isPresent()
     }
 
     def 'should return Spock\' expression for proper assertNotNull method invocation'() {
