@@ -5,6 +5,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
 
 class FixtureMethodModelTest extends Specification {
 
@@ -21,9 +22,9 @@ class FixtureMethodModelTest extends Specification {
         regularMethodModel.methodName == 'setup'
     }
 
-    def 'should return empty string as a method suffix'() {
+    def 'should return new line as a method suffix'() {
         expect:
-        fixtureMethodModel(aMethod(nodeFactory.ast).build(), 'setup').methodSuffix() == ''
+        fixtureMethodModel(aMethod(nodeFactory.ast).build(), 'setup').methodSuffix() == SEPARATOR
     }
 
     def 'should return \'def\' as a method modifier'() {

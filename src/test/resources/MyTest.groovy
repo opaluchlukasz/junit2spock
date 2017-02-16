@@ -5,7 +5,8 @@ class MyTest extends Specification {
 	public Object mocked=Mock(Object.class);
 
 	def setup() {
-		mockedList.get(1) >> "second"	}
+		mockedList.get(1) >> "second"
+	}
 
 	def 'multiplication of zero integers should return zero'() {
 		given:

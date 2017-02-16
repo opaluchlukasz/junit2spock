@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIXTURE_METHOD;
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 
 public class FixtureMethodModel extends MethodModel {
 
@@ -24,7 +25,7 @@ public class FixtureMethodModel extends MethodModel {
 
     @Override
     protected String methodSuffix() {
-        return "";
+        return SEPARATOR;
     }
 
     @Override
