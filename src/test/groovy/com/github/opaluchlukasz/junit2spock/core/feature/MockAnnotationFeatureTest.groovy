@@ -9,7 +9,7 @@ import spock.lang.Subject
 class MockDeclarationFeatureTest extends Specification {
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
-    @Subject private MockDeclarationFeature mockDeclarationFeature = new MockDeclarationFeature(nodeFactory)
+    @Subject private MockAnnotationFeature mockDeclarationFeature = new MockAnnotationFeature(nodeFactory)
 
     def 'should return false for non-mock declarations'() {
         expect:

@@ -1,8 +1,5 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
-import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
-import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
-import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -16,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.annotatedWith;
+import static com.github.opaluchlukasz.junit2spock.core.Applicable.TEST_METHOD;
 import static com.github.opaluchlukasz.junit2spock.core.feature.AssertEqualsFeature.ASSERT_ARRAY_EQUALS;
 import static com.github.opaluchlukasz.junit2spock.core.feature.AssertEqualsFeature.ASSERT_EQUALS;
 import static com.github.opaluchlukasz.junit2spock.core.feature.AssertFalseFeature.ASSERT_FALSE;
@@ -24,6 +21,7 @@ import static com.github.opaluchlukasz.junit2spock.core.feature.AssertNotNullFea
 import static com.github.opaluchlukasz.junit2spock.core.feature.AssertNullFeature.ASSERT_NULL;
 import static com.github.opaluchlukasz.junit2spock.core.feature.AssertTrueFeature.ASSERT_TRUE;
 import static com.github.opaluchlukasz.junit2spock.core.feature.ThenReturnFeature.THEN_RETURN;
+import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.annotatedWith;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expect;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then;
@@ -43,18 +41,15 @@ public class TestMethodModel extends MethodModel {
     private static final String[] MOCKING  = {THEN_RETURN};
     private final List<Object> body = new LinkedList<>();
 
-    private final ASTNodeFactory astNodeFactory;
-
     TestMethodModel(MethodDeclaration methodDeclaration) {
         super(methodDeclaration);
-        astNodeFactory = new ASTNodeFactory(methodDeclaration.getAST());
         if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
             body.addAll(methodDeclaration.getBody().statements());
         }
 
         addThrownSupport(methodDeclaration);
         addSpockSpecificBlocksToBody();
-        applyTestMethodFeatures();
+        applyFeaturesToMethodBody(TEST_METHOD);
     }
 
     @Override
@@ -69,8 +64,8 @@ public class TestMethodModel extends MethodModel {
                 .flatMap(this::expectedException);
 
         expected.ifPresent(expression -> body
-                .add(astNodeFactory.methodInvocation(THROWN,
-                        singletonList(astNodeFactory.simpleName(((TypeLiteral) expression).getType().toString())))));
+                .add(astNodeFactory().methodInvocation(THROWN,
+                        singletonList(astNodeFactory().simpleName(((TypeLiteral) expression).getType().toString())))));
     }
 
     private Optional<Expression> expectedException(Annotation annotation) {
@@ -110,18 +105,6 @@ public class TestMethodModel extends MethodModel {
             if (thenIndex - 1 >= 0) {
                 body.add(0, given());
             }
-        }
-    }
-
-    private void applyTestMethodFeatures() {
-        List<Feature> testMethodFeatures = new FeatureProvider(astNodeFactory).testMethodFeatures();
-        for (int i = 0; i < body.size(); i++) {
-            Object bodyNode = body.get(i);
-            body.remove(bodyNode);
-            for (Feature testMethodFeature : testMethodFeatures) {
-                bodyNode = testMethodFeature.apply(bodyNode);
-            }
-            body.add(i, bodyNode);
         }
     }
 

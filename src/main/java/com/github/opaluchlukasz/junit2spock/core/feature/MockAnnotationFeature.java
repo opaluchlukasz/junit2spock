@@ -10,11 +10,11 @@ import java.util.Optional;
 import static com.github.opaluchlukasz.junit2spock.core.model.ModifierHelper.annotatedWith;
 import static java.util.Collections.singletonList;
 
-public class MockDeclarationFeature extends Feature<Annotation> {
+public class MockAnnotationFeature extends Feature<Annotation> {
 
     private final ASTNodeFactory astNodeFactory;
 
-    MockDeclarationFeature(ASTNodeFactory astNodeFactory) {
+    MockAnnotationFeature(ASTNodeFactory astNodeFactory) {
         this.astNodeFactory = astNodeFactory;
     }
 

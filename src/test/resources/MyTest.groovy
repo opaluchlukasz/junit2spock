@@ -32,7 +32,7 @@ class MyTest extends Specification {
 
 	def 'mocking test'() {
 		given:
-		LinkedList mockedList=mock(LinkedList)
+		LinkedList mockedList=Mock(LinkedList)
 
 		mockedList.get(0) >> "first"
 		expect:

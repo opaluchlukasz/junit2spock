@@ -23,8 +23,10 @@ final class FeatureFactory {
                 return new AssertTrueFeature(astNodeFactory);
             case ASSERT_FALSE:
                 return new AssertFalseFeature(astNodeFactory);
-            case MOCK_DECLARATION:
-                return new MockDeclarationFeature(astNodeFactory);
+            case MOCK_ANNOTATION:
+                return new MockAnnotationFeature(astNodeFactory);
+            case MOCK_METHOD:
+                return new MockMethodFeature(astNodeFactory);
             default:
                 throw new UnsupportedOperationException("Unsupported feature: " + supportedTestFeatures.name());
         }

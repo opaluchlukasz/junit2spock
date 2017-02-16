@@ -40,6 +40,7 @@ import java.util.Optional;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
+import static org.eclipse.jdt.core.dom.PrimitiveType.INT;
 
 public class ASTNodeFactory {
 
@@ -88,8 +89,15 @@ public class ASTNodeFactory {
     }
 
     public VariableDeclarationStatement variableDeclarationStatement(String name) {
+        return variableDeclarationStatement(name, primitiveType(INT), null);
+    }
+
+    public VariableDeclarationStatement variableDeclarationStatement(String name, Type type, Expression initializer) {
         VariableDeclarationFragment variableDeclarationFragment = variableDeclarationFragment(name);
-        return ast.newVariableDeclarationStatement(variableDeclarationFragment);
+        variableDeclarationFragment.setInitializer(initializer);
+        VariableDeclarationStatement statement = ast.newVariableDeclarationStatement(variableDeclarationFragment);
+        statement.setType(type);
+        return statement;
     }
 
     public VariableDeclarationFragment variableDeclarationFragment(String name) {

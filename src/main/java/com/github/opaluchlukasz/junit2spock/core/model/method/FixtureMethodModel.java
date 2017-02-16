@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIXTURE_METHOD;
+
 public class FixtureMethodModel extends MethodModel {
 
     private final List<Object> body = new LinkedList<>();
@@ -17,6 +19,7 @@ public class FixtureMethodModel extends MethodModel {
         if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
             this.body.addAll(methodDeclaration.getBody().statements());
         }
+        applyFeaturesToMethodBody(FIXTURE_METHOD);
     }
 
     @Override

@@ -1,5 +1,9 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.Applicable;
+import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
+import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -17,9 +21,11 @@ public abstract class MethodModel {
 
     private final MethodDeclaration methodDeclaration;
     private final Groovism groovism;
+    private final ASTNodeFactory astNodeFactory;
 
     MethodModel(MethodDeclaration methodDeclaration) {
         this.methodDeclaration = methodDeclaration;
+        astNodeFactory = new ASTNodeFactory(methodDeclaration.getAST());
         groovism = provide();
     }
 
@@ -58,6 +64,18 @@ public abstract class MethodModel {
         return methodBuilder;
     }
 
+    void applyFeaturesToMethodBody(Applicable applicable) {
+        List<Feature> features = new FeatureProvider(astNodeFactory).features(applicable);
+        for (int i = 0; i < body().size(); i++) {
+            Object bodyNode = body().get(i);
+            body().remove(bodyNode);
+            for (Feature testMethodFeature : features) {
+                bodyNode = testMethodFeature.apply(bodyNode);
+            }
+            body().add(i, bodyNode);
+        }
+    }
+
     protected abstract String methodSuffix();
 
     protected abstract String getMethodName();
@@ -68,8 +86,8 @@ public abstract class MethodModel {
         return methodDeclaration;
     }
 
-    protected Groovism groovism() {
-        return groovism;
+    protected ASTNodeFactory astNodeFactory() {
+        return astNodeFactory;
     }
 
     private Optional<String> returnedType() {

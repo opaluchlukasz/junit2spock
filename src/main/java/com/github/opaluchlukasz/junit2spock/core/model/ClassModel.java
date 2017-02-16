@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIELD_FEATURE;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
 import static java.util.Collections.unmodifiableList;
@@ -55,7 +56,7 @@ public class ClassModel implements TypeModel {
 
     private List<FieldDeclaration> fieldDeclarations(List<FieldDeclaration> fieldDeclarations) {
         List<FieldDeclaration> result = new LinkedList<>();
-        List<Feature> features = new FeatureProvider(astNodeFactory).fieldFeatures();
+        List<Feature> features = new FeatureProvider(astNodeFactory).features(FIELD_FEATURE);
         for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
             FieldDeclaration toApply = fieldDeclaration;
             for (Feature feature : features) {
