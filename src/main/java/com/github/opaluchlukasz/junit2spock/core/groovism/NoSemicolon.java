@@ -13,6 +13,7 @@ public class NoSemicolon extends Groovism {
     NoSemicolon(Groovism next) {
         super(Optional.of(next));
     }
+
     @Override
     protected String applyGroovism(String line) {
         return line.replaceAll(";+$", "");

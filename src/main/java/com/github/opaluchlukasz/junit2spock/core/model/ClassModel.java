@@ -4,6 +4,7 @@ import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.SupportedTestFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
 import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
+import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
 import com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel;
 import org.eclipse.jdt.core.dom.AST;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIELD_FEATURE;
+import static com.github.opaluchlukasz.junit2spock.core.groovism.GroovismChainProvider.provide;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
 import static java.util.Collections.unmodifiableList;
@@ -33,10 +35,12 @@ public class ClassModel implements TypeModel {
     private final List<ImportDeclaration> imports;
     private final Optional<String> superClassType;
     private final ASTNodeFactory astNodeFactory;
+    private final Groovism groovism;
 
     ClassModel(String className, Type superClassType, PackageDeclaration packageDeclaration,
                List<FieldDeclaration> fields, List<MethodModel> methods, List<ImportDeclaration> imports, AST ast) {
         astNodeFactory = new ASTNodeFactory(ast);
+        groovism = provide();
 
         LinkedList<ImportDeclaration> importDeclarations = new LinkedList<>(imports);
 
@@ -74,12 +78,15 @@ public class ClassModel implements TypeModel {
     @Override
     public String asGroovyClass() {
         StringBuilder builder = new StringBuilder();
-        Optional.ofNullable(packageDeclaration).ifPresent(builder::append);
+        Optional.ofNullable(packageDeclaration)
+                .map(declaration -> groovism.apply(declaration.toString()))
+                .ifPresent(builder::append);
 
         List<String> supported = SupportedTestFeature.imports();
 
         imports.stream()
                 .filter(importDeclaration -> !supported.contains(importDeclaration.getName().getFullyQualifiedName()))
+                .map(declaration -> groovism.apply(declaration.toString()))
                 .forEach(builder::append);
 
         builder.append(SEPARATOR).append("class ")
@@ -90,9 +97,7 @@ public class ClassModel implements TypeModel {
         builder.append(" {")
                 .append(SEPARATOR);
 
-        fields.forEach(field -> builder
-                .append(indentation(1))
-                .append(field.toString()));
+        fields.forEach(field -> builder.append(indentation(1)).append(groovism.apply(field.toString())));
 
         builder.append(SEPARATOR);
 
