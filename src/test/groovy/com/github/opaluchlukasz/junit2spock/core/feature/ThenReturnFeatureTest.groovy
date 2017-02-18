@@ -14,7 +14,7 @@ class ThenReturnFeatureTest extends Specification {
 
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
-    @Subject ThenReturnFeature thenReturnFeature = new ThenReturnFeature(nodeFactory)
+    @Subject private ThenReturnFeature thenReturnFeature = new ThenReturnFeature(nodeFactory)
 
     def 'should return false for non thenReturn method invocation'() {
         expect:

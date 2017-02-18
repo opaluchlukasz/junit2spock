@@ -18,6 +18,7 @@ public enum SupportedTestFeature {
     AFTER(of("org.junit.After"), emptyList()),
     AFTER_CLASS(of("org.junit.AfterClass"), emptyList()),
     THEN_RETURN(emptyList(), of(FIXTURE_METHOD, TEST_METHOD)),
+    THEN_THROW(emptyList(), of(FIXTURE_METHOD, TEST_METHOD)),
     TEST_ANNOTATION(of("org.junit.Test"), emptyList()),
     ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals",
             "org.junit.Assert.assertArrayEquals", "junit.framework.Assert.assertArrayEquals"), of(TEST_METHOD)),

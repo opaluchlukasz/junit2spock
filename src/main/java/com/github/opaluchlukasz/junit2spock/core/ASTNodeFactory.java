@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -29,6 +30,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.core.dom.PrimitiveType.INT;
@@ -90,6 +93,13 @@ public class ASTNodeFactory {
 
     public VariableDeclarationStatement variableDeclarationStatement(String name) {
         return variableDeclarationStatement(name, primitiveType(INT), null);
+    }
+
+    public ClassInstanceCreation classInstanceCreation(Type type, ASTNode... arguments) {
+        ClassInstanceCreation classInstanceCreation = ast.newClassInstanceCreation();
+        classInstanceCreation.setType(type);
+        classInstanceCreation.arguments().addAll(asList(arguments));
+        return classInstanceCreation;
     }
 
     public VariableDeclarationStatement variableDeclarationStatement(String name, Type type, Expression initializer) {
@@ -306,8 +316,18 @@ public class ASTNodeFactory {
         return ast.newNullLiteral();
     }
 
+    public Block block() {
+        return ast.newBlock();
+    }
+
     public PrimitiveType primitiveType(PrimitiveType.Code code) {
         return ast.newPrimitiveType(code);
+    }
+
+    public ThrowStatement throwStatement(Expression toBeThrown) {
+        ThrowStatement throwStatement = ast.newThrowStatement();
+        throwStatement.setExpression(toBeThrown);
+        return throwStatement;
     }
 
     private MethodInvocation methodInvocation(MethodInvocation methodInvocation) {

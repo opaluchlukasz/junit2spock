@@ -13,6 +13,8 @@ final class FeatureFactory {
         switch (supportedTestFeatures) {
             case THEN_RETURN:
                 return new ThenReturnFeature(astNodeFactory);
+            case THEN_THROW:
+                return new ThenThrowFeature(astNodeFactory);
             case ASSERT_EQUALS:
                 return new AssertEqualsFeature(astNodeFactory);
             case ASSERT_NOT_NULL:

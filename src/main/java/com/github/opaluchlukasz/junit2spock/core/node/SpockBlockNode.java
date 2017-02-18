@@ -2,6 +2,8 @@ package com.github.opaluchlukasz.junit2spock.core.node;
 
 import java.util.Objects;
 
+import static java.lang.String.format;
+
 public final class SpockBlockNode {
 
     private final String block;
@@ -28,7 +30,7 @@ public final class SpockBlockNode {
 
     @Override
     public String toString() {
-        return String.format("%s:", block);
+        return format("%s:", block);
     }
 
     @Override

@@ -16,6 +16,7 @@ public class MyTest {
     @Before
     public void before() {
         when(mockedList.get(1)).thenReturn("second");
+        when(mockedList.get(2)).thenThrow(new IndexOutOfBoundsException("out of bound"));
     }
 
     @Test
