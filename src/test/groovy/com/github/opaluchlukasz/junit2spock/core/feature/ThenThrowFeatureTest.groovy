@@ -49,9 +49,9 @@ class ThenThrowFeatureTest extends Specification {
         SpockMockBehaviour expression = thenThrowFeature.apply(methodInvocation)
 
         expect:
-        expression.toString() == "$stubbedMethod() >> {\n" +
-                "  throw new RuntimeException(\"some message\");\n" +
-                "}\n" as String
+        expression.toString() == "$stubbedMethod() >> {\n\t\t\t" +
+                "throw new RuntimeException(\"some message\")\n" +
+                "\t\t}" as String
     }
 
     def 'should throw an exception for incorrect thenThrow method invocation'() {

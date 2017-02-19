@@ -7,9 +7,8 @@ class MyTest extends Specification {
 	def setup() {
 		mockedList.get(1) >> "second"
 		mockedList.get(2) >> {
-  throw new IndexOutOfBoundsException("out of bound");
-}
-
+			throw new IndexOutOfBoundsException("out of bound")
+		}
 	}
 
 	def 'multiplication of zero integers should return zero'() {
