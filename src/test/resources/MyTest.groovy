@@ -5,9 +5,9 @@ class MyTest extends Specification {
 	public Object mocked=Mock(Object)
 
 	def setup() {
-		mockedList.get(1) >> "second"
+		mockedList.get(1) >> 'second'
 		mockedList.get(2) >> {
-			throw new IndexOutOfBoundsException("out of bound")
+			throw new IndexOutOfBoundsException('out of bound')
 		}
 	}
 
@@ -19,7 +19,7 @@ class MyTest extends Specification {
 		tester.multiply(10,0) == 0
 		tester.multiply(0,10) == 0
 		hashocde() == 0
-		new String("some string") == "some string"
+		new String('some string') == 'some string'
 		new int[1] == new int[1]
 		!false
 		null == null
@@ -37,13 +37,13 @@ class MyTest extends Specification {
 		given:
 		LinkedList mockedList=Mock(LinkedList)
 
-		mockedList.get(0) >> "first"
+		mockedList.get(0) >> 'first'
 		expect:
-		mockedList.get(0) == "first"
+		mockedList.get(0) == 'first'
 	}
 
 	private String helper() {
-		return "bar"
+		return 'bar'
 	}
 
 }

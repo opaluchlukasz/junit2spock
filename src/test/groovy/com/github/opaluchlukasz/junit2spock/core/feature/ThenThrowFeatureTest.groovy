@@ -50,7 +50,7 @@ class ThenThrowFeatureTest extends Specification {
 
         expect:
         expression.toString() == "$stubbedMethod() >> {\n\t\t\t" +
-                "throw new RuntimeException(\"some message\")\n" +
+                "throw new RuntimeException('some message')\n" +
                 "\t\t}" as String
     }
 

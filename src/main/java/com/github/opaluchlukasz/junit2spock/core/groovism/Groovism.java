@@ -14,7 +14,7 @@ public abstract class Groovism implements UnaryOperator<String> {
     @Override
     public String apply(String line) {
         String groovierLine = applyGroovism(line);
-        return next.map(next -> next.applyGroovism(groovierLine)).orElse(groovierLine);
+        return next.map(next -> next.apply(groovierLine)).orElse(groovierLine);
     }
 
     protected abstract String applyGroovism(String line);
