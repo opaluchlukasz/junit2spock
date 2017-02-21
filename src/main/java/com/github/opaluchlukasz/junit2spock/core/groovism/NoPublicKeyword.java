@@ -5,18 +5,22 @@ import java.util.Optional;
 import static java.util.Optional.empty;
 import static java.util.regex.Pattern.quote;
 
-public class NoClassKeyword extends Groovism {
+public class NoPublicKeyword extends Groovism {
 
-    NoClassKeyword() {
+    NoPublicKeyword() {
         super(empty());
     }
 
-    NoClassKeyword(Groovism next) {
+    NoPublicKeyword(Groovism next) {
         super(Optional.of(next));
     }
 
     @Override
     protected String applyGroovism(String line) {
-        return line.replaceAll(quote(".class"), "");
+        String applied = line.replaceAll(quote(" public "), " ");
+        if (applied.startsWith("public ")) {
+            return applied.replaceFirst(quote("public "), "");
+        }
+        return applied;
     }
 }

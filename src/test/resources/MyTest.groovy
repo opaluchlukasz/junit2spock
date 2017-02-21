@@ -2,7 +2,7 @@ package foo.bar
 import spock.lang.Specification
 
 class MyTest extends Specification {
-	public Object mocked=Mock(Object)
+	Object mocked=Mock(Object)
 
 	def setup() {
 		mockedList.get(1) >> 'second'

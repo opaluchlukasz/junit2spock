@@ -7,6 +7,6 @@ public final class GroovismChainProvider {
     }
 
     public static Groovism provide() {
-        return new NoSemicolon(new NoClassKeyword(new RegularString()));
+        return new NoSemicolon(new NoClassKeyword(new RegularString(new NoPublicKeyword())));
     }
 }
