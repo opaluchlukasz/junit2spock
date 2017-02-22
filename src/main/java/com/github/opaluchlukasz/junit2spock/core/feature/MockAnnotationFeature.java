@@ -3,6 +3,7 @@ package com.github.opaluchlukasz.junit2spock.core.feature;
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import java.util.Optional;
@@ -31,9 +32,11 @@ public class MockAnnotationFeature extends Feature<Annotation> {
     public FieldDeclaration apply(Object object, Annotation annotation) {
         FieldDeclaration fieldDeclaration = (FieldDeclaration) object;
         fieldDeclaration.modifiers().remove(annotation);
-        fieldDeclaration.fragments().forEach(declarationFragment ->
-                ((VariableDeclarationFragment) declarationFragment).setInitializer(astNodeFactory
-                        .methodInvocation("Mock", singletonList(astNodeFactory.typeLiteral(fieldDeclaration.getType().toString())))));
+        fieldDeclaration.fragments().forEach(declarationFragment -> {
+            Type clonedType = astNodeFactory.clone(fieldDeclaration.getType());
+            ((VariableDeclarationFragment) declarationFragment).setInitializer(astNodeFactory
+                    .methodInvocation("Mock", singletonList(astNodeFactory.typeLiteral(clonedType))));
+        });
         return fieldDeclaration;
     }
 }

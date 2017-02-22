@@ -99,7 +99,7 @@ class TestMethodModelTest extends Specification {
 
     def 'should add thrown method invocation when expected exception declared'() {
         given:
-        def exceptionName = NullPointerException.getSimpleName()
+        def exceptionName = nodeFactory.simpleType(nodeFactory.simpleName(NullPointerException.getSimpleName()))
         def testAnnotation = nodeFactory.annotation('Test', ['expected': nodeFactory.typeLiteral(exceptionName)])
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
                 .withAnnotation(testAnnotation)
@@ -112,7 +112,7 @@ class TestMethodModelTest extends Specification {
         MethodInvocation methodInvocation = testMethodModel.body().get(1)
         methodInvocation.name.identifier == THROWN
         methodInvocation.arguments().size() == 1
-        ((SimpleName) methodInvocation.arguments().get(0)).identifier == nodeFactory.simpleName(exceptionName).identifier
+        ((SimpleName) methodInvocation.arguments().get(0)).identifier == nodeFactory.simpleName(exceptionName.name.fullyQualifiedName).identifier
     }
 
     def 'should return human readable test name'() {

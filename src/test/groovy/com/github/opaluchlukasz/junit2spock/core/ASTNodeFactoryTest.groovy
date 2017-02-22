@@ -32,14 +32,12 @@ import static org.eclipse.jdt.core.dom.PrimitiveType.INT
 
 class ASTNodeFactoryTest extends Specification {
 
-    @Subject
-    @Shared
-    private ASTNodeFactory astNodeFactory = new ASTNodeFactory()
+    @Subject @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
     def 'should create import declaration'() {
         given:
         Class<Object> clazz = Object
-        ImportDeclaration importDeclaration = astNodeFactory.importDeclaration(clazz)
+        ImportDeclaration importDeclaration = nodeFactory.importDeclaration(clazz)
 
         expect:
         importDeclaration.name.fullyQualifiedName == clazz.name
@@ -48,7 +46,7 @@ class ASTNodeFactoryTest extends Specification {
     def 'should create simple name'() {
         given:
         String name = 'foo'
-        SimpleName simpleName = astNodeFactory.simpleName(name)
+        SimpleName simpleName = nodeFactory.simpleName(name)
 
         expect:
         simpleName.identifier == name
@@ -56,18 +54,18 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create simple type'() {
         given:
-        String clazz = 'foo'
-        SimpleType type = astNodeFactory.simpleType(clazz)
+        def clazz = nodeFactory.simpleName('foo')
+        def type = nodeFactory.simpleType(clazz)
 
         expect:
         type.isSimpleType()
-        type.name.fullyQualifiedName == clazz
-        type.toString() == clazz
+        type.name.fullyQualifiedName == clazz.fullyQualifiedName
+        type.toString() == clazz.fullyQualifiedName
     }
 
     def 'should create primitive type'() {
         given:
-        PrimitiveType type = astNodeFactory.primitiveType(CHAR)
+        PrimitiveType type = nodeFactory.primitiveType(CHAR)
 
         expect:
         type.isPrimitiveType()
@@ -78,7 +76,7 @@ class ASTNodeFactoryTest extends Specification {
     def 'should create variable declaration with given name and default type'() {
         given:
         def someVar = 'someVar'
-        VariableDeclarationStatement statement = astNodeFactory.variableDeclarationStatement(someVar)
+        VariableDeclarationStatement statement = nodeFactory.variableDeclarationStatement(someVar)
 
         expect:
         statement.type instanceof PrimitiveType
@@ -88,18 +86,18 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create type literal'() {
         given:
-        def someType = 'SomeType'
-        TypeLiteral typeLiteral = astNodeFactory.typeLiteral(someType)
+        def someType = nodeFactory.simpleType(nodeFactory.simpleName('SomeType'))
+        TypeLiteral typeLiteral = nodeFactory.typeLiteral(someType)
 
         expect:
         typeLiteral.type instanceof SimpleType
-        ((SimpleType) typeLiteral.type).name.fullyQualifiedName == someType
+        ((SimpleType) typeLiteral.type).name.fullyQualifiedName == someType.toString()
     }
 
     def 'should create string literal'() {
         given:
         def someString = 'some string'
-        StringLiteral stringLiteral = astNodeFactory.stringLiteral(someString)
+        StringLiteral stringLiteral = nodeFactory.stringLiteral(someString)
 
         expect:
         stringLiteral.literalValue == someString
@@ -108,7 +106,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create number literal'() {
         given:
-        NumberLiteral numberLiteral = astNodeFactory.numberLiteral('5d')
+        NumberLiteral numberLiteral = nodeFactory.numberLiteral('5d')
 
         expect:
         numberLiteral.token == '5d'
@@ -117,7 +115,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create null literal'() {
         given:
-        NullLiteral nullLiteral = astNodeFactory.nullLiteral()
+        NullLiteral nullLiteral = nodeFactory.nullLiteral()
 
         expect:
         nullLiteral.toString() == 'null'
@@ -125,7 +123,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create boolean literal'() {
         given:
-        BooleanLiteral booleanLiteral = astNodeFactory.booleanLiteral(false)
+        BooleanLiteral booleanLiteral = nodeFactory.booleanLiteral(false)
 
         expect:
         booleanLiteral.toString() == 'false'
@@ -133,7 +131,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create marker annotation'() {
         given:
-        Annotation annotation = astNodeFactory.annotation('Some', [] as Map)
+        Annotation annotation = nodeFactory.annotation('Some', [] as Map)
 
         expect:
         annotation.toString() == '@Some'
@@ -141,7 +139,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create annotation with parameters'() {
         given:
-        Annotation annotation = astNodeFactory.annotation('Some', ['foo': astNodeFactory.stringLiteral('bar')] as Map)
+        Annotation annotation = nodeFactory.annotation('Some', ['foo': nodeFactory.stringLiteral('bar')] as Map)
 
         expect:
         annotation.toString() == '@Some(foo="bar")'
@@ -149,8 +147,8 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create infix expression'() {
         given:
-        InfixExpression infixExpression = astNodeFactory
-                .infixExpression(LESS_EQUALS, astNodeFactory.numberLiteral('1'), astNodeFactory.numberLiteral('2'))
+        InfixExpression infixExpression = nodeFactory
+                .infixExpression(LESS_EQUALS, nodeFactory.numberLiteral('1'), nodeFactory.numberLiteral('2'))
 
         expect:
         infixExpression.toString() == '1 <= 2'
@@ -158,7 +156,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create prefix expression'() {
         given:
-        PrefixExpression prefixExpression = astNodeFactory.prefixExpression(DECREMENT, astNodeFactory.simpleName('a'))
+        PrefixExpression prefixExpression = nodeFactory.prefixExpression(DECREMENT, nodeFactory.simpleName('a'))
 
         expect:
         prefixExpression.toString() == '--a'
@@ -166,7 +164,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create postfix expression'() {
         given:
-        PostfixExpression postfixExpression = astNodeFactory.postfixExpression(astNodeFactory.simpleName('a'),
+        PostfixExpression postfixExpression = nodeFactory.postfixExpression(nodeFactory.simpleName('a'),
                 PostfixExpression.Operator.DECREMENT)
 
         expect:
@@ -175,8 +173,9 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create instanceof expression'() {
         given:
-        InstanceofExpression instanceofExpression = astNodeFactory
-                .instanceofExpression(astNodeFactory.numberLiteral('1'), astNodeFactory.simpleType('Integer'))
+        InstanceofExpression instanceofExpression = nodeFactory
+                .instanceofExpression(nodeFactory.numberLiteral('1'), nodeFactory
+                .simpleType(nodeFactory.simpleName('Integer')))
 
         expect:
         instanceofExpression.toString() == '1 instanceof Integer'
@@ -184,7 +183,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create character literal expression'() {
         when:
-        CharacterLiteral characterLiteral = astNodeFactory.characterLiteral('a' as char)
+        CharacterLiteral characterLiteral = nodeFactory.characterLiteral('a' as char)
 
         then:
         characterLiteral.toString() == "'a'"
@@ -192,7 +191,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create dimension'() {
         given:
-        Dimension dimension = astNodeFactory.dimension()
+        Dimension dimension = nodeFactory.dimension()
 
         expect:
         dimension.toString() == '[]'
@@ -200,8 +199,8 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create array initializer'() {
         given:
-        ArrayInitializer arrayInitializer = astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('13'),
-                                                                             astNodeFactory.numberLiteral('14')])
+        ArrayInitializer arrayInitializer = nodeFactory.arrayInitializer([nodeFactory.numberLiteral('13'),
+                                                                          nodeFactory.numberLiteral('14')])
 
         expect:
         arrayInitializer.toString() == '{13,14}'
@@ -209,12 +208,12 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create multidimensional array initializer'() {
         given:
-        ArrayInitializer arrayInitializer1 = astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('11'),
-                                                                              astNodeFactory.numberLiteral('12')])
-        ArrayInitializer arrayInitializer2 = astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('13'),
-                                                                              astNodeFactory.numberLiteral('14')])
-        ArrayInitializer multidimensionalArrayInitializer = astNodeFactory.arrayInitializer([arrayInitializer1,
-                                                                                             arrayInitializer2])
+        ArrayInitializer arrayInitializer1 = nodeFactory.arrayInitializer([nodeFactory.numberLiteral('11'),
+                                                                           nodeFactory.numberLiteral('12')])
+        ArrayInitializer arrayInitializer2 = nodeFactory.arrayInitializer([nodeFactory.numberLiteral('13'),
+                                                                           nodeFactory.numberLiteral('14')])
+        ArrayInitializer multidimensionalArrayInitializer = nodeFactory.arrayInitializer([arrayInitializer1,
+                                                                                          arrayInitializer2])
 
         expect:
         multidimensionalArrayInitializer.toString() == '{{11,12},{13,14}}'
@@ -222,34 +221,34 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create array creation expression'() {
         given:
-        def arrayType = astNodeFactory.arrayType(astNodeFactory.primitiveType(INT), dimenssions.size())
-        ArrayCreation arrayCreation = astNodeFactory.arrayCreation(arrayType,
+        def arrayType = nodeFactory.arrayType(nodeFactory.primitiveType(INT), dimenssions.size())
+        ArrayCreation arrayCreation = nodeFactory.arrayCreation(arrayType,
                 dimenssions, initializer)
 
         expect:
         arrayCreation.toString() == literal
 
         where:
-        dimenssions                         | initializer                                                                                                                                | literal
-        [astNodeFactory.numberLiteral('1')] | null                                                                                                                                       | 'new int[1]'
-        [astNodeFactory.numberLiteral('1')] | astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('2')])                                                                       | 'new int[1]{2}'
-        [astNodeFactory.numberLiteral('2'),
-         astNodeFactory.numberLiteral('2')] | astNodeFactory.arrayInitializer([astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('2'), astNodeFactory.numberLiteral('3')]),
-                                                                               astNodeFactory.arrayInitializer([astNodeFactory.numberLiteral('0'), astNodeFactory.numberLiteral('5')])]) | 'new int[2][2]{{2,3},{0,5}}'
+        dimenssions                      | initializer                                                                                                                    | literal
+        [nodeFactory.numberLiteral('1')] | null                                                                                                                           | 'new int[1]'
+        [nodeFactory.numberLiteral('1')] | nodeFactory.arrayInitializer([nodeFactory.numberLiteral('2')])                                                                 | 'new int[1]{2}'
+        [nodeFactory.numberLiteral('2'),
+         nodeFactory.numberLiteral('2')] | nodeFactory.arrayInitializer([nodeFactory.arrayInitializer([nodeFactory.numberLiteral('2'), nodeFactory.numberLiteral('3')]),
+                                                                         nodeFactory.arrayInitializer([nodeFactory.numberLiteral('0'), nodeFactory.numberLiteral('5')])]) | 'new int[2][2]{{2,3},{0,5}}'
     }
 
     def 'should create field declaration with modifiers'() {
         given:
-        def variableDeclarationFragment = astNodeFactory.variableDeclarationFragment('someField')
-        FieldDeclaration fieldDeclaration = astNodeFactory
-                .fieldDeclaration(variableDeclarationFragment, astNodeFactory.simpleType('Comparable'), *modifiers)
+        def variableDeclarationFragment = nodeFactory.variableDeclarationFragment('someField')
+        FieldDeclaration fieldDeclaration = nodeFactory
+                .fieldDeclaration(variableDeclarationFragment, nodeFactory.simpleType(nodeFactory.simpleName('Comparable')), *modifiers)
 
         expect:
         fieldDeclaration.toString() == expectedLiteral
 
         where:
-        modifiers                                                   | expectedLiteral
-        []                                                          | 'Comparable someField;\n'
-        [astNodeFactory.annotation('Immutable', emptyMap())]        | '@Immutable Comparable someField;\n'
+        modifiers                                         | expectedLiteral
+        []                                                | 'Comparable someField;\n'
+        [nodeFactory.annotation('Immutable', emptyMap())] | '@Immutable Comparable someField;\n'
     }
 }

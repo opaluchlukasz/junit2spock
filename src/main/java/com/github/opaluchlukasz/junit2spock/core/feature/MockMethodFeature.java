@@ -1,6 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.feature;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -30,10 +31,11 @@ public class MockMethodFeature extends Feature<VariableDeclarationStatement> {
 
     @Override
     public VariableDeclarationStatement apply(Object object, VariableDeclarationStatement variableDeclarationStatement) {
-        variableDeclarationStatement.fragments().forEach(declarationFragment ->
-                ((VariableDeclarationFragment) declarationFragment).setInitializer(astNodeFactory
-                        .methodInvocation("Mock", singletonList(astNodeFactory
-                                .typeLiteral(variableDeclarationStatement.getType().toString())))));
+        variableDeclarationStatement.fragments().forEach(declarationFragment -> {
+            Type clonedType = astNodeFactory.clone(variableDeclarationStatement.getType());
+            ((VariableDeclarationFragment) declarationFragment).setInitializer(astNodeFactory
+                    .methodInvocation("Mock", singletonList(astNodeFactory.typeLiteral(clonedType))));
+        });
         return variableDeclarationStatement;
     }
 }

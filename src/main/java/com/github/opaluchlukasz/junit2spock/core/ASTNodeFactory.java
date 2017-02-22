@@ -20,12 +20,14 @@ import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.StringLiteral;
@@ -162,7 +164,7 @@ public class ASTNodeFactory {
 
     public Type clone(Type type) {
         if (type instanceof SimpleType) {
-            return simpleType(((SimpleType) type).getName().getFullyQualifiedName());
+            return simpleType((Name) clone(((SimpleType) type).getName()));
         }
         if (type instanceof PrimitiveType) {
             return primitiveType(((PrimitiveType) type).getPrimitiveTypeCode());
@@ -228,6 +230,16 @@ public class ASTNodeFactory {
         }
         if (expression instanceof SimpleName) {
             return simpleName(((SimpleName) expression).getFullyQualifiedName());
+        }
+        if (expression instanceof QualifiedName) {
+            QualifiedName qualifiedName = (QualifiedName) expression;
+            return ast.newQualifiedName((Name) clone(qualifiedName.getQualifier()),
+                    (SimpleName) clone(qualifiedName.getName()));
+        }
+        if (expression instanceof TypeLiteral) {
+            TypeLiteral typeLiteral = ast.newTypeLiteral();
+            typeLiteral.setType(clone(((TypeLiteral) expression).getType()));
+            return typeLiteral;
         }
         if (expression instanceof ThisExpression) {
             return ast.newThisExpression();
@@ -302,13 +314,13 @@ public class ASTNodeFactory {
         return ast.newBooleanLiteral(value);
     }
 
-    public SimpleType simpleType(String name) {
-        return ast.newSimpleType(simpleName(name));
+    public SimpleType simpleType(Name name) {
+        return ast.newSimpleType(name);
     }
 
-    public TypeLiteral typeLiteral(String typeName) {
+    public TypeLiteral typeLiteral(Type type) {
         TypeLiteral typeLiteral = ast.newTypeLiteral();
-        typeLiteral.setType(simpleType(typeName));
+        typeLiteral.setType(type);
         return typeLiteral;
     }
 
@@ -357,7 +369,7 @@ public class ASTNodeFactory {
     private Expression classInstanceCreation(ClassInstanceCreation toBeCloned) {
         ClassInstanceCreation clonedClassInstanceCreation = ast.newClassInstanceCreation();
         clonedClassInstanceCreation.setExpression(clone(toBeCloned.getExpression()));
-        clonedClassInstanceCreation.setType(simpleType(toBeCloned.getType().toString()));
+        clonedClassInstanceCreation.setType(simpleType(simpleName(toBeCloned.getType().toString())));
         List cloned = (List) toBeCloned.arguments().stream().map(this::clone).collect(toList());
         clonedClassInstanceCreation.arguments().addAll(cloned);
         return clonedClassInstanceCreation;

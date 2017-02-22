@@ -7,6 +7,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 class MockMethodFeatureTest extends Specification {
+
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
     @Subject private MockMethodFeature mockMethodFeature = new MockMethodFeature(nodeFactory)
@@ -17,14 +18,14 @@ class MockMethodFeatureTest extends Specification {
 
         where:
         node << [new Object(), nodeFactory.fieldDeclaration(nodeFactory.variableDeclarationFragment('variable'),
-                nodeFactory.simpleType('SomeClass'))]
+                nodeFactory.simpleType(nodeFactory.simpleName('SomeClass')))]
     }
 
     def 'should return false for mock method declarations'() {
         given:
         def someVar = 'someVar'
         def mockMethod = nodeFactory.methodInvocation('mock', [])
-        def type = nodeFactory.simpleType('SomeClass')
+        def type = nodeFactory.simpleType(nodeFactory.simpleName('SomeClass'))
         VariableDeclarationStatement statement = nodeFactory.variableDeclarationStatement(someVar, type, mockMethod)
 
         expect:
@@ -35,7 +36,7 @@ class MockMethodFeatureTest extends Specification {
         given:
         def someVar = 'someVar'
         def mockMethod = nodeFactory.methodInvocation('mock', [])
-        def type = nodeFactory.simpleType('SomeClass')
+        def type = nodeFactory.simpleType(nodeFactory.simpleName('SomeClass'))
         VariableDeclarationStatement statement = nodeFactory.variableDeclarationStatement(someVar, type, mockMethod)
 
         expect:

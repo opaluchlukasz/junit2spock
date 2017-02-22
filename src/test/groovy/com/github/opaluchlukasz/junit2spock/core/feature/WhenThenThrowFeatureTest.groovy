@@ -41,7 +41,7 @@ class WhenThenThrowFeatureTest extends Specification {
     def 'should return Spock\' expression for proper thenThrow method invocation'() {
         given:
         def stubbedMethod = 'someMethod'
-        def exceptionType = nodeFactory.simpleType('RuntimeException')
+        def exceptionType = nodeFactory.simpleType(nodeFactory.simpleName('RuntimeException'))
         def exceptionMessage = nodeFactory.stringLiteral('some message')
         MethodInvocation methodInvocation = nodeFactory
                 .methodInvocation(THEN_THROW, [nodeFactory.classInstanceCreation(exceptionType, exceptionMessage)],

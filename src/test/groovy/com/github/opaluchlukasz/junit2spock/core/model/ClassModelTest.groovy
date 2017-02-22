@@ -10,7 +10,7 @@ import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclaratio
 
 class ClassModelTest extends Specification {
 
-    private ASTNodeFactory astNodeFactory = new ASTNodeFactory()
+    private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
     def 'should extend spock.lang.Specification class when there are test methods in class'() {
         given:
@@ -20,7 +20,7 @@ class ClassModelTest extends Specification {
 
         when:
         def testClass = new ClassModelBuilder()
-                .withClassName(astNodeFactory.simpleName(testClassName))
+                .withClassName(nodeFactory.simpleName(testClassName))
                 .withMethod(new TestMethodModel(methodDeclaration))
                 .withAST(ast)
                 .build()
@@ -35,8 +35,8 @@ class ClassModelTest extends Specification {
 
         when:
         def testClass = new ClassModelBuilder()
-                .withClassName(astNodeFactory.simpleName(testClassName))
-                .withSuperType(astNodeFactory.simpleType('Object'))
+                .withClassName(nodeFactory.simpleName(testClassName))
+                .withSuperType(nodeFactory.simpleType(nodeFactory.simpleName('Object')))
                 .build()
 
         then:
