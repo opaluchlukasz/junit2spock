@@ -1,24 +1,23 @@
 package com.github.opaluchlukasz.junit2spock.core.feature
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
-import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static com.github.opaluchlukasz.junit2spock.core.feature.ThenReturnFeature.THEN_RETURN
-import static com.github.opaluchlukasz.junit2spock.core.feature.ThenReturnFeature.WHEN
+import static WhenThenReturnFeature.THEN_RETURN
+import static WhenThenReturnFeature.WHEN
 
-class ThenReturnFeatureTest extends Specification {
+class WhenThenReturnFeatureTest extends Specification {
 
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
-    @Subject private ThenReturnFeature thenReturnFeature = new ThenReturnFeature(nodeFactory)
+    @Subject private MockitoReturnFeature returnFeature = new MockitoReturnFeature(nodeFactory, WHEN, THEN_RETURN)
 
     def 'should return false for non thenReturn method invocation'() {
         expect:
-        !thenReturnFeature.applicable(node).isPresent()
+        !returnFeature.applicable(node).isPresent()
 
         where:
         node << [new Object(),
@@ -35,7 +34,7 @@ class ThenReturnFeatureTest extends Specification {
                         nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation('someMethod', [])]))
 
         expect:
-        thenReturnFeature.applicable(methodInvocation).isPresent()
+        returnFeature.applicable(methodInvocation).isPresent()
     }
 
     def 'should return Spock\' expression for proper thenReturn method invocation'() {
@@ -44,7 +43,7 @@ class ThenReturnFeatureTest extends Specification {
         MethodInvocation methodInvocation = nodeFactory
                 .methodInvocation(THEN_RETURN, [nodeFactory.booleanLiteral(true)],
                 nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation(stubbedMethod, [])]))
-        InfixExpression expression = thenReturnFeature.apply(methodInvocation)
+        Object expression = returnFeature.apply(methodInvocation)
 
         expect:
         expression.toString() == "$stubbedMethod() >> true" as String
@@ -55,9 +54,8 @@ class ThenReturnFeatureTest extends Specification {
         MethodInvocation methodInvocation = nodeFactory.methodInvocation(THEN_RETURN,
                 [nodeFactory.numberLiteral('0'), nodeFactory.numberLiteral('0')])
 
-
         when:
-        thenReturnFeature.apply(methodInvocation, methodInvocation)
+        returnFeature.apply(methodInvocation, methodInvocation)
 
         then:
         UnsupportedOperationException ex = thrown()

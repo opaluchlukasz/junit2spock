@@ -11,14 +11,14 @@ import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 
-public class ThenThrowFeature extends Feature<MethodInvocation> {
+public class WhenThenThrowFeature extends Feature<MethodInvocation> {
 
     public static final String THEN_THROW = "thenThrow";
     public static final String WHEN = "when";
 
     private final ASTNodeFactory astNodeFactory;
 
-    ThenThrowFeature(ASTNodeFactory astNodeFactory) {
+    WhenThenThrowFeature(ASTNodeFactory astNodeFactory) {
         this.astNodeFactory = astNodeFactory;
     }
 

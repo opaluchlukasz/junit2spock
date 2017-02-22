@@ -7,14 +7,14 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static com.github.opaluchlukasz.junit2spock.core.feature.ThenThrowFeature.THEN_THROW
-import static com.github.opaluchlukasz.junit2spock.core.feature.ThenThrowFeature.WHEN
+import static WhenThenThrowFeature.THEN_THROW
+import static WhenThenThrowFeature.WHEN
 
-class ThenThrowFeatureTest extends Specification {
+class WhenThenThrowFeatureTest extends Specification {
 
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
-    @Subject private ThenThrowFeature thenThrowFeature = new ThenThrowFeature(nodeFactory)
+    @Subject private WhenThenThrowFeature thenThrowFeature = new WhenThenThrowFeature(nodeFactory)
 
     def 'should return false for non thenThrow method invocation'() {
         expect:
@@ -58,7 +58,6 @@ class ThenThrowFeatureTest extends Specification {
         given:
         MethodInvocation methodInvocation = nodeFactory.methodInvocation(THEN_THROW,
                 [nodeFactory.numberLiteral('0'), nodeFactory.numberLiteral('0')])
-
 
         when:
         thenThrowFeature.apply(methodInvocation, methodInvocation)

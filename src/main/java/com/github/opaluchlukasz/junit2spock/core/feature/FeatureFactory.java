@@ -12,9 +12,11 @@ final class FeatureFactory {
     static Feature provide(SupportedTestFeature supportedTestFeatures, ASTNodeFactory astNodeFactory) {
         switch (supportedTestFeatures) {
             case THEN_RETURN:
-                return new ThenReturnFeature(astNodeFactory);
+                return new WhenThenReturnFeature(astNodeFactory);
+            case WILL_RETURN:
+                return new GivenWillReturnFeature(astNodeFactory);
             case THEN_THROW:
-                return new ThenThrowFeature(astNodeFactory);
+                return new WhenThenThrowFeature(astNodeFactory);
             case ASSERT_EQUALS:
                 return new AssertEqualsFeature(astNodeFactory);
             case ASSERT_NOT_NULL:

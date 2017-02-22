@@ -7,6 +7,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 
 public class MyTest {
 
@@ -17,6 +18,7 @@ public class MyTest {
     public void before() {
         when(mockedList.get(1)).thenReturn("second");
         when(mockedList.get(2)).thenThrow(new IndexOutOfBoundsException("out of bound"));
+        given(mockedList.get(0)).willReturn("some");
     }
 
     @Test

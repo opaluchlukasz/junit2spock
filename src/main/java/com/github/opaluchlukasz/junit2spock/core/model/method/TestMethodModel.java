@@ -20,8 +20,9 @@ import static com.github.opaluchlukasz.junit2spock.core.feature.AssertFalseFeatu
 import static com.github.opaluchlukasz.junit2spock.core.feature.AssertNotNullFeature.ASSERT_NOT_NULL;
 import static com.github.opaluchlukasz.junit2spock.core.feature.AssertNullFeature.ASSERT_NULL;
 import static com.github.opaluchlukasz.junit2spock.core.feature.AssertTrueFeature.ASSERT_TRUE;
-import static com.github.opaluchlukasz.junit2spock.core.feature.ThenReturnFeature.THEN_RETURN;
-import static com.github.opaluchlukasz.junit2spock.core.feature.ThenThrowFeature.THEN_THROW;
+import static com.github.opaluchlukasz.junit2spock.core.feature.GivenWillReturnFeature.WILL_RETURN;
+import static com.github.opaluchlukasz.junit2spock.core.feature.WhenThenReturnFeature.THEN_RETURN;
+import static com.github.opaluchlukasz.junit2spock.core.feature.WhenThenThrowFeature.THEN_THROW;
 import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.annotatedWith;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expect;
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given;
@@ -39,7 +40,7 @@ public class TestMethodModel extends MethodModel {
     private static final String THROWN = "thrown";
     public static final String[] THEN_BLOCK_START = {ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, ASSERT_TRUE,
         ASSERT_FALSE, ASSERT_NULL, THROWN};
-    private static final String[] MOCKING  = {THEN_RETURN, THEN_THROW};
+    private static final String[] MOCKING  = {THEN_RETURN, THEN_THROW, WILL_RETURN};
     private final List<Object> body = new LinkedList<>();
 
     TestMethodModel(MethodDeclaration methodDeclaration) {
