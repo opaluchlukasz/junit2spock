@@ -4,6 +4,7 @@ import java.util.List;
 
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIELD_FEATURE;
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIXTURE_METHOD;
+import static com.github.opaluchlukasz.junit2spock.core.Applicable.REGULAR_METHOD;
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.TEST_METHOD;
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.stream;
@@ -12,14 +13,14 @@ import static java.util.stream.Collectors.toList;
 
 public enum SupportedTestFeature {
     MOCK_ANNOTATION(of("org.mockito.Mock"), of(FIELD_FEATURE)),
-    MOCK_METHOD(of("org.mockito.Mockito.mock"), of(FIXTURE_METHOD, TEST_METHOD)),
+    MOCK_METHOD(of("org.mockito.Mockito.mock"), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
     BEFORE(of("org.junit.Before"), emptyList()),
     BEFORE_CLASS(of("org.junit.BeforeClass"), emptyList()),
     AFTER(of("org.junit.After"), emptyList()),
     AFTER_CLASS(of("org.junit.AfterClass"), emptyList()),
-    THEN_RETURN(of("org.mockito.Mockito.when"), of(FIXTURE_METHOD, TEST_METHOD)),
-    WILL_RETURN(of("org.mockito.BDDMockito.given"), of(FIXTURE_METHOD, TEST_METHOD)),
-    THEN_THROW(emptyList(), of(FIXTURE_METHOD, TEST_METHOD)),
+    THEN_RETURN(of("org.mockito.Mockito.when"), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
+    WILL_RETURN(of("org.mockito.BDDMockito.given"), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
+    THEN_THROW(emptyList(), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
     TEST_ANNOTATION(of("org.junit.Test"), emptyList()),
     ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals",
             "org.junit.Assert.assertArrayEquals", "junit.framework.Assert.assertArrayEquals"), of(TEST_METHOD)),
