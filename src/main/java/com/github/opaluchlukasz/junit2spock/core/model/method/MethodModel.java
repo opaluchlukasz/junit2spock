@@ -7,6 +7,7 @@ import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,11 +23,15 @@ public abstract class MethodModel {
     private final MethodDeclaration methodDeclaration;
     private final Groovism groovism;
     private final ASTNodeFactory astNodeFactory;
+    private final List<Object> body = new LinkedList<>();
 
     MethodModel(MethodDeclaration methodDeclaration) {
         this.methodDeclaration = methodDeclaration;
         astNodeFactory = new ASTNodeFactory(methodDeclaration.getAST());
         groovism = provide();
+        if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
+            this.body.addAll(methodDeclaration.getBody().statements());
+        }
     }
 
     public String asGroovyMethod(int baseIndentationInTabs) {
@@ -80,7 +85,9 @@ public abstract class MethodModel {
 
     protected abstract String getMethodName();
 
-    protected abstract List<Object> body();
+    protected List<Object> body() {
+        return body;
+    }
 
     protected MethodDeclaration methodDeclaration() {
         return methodDeclaration;

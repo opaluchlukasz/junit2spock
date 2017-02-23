@@ -9,7 +9,6 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,13 +40,9 @@ public class TestMethodModel extends MethodModel {
     public static final String[] THEN_BLOCK_START = {ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, ASSERT_TRUE,
         ASSERT_FALSE, ASSERT_NULL, THROWN};
     private static final String[] MOCKING  = {THEN_RETURN, THEN_THROW, WILL_RETURN};
-    private final List<Object> body = new LinkedList<>();
 
     TestMethodModel(MethodDeclaration methodDeclaration) {
         super(methodDeclaration);
-        if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
-            body.addAll(methodDeclaration.getBody().statements());
-        }
 
         addThrownSupport(methodDeclaration);
         addSpockSpecificBlocksToBody();
@@ -65,7 +60,7 @@ public class TestMethodModel extends MethodModel {
                 .filter(annotation -> annotation instanceof NormalAnnotation)
                 .flatMap(this::expectedException);
 
-        expected.ifPresent(expression -> body
+        expected.ifPresent(expression -> body()
                 .add(astNodeFactory().methodInvocation(THROWN,
                         singletonList(astNodeFactory().simpleName(((TypeLiteral) expression).getType().toString())))));
     }
@@ -74,11 +69,6 @@ public class TestMethodModel extends MethodModel {
         return ((NormalAnnotation) annotation).values().stream()
                 .filter(value -> ((MemberValuePair) value).getName().getFullyQualifiedName().equals("expected"))
                 .map(value -> ((MemberValuePair) value).getValue()).findFirst();
-    }
-
-    @Override
-    protected List<Object> body() {
-        return body;
     }
 
     @Override
@@ -95,6 +85,8 @@ public class TestMethodModel extends MethodModel {
     private void addSpockSpecificBlocksToBody() {
         int thenIndex = thenExpectBlockStart();
         boolean then = isWhenThenStrategy(thenIndex);
+
+        List<Object> body = body();
 
         if (then) {
             body.add(thenIndex, then());
@@ -114,6 +106,7 @@ public class TestMethodModel extends MethodModel {
         if (index == 0) {
             return false;
         } else {
+            List<Object> body = body();
             if (body.get(index - 1) instanceof ExpressionStatement) {
                 Expression expression = ((ExpressionStatement) body.get(index - 1)).getExpression();
                 if (expression instanceof MethodInvocation) {
@@ -125,6 +118,8 @@ public class TestMethodModel extends MethodModel {
     }
 
     private int thenExpectBlockStart() {
+        List<Object> body = body();
+
         for (int i = 0; i < body.size(); i++) {
             if (methodInvocation(body.get(i), THEN_BLOCK_START).isPresent()) {
                 return i;
