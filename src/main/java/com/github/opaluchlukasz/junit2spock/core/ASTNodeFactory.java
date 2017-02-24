@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.Dimension;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
@@ -373,5 +374,9 @@ public class ASTNodeFactory {
         List cloned = (List) toBeCloned.arguments().stream().map(this::clone).collect(toList());
         clonedClassInstanceCreation.arguments().addAll(cloned);
         return clonedClassInstanceCreation;
+    }
+
+    public IfStatement ifStatement() {
+        return ast.newIfStatement();
     }
 }

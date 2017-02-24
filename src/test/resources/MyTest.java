@@ -42,7 +42,9 @@ public class MyTest {
     @Test
     public void mockingTest() {
         LinkedList mockedList = mock(LinkedList.class);
-        when(mockedList.get(0)).thenReturn("first");
+        if (mockedList != null) {
+            when(mockedList.get(0)).thenReturn("first");
+        }
 
         assertTrue(mockedList.get(0) == "first");
     }

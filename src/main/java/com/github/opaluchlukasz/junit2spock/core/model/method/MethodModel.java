@@ -5,6 +5,8 @@ import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
 import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
+import com.github.opaluchlukasz.junit2spock.core.node.IfStatementWrapper;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import java.util.LinkedList;
@@ -30,8 +32,15 @@ public abstract class MethodModel {
         astNodeFactory = new ASTNodeFactory(methodDeclaration.getAST());
         groovism = provide();
         if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
-            this.body.addAll(methodDeclaration.getBody().statements());
+            methodDeclaration.getBody().statements().forEach(statement -> body.add(wrap(statement)));
         }
+    }
+
+    private Object wrap(Object statement) {
+        if (statement instanceof IfStatement) {
+            return new IfStatementWrapper((IfStatement) statement, 1);
+        }
+        return statement;
     }
 
     public String asGroovyMethod(int baseIndentationInTabs) {
@@ -40,7 +49,7 @@ public abstract class MethodModel {
         methodBuilder.append(SEPARATOR);
 
         methodBuilder.append(body().stream()
-                .map(node -> indentation(baseIndentationInTabs + 1) + node.toString())
+                .map(node -> nodeAsString(baseIndentationInTabs, node))
                 .map(groovism::apply)
                 .collect(joining(SEPARATOR, "", methodSuffix())));
 
@@ -48,6 +57,13 @@ public abstract class MethodModel {
         methodBuilder.append(SEPARATOR).append(SEPARATOR);
 
         return methodBuilder.toString();
+    }
+
+    private String nodeAsString(int baseIndentationInTabs, Object node) {
+        if (node instanceof IfStatementWrapper) {
+            return node.toString();
+        }
+        return indentation(baseIndentationInTabs + 1) + node.toString();
     }
 
     public String methodDeclaration(int baseIndentationInTabs) {
