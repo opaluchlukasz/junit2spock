@@ -1,20 +1,25 @@
 package com.github.opaluchlukasz.junit2spock.core
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import static java.io.File.separator
 import static java.nio.charset.StandardCharsets.UTF_8
 
 class SpockerTest extends Specification {
 
-    def 'should return groovy test class for junit test class'() {
+    @Unroll
+    def 'should return groovy test class for junit test class (#input)'() {
         given:
-        String source = readFromResources('MyTest.java')
-        String expected = normalize(readFromResources('MyTest.groovy'))
+        String source = readFromResources("${input}.java")
+        String expected = normalize(readFromResources("${input}.groovy"))
         Spocker spocker = new Spocker(source)
 
         expect:
         normalize(spocker.asGroovyClass()) == expected
+
+        where:
+        input << ['MyTest', 'IfStatementWrapperTest']
     }
 
     def 'should return interface for java interface'() {

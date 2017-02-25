@@ -36,7 +36,7 @@ public abstract class MethodModel {
         }
     }
 
-    private Object wrap(Object statement) {
+    private static Object wrap(Object statement) {
         if (statement instanceof IfStatement) {
             return new IfStatementWrapper((IfStatement) statement, 1);
         }
