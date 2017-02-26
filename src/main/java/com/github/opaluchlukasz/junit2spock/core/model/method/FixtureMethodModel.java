@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
+import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import java.util.Optional;
@@ -14,7 +15,7 @@ public class FixtureMethodModel extends MethodModel {
     FixtureMethodModel(MethodDeclaration methodDeclaration, String fixtureMethodName) {
         super(methodDeclaration);
         this.fixtureMethodName = fixtureMethodName;
-        applyFeaturesToMethodBody(FIXTURE_METHOD);
+        methodType().applyFeaturesToStatements(body(), astNodeFactory());
     }
 
     @Override
@@ -25,6 +26,11 @@ public class FixtureMethodModel extends MethodModel {
     @Override
     protected String getMethodName() {
         return fixtureMethodName;
+    }
+
+    @Override
+    protected Applicable methodType() {
+        return FIXTURE_METHOD;
     }
 
     @Override

@@ -2,8 +2,6 @@ package com.github.opaluchlukasz.junit2spock.core.model.method;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
-import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
-import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import com.github.opaluchlukasz.junit2spock.core.node.IfStatementWrapper;
 import org.eclipse.jdt.core.dom.IfStatement;
@@ -28,17 +26,17 @@ public abstract class MethodModel {
     private final List<Object> body = new LinkedList<>();
 
     MethodModel(MethodDeclaration methodDeclaration) {
-        this.methodDeclaration = methodDeclaration;
         astNodeFactory = new ASTNodeFactory(methodDeclaration.getAST());
+        this.methodDeclaration = methodDeclaration;
         groovism = provide();
         if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
             methodDeclaration.getBody().statements().forEach(statement -> body.add(wrap(statement)));
         }
     }
 
-    private static Object wrap(Object statement) {
+    private Object wrap(Object statement) {
         if (statement instanceof IfStatement) {
-            return new IfStatementWrapper((IfStatement) statement, 1);
+            return new IfStatementWrapper((IfStatement) statement, 1, methodType());
         }
         return statement;
     }
@@ -85,21 +83,11 @@ public abstract class MethodModel {
         return methodBuilder;
     }
 
-    void applyFeaturesToMethodBody(Applicable applicable) {
-        List<Feature> features = new FeatureProvider(astNodeFactory).features(applicable);
-        for (int i = 0; i < body().size(); i++) {
-            Object bodyNode = body().get(i);
-            body().remove(bodyNode);
-            for (Feature testMethodFeature : features) {
-                bodyNode = testMethodFeature.apply(bodyNode);
-            }
-            body().add(i, bodyNode);
-        }
-    }
-
     protected abstract String methodSuffix();
 
     protected abstract String getMethodName();
+
+    protected abstract Applicable methodType();
 
     protected List<Object> body() {
         return body;

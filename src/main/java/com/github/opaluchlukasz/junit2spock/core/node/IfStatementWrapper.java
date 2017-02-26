@@ -1,5 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.node;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IfStatement;
@@ -17,14 +19,20 @@ public class IfStatementWrapper {
     private final LinkedList thenBlock;
     private final LinkedList elseBlock;
     private final int indentationLevel;
+    private final Applicable applicable;
+    private final ASTNodeFactory astNodeFactory;
 
-    public IfStatementWrapper(IfStatement statement, int indentationLevel) {
+    public IfStatementWrapper(IfStatement statement, int indentationLevel, Applicable applicable) {
+        this.astNodeFactory = new ASTNodeFactory(statement.getAST());
         this.expression = statement.getExpression();
         this.indentationLevel = indentationLevel;
+        this.applicable = applicable;
         this.thenBlock = new LinkedList<>();
         this.elseBlock = new LinkedList<>();
         statementsFrom(statement.getThenStatement(), thenBlock);
         statementsFrom(statement.getElseStatement(), elseBlock);
+        applicable.applyFeaturesToStatements(thenBlock, astNodeFactory);
+        applicable.applyFeaturesToStatements(elseBlock, astNodeFactory);
     }
 
     private void statementsFrom(Statement statement, LinkedList extracted) {
@@ -37,7 +45,7 @@ public class IfStatementWrapper {
 
     private Object wrap(Object statement, int indentation) {
         if (statement instanceof IfStatement) {
-            return new IfStatementWrapper((IfStatement) statement, indentation);
+            return new IfStatementWrapper((IfStatement) statement, indentation, applicable);
         }
         return statement;
     }
@@ -65,6 +73,9 @@ public class IfStatementWrapper {
                 builder.append(stmt.toString());
             } else {
                 builder.append(indentation(indentationLevel + 2)).append(stmt);
+                if (!stmt.toString().endsWith("\n")) {
+                    builder.append(SEPARATOR);
+                }
             }
         };
     }

@@ -11,6 +11,7 @@ import org.eclipse.jdt.core.dom.ThrowStatement
 import spock.lang.Shared
 import spock.lang.Specification
 
+import static com.github.opaluchlukasz.junit2spock.core.Applicable.REGULAR_METHOD
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS
 
@@ -28,7 +29,7 @@ class IfStatementWrapperTest extends Specification {
         ifStatement.setElseStatement(elseStatement)
 
         expect:
-        new IfStatementWrapper(ifStatement, 0).toString() == expected
+        new IfStatementWrapper(ifStatement, 0, REGULAR_METHOD).toString() == expected
 
         where:
         expression        | thenStatement           | elseStatement           | expected

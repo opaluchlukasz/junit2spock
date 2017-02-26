@@ -9,11 +9,11 @@ class IfStatementWrapperTest extends Specification {
 
 		if (mockedList != null) {
 			if (mockedList != null) {
-				when(mockedList.get(0)).thenReturn('first');
+				mockedList.get(0) >> 'first'
 			}
 		} else 		if (mockedList == null) {
-			when(mockedList.get(0)).thenReturn('first');
-			when(mockedList.get(1)).thenReturn('second');
+			mockedList.get(0) >> 'first'
+			mockedList.get(1) >> 'second'
 		}
 
 

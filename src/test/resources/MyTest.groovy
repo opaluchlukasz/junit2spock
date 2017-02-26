@@ -39,7 +39,7 @@ class MyTest extends Specification {
 		LinkedList mockedList=Mock(LinkedList)
 
 		if (mockedList != null) {
-			when(mockedList.get(0)).thenReturn('first');
+			mockedList.get(0) >> 'first'
 		}
 
 		expect:

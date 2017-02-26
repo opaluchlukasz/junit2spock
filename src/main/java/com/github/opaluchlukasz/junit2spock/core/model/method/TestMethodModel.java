@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
+import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -46,7 +47,7 @@ public class TestMethodModel extends MethodModel {
 
         addThrownSupport(methodDeclaration);
         addSpockSpecificBlocksToBody();
-        applyFeaturesToMethodBody(TEST_METHOD);
+        methodType().applyFeaturesToStatements(body(), astNodeFactory());
     }
 
     @Override
@@ -80,6 +81,11 @@ public class TestMethodModel extends MethodModel {
     protected String getMethodName() {
         return wrapIfMissing(join(splitByCharacterTypeCamelCase(methodDeclaration().getName().toString()), ' '), "'")
                 .toLowerCase();
+    }
+
+    @Override
+    protected Applicable methodType() {
+        return TEST_METHOD;
     }
 
     private void addSpockSpecificBlocksToBody() {
