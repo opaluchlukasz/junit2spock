@@ -36,7 +36,7 @@ class IfStatementWrapperTest extends Specification {
         infixExpression() | block()                                              | block()                                       | "\tif (a == true) {$SEPARATOR\t}$SEPARATOR"
         infixExpression() | block()                                              | block(throwStatement())                       | "\tif (a == true) {$SEPARATOR\t} else {$SEPARATOR\t\tthrow new Foo()\n\t}$SEPARATOR"
         infixExpression() | block(throwStatement())                              | null                                          | "\tif (a == true) {$SEPARATOR\t\tthrow new Foo()\n\t}$SEPARATOR"
-        infixExpression() | null                                                 | ifStatement(infixExpression(), block(), null) | "\tif (a == true) {$SEPARATOR\t} else \tif (a == true) {$SEPARATOR\t}$SEPARATOR$SEPARATOR"
+        infixExpression() | null                                                 | ifStatement(infixExpression(), block(), null) | "\tif (a == true) {$SEPARATOR\t} else if (a == true) {$SEPARATOR\t}$SEPARATOR$SEPARATOR"
         infixExpression() | block(ifStatement(infixExpression(), block(), null)) | null                                          | "\tif (a == true) {$SEPARATOR\t\tif (a == true) {$SEPARATOR\t\t}$SEPARATOR\t}$SEPARATOR"
     }
 

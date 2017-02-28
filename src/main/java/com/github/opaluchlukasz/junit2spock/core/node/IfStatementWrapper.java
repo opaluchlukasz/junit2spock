@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 import static com.github.opaluchlukasz.junit2spock.core.groovism.GroovismChainProvider.provide;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
+import static java.util.regex.Pattern.quote;
 
 public class IfStatementWrapper {
 
@@ -61,8 +62,7 @@ public class IfStatementWrapper {
         thenBlock.forEach(printStatement(stringBuilder));
         stringBuilder.append(indentation(indentationLevel + 1)).append("}");
         if (elseBlock.size() == 1 && elseBlock.get(0) instanceof IfStatementWrapper) {
-            stringBuilder.append(" else ");
-            elseBlock.forEach(printStatement(stringBuilder));
+            stringBuilder.append(" else ").append(elseBlock.get(0).toString().replaceFirst(quote("\t"), ""));
         } else if (!elseBlock.isEmpty()) {
             stringBuilder.append(" else {").append(SEPARATOR);
             elseBlock.forEach(printStatement(stringBuilder));

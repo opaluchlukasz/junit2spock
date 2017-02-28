@@ -11,7 +11,7 @@ class IfStatementWrapperTest extends Specification {
 			if (mockedList != null) {
 				mockedList.get(0) >> 'first'
 			}
-		} else 		if (mockedList == null) {
+		} else 	if (mockedList == null) {
 			mockedList.get(0) >> 'first'
 			mockedList.get(1) >> 'second'
 		}
