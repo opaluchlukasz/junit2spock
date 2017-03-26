@@ -38,8 +38,10 @@ import static org.apache.commons.lang3.StringUtils.wrapIfMissing;
 public class TestMethodModel extends MethodModel {
 
     private static final String THROWN = "thrown";
+    private static final String ASSERT_THAT = "assertThat";
+
     public static final String[] THEN_BLOCK_START = {ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, ASSERT_TRUE,
-        ASSERT_FALSE, ASSERT_NULL, THROWN};
+        ASSERT_FALSE, ASSERT_NULL, THROWN, ASSERT_THAT};
     private static final String[] MOCKING  = {THEN_RETURN, THEN_THROW, WILL_RETURN};
 
     TestMethodModel(MethodDeclaration methodDeclaration) {
