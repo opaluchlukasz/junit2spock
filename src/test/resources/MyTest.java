@@ -48,6 +48,7 @@ public class MyTest {
         }
 
         assertTrue(mockedList.get(0) == "first");
+        verify(mockedList).get(0);
     }
 
     private String helper() {

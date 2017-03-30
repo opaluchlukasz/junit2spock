@@ -9,7 +9,7 @@ import spock.lang.Subject
 import static WhenThenReturnFeature.THEN_RETURN
 import static WhenThenReturnFeature.WHEN
 
-class WhenThenReturnFeatureTest extends Specification {
+class MockitoReturnFeatureTest extends Specification {
 
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 

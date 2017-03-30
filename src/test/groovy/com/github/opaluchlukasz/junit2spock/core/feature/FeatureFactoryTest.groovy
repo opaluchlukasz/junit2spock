@@ -7,7 +7,7 @@ import spock.lang.Specification
 import static com.github.opaluchlukasz.junit2spock.core.SupportedTestFeature.TEST_ANNOTATION
 import static com.github.opaluchlukasz.junit2spock.core.feature.FeatureFactory.provide
 
-class TestMethodFeatureFactoryTest extends Specification {
+class FeatureFactoryTest extends Specification {
 
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 

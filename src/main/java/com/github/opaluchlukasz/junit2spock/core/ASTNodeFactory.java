@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Dimension;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IfStatement;
@@ -161,6 +162,10 @@ public class ASTNodeFactory {
 
     public Dimension dimension() {
         return ast.newDimension();
+    }
+
+    public ExpressionStatement expressionStatement(Expression expression) {
+        return ast.newExpressionStatement(expression);
     }
 
     public Type clone(Type type) {

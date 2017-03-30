@@ -44,6 +44,7 @@ class MyTest extends Specification {
 
 		expect:
 		mockedList.get(0) == 'first'
+		_ * mockedList.get(0)
 	}
 
 	private String helper() {

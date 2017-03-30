@@ -29,6 +29,8 @@ final class FeatureFactory {
                 return new AssertFalseFeature(astNodeFactory);
             case MOCK_ANNOTATION:
                 return new MockAnnotationFeature(astNodeFactory);
+            case MOCKITO_VERIFY:
+                return new MockitoVerifyFeature(astNodeFactory);
             case MOCK_METHOD:
                 return new MockMethodFeature(astNodeFactory);
             default:
