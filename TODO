@@ -1,0 +1,5 @@
+- Mocks: given, when methods, verify(atMost, atLeast)
+- @Subject
+- interfaces for regular and test classes
+- assertions in helper methods
+- JUNIT3 support

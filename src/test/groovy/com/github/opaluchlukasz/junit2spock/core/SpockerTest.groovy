@@ -19,7 +19,7 @@ class SpockerTest extends Specification {
         normalize(spocker.asGroovyClass()) == expected
 
         where:
-        input << ['MyTest', 'IfStatementWrapperTest']
+        input << ['MockitoTest', 'Junit4Test', 'IfStatementWrapperTest']
     }
 
     def 'should return interface for java interface'() {
@@ -34,11 +34,11 @@ class SpockerTest extends Specification {
 
     def 'should return output file path'() {
         given:
-        String source = readFromResources('MyTest.java')
+        String source = readFromResources('Junit4Test.java')
         Spocker spocker = new Spocker(source)
 
         expect:
-        spocker.outputFilePath() == "foo${separator}bar${separator}MyTest.groovy"
+        spocker.outputFilePath() == "foo${separator}bar${separator}Junit4Test.groovy"
     }
 
     private String readFromResources(String filename) {

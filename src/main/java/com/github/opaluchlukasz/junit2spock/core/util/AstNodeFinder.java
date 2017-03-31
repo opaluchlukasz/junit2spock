@@ -29,7 +29,12 @@ public final class AstNodeFinder {
         }
         if (bodyElement instanceof ExpressionStatement) {
             Expression expression = ((ExpressionStatement) bodyElement).getExpression();
-            return methodInvocationFrom(expression, methodName);
+            Optional<MethodInvocation> methodInvocation = methodInvocation(expression, methodName);
+            if (methodInvocation.isPresent()) {
+                return methodInvocation;
+            } else if (expression instanceof MethodInvocation) {
+                return methodInvocation(((MethodInvocation) expression).getExpression(), methodName);
+            }
         }
         if (bodyElement instanceof Expression) {
             return methodInvocationFrom((Expression) bodyElement, methodName);

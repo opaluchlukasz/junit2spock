@@ -7,20 +7,8 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 
-public class MyTest {
-
-    @Mock
-    public Object mocked;
-
-    @Before
-    public void before() {
-        when(mockedList.get(1)).thenReturn("second");
-        when(mockedList.get(2)).thenThrow(new IndexOutOfBoundsException("out of bound"));
-        given(mockedList.get(0)).willReturn("some");
-    }
+public class Junit4Test {
 
     @Test
     public void multiplicationOfZeroIntegersShouldReturnZero() {
@@ -38,17 +26,6 @@ public class MyTest {
     @Test(expected = IndexOutOfBoundsException.class)
     public void empty() {
         new ArrayList<Object>().get(0);
-    }
-
-    @Test
-    public void mockingTest() {
-        LinkedList mockedList = mock(LinkedList.class);
-        if (mockedList != null) {
-            when(mockedList.get(0)).thenReturn("first");
-        }
-
-        assertTrue(mockedList.get(0) == "first");
-        verify(mockedList).get(0);
     }
 
     private String helper() {
