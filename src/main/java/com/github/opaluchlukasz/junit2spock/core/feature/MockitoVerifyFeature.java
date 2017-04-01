@@ -50,7 +50,7 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                 astNodeFactory.methodInvocation(parentMethodInvocation.getName().getFullyQualifiedName(),
                         (List<ASTNode>) parentMethodInvocation.arguments().stream()
                                 .map(astNodeFactory::clone).collect(toList()),
-                        argumentAsExpression(arguments.get(0))));
+                        (Expression) astNodeFactory.clone(arguments.get(0))));
     }
 
     private Expression numberOfInvocation(Optional<Object> arg) {
@@ -72,12 +72,7 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                 return Optional.of((Expression) astNodeFactory.clone(methodInvocation.arguments().get(0)));
             }
         }
-        LOG.warn(format("Unsupported verify argument: %s", methodInvocation.getName().getFullyQualifiedName()));
+        LOG.warn(format("Unsupported VerificationMode: %s", methodInvocation.getName().getFullyQualifiedName()));
         return empty();
-    }
-
-    private Expression argumentAsExpression(Object argument) {
-        return argument instanceof Expression ? astNodeFactory.clone((Expression) argument) :
-                astNodeFactory.simpleName(argument.toString());
     }
 }

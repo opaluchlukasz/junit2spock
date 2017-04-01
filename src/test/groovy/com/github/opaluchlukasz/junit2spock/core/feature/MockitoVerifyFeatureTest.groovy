@@ -1,5 +1,9 @@
 package com.github.opaluchlukasz.junit2spock.core.feature
 
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.classic.spi.LoggingEvent
+import ch.qos.logback.core.Appender
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import org.eclipse.jdt.core.dom.ExpressionStatement
 import org.eclipse.jdt.core.dom.InfixExpression
@@ -9,12 +13,24 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
+import static ch.qos.logback.classic.Level.WARN
 import static com.github.opaluchlukasz.junit2spock.core.feature.MockitoVerifyFeature.VERIFY
+import static org.slf4j.LoggerFactory.getLogger
 
 class MockitoVerifyFeatureTest extends Specification {
 
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
     @Subject private MockitoVerifyFeature mockitoVerifyFeature = new MockitoVerifyFeature(nodeFactory)
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
+    private Appender<ILoggingEvent> appender = Mock(Appender)
+    private Logger logger = (Logger) getLogger(MockitoVerifyFeature)
+
+    def setup() {
+        logger.addAppender(appender)
+    }
+
+    def cleanup() {
+        logger.detachAppender(appender)
+    }
 
     def 'should return false for non verify method invocation'() {
         expect:
@@ -50,8 +66,44 @@ class MockitoVerifyFeatureTest extends Specification {
         nodeFactory.methodInvocation('someMethod', [nodeFactory.numberLiteral('1'), anObject('a')], verifyInvocation()) | '_ * mockedObject.someMethod(1,a)'
     }
 
+    def 'should return Spock\' mock interaction verification when using VerificationMode'() {
+        given:
+        def verificationMethodInvocation = nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', [], verifyInvocation(verificationMode)))
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(verificationMethodInvocation)
+
+        then:
+        expression.toString() == expected
+
+        where:
+        verificationMode                                                        | expected
+        nodeFactory.methodInvocation('never', [])                               | '0 * mockedObject.someMethod()'
+        nodeFactory.methodInvocation('times', [nodeFactory.numberLiteral('3')]) | '3 * mockedObject.someMethod()'
+    }
+
+    def
+    'should log warning for unsupported VerificationMode and fallback to any VerificationMode'() {
+        given:
+        def verificationMode = 'neverEver'
+        def methodInvocation = nodeFactory.methodInvocation('method', [], verifyInvocation(nodeFactory.methodInvocation(verificationMode, [])))
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        1 * appender.doAppend({ LoggingEvent event ->
+            event.level == WARN && event.message == "Unsupported VerificationMode: $verificationMode"
+        } as ILoggingEvent)
+        expression.toString() == '_ * mockedObject.method()'
+    }
+
     private MethodInvocation verifyInvocation() {
         nodeFactory.methodInvocation(VERIFY, [anObject('mockedObject')])
+    }
+
+    private MethodInvocation verifyInvocation(MethodInvocation verificationMode) {
+        nodeFactory.methodInvocation(VERIFY, [anObject('mockedObject'), verificationMode])
     }
 
     private SimpleName anObject(String name) {
