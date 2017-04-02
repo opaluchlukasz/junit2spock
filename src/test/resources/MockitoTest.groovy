@@ -21,12 +21,15 @@ class MockitoTest extends Specification {
 		}
 
 		expect:
-		_ * mockedList.get(0)
+		1 * mockedList.get(0)
 		0 * mockedList.clear()
-		quantity() * mockedList.size()
+		cardinality() * mockedList.size()
+		(1 .. _) * mockedList.size()
+		(2 .. _) * mockedList.size()
+		(_ .. 4) * mockedList.size()
 	}
 
-	private Integer quantity() {
+	private Integer cardinality() {
 		return 2
 	}
 

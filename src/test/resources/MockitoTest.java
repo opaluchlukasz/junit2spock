@@ -27,10 +27,13 @@ public class MockitoTest {
 
         verify(mockedList).get(0);
         verify(mockedList, never()).clear();
-        verify(mockedList, times(quantity())).size();
+        verify(mockedList, times(cardinality())).size();
+        verify(mockedList, atLeastOnce()).size();
+        verify(mockedList, atLeast(2)).size();
+        verify(mockedList, atMost(4)).size();
     }
 
-    private Integer quantity() {
+    private Integer cardinality() {
         return 2;
     }
 }

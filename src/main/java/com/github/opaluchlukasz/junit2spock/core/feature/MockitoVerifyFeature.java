@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.opaluchlukasz.junit2spock.core.node.CustomInfixOperator.RANGE;
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static java.lang.String.format;
 import static java.util.Optional.empty;
@@ -24,10 +25,10 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
 
     public static final String VERIFY = "verify";
 
-    private final ASTNodeFactory astNodeFactory;
+    private final ASTNodeFactory nodeFactory;
 
-    MockitoVerifyFeature(ASTNodeFactory astNodeFactory) {
-        this.astNodeFactory = astNodeFactory;
+    MockitoVerifyFeature(ASTNodeFactory nodeFactory) {
+        this.nodeFactory = nodeFactory;
     }
 
     @Override
@@ -45,31 +46,52 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
     public InfixExpression apply(Object object, MethodInvocation verifyMethodInvocation) {
         List arguments = verifyMethodInvocation.arguments();
         MethodInvocation parentMethodInvocation = (MethodInvocation) verifyMethodInvocation.getParent();
-        return astNodeFactory.infixExpression(TIMES,
-                numberOfInvocation(arguments.size() == 2 ? Optional.of(arguments.get(1)) : empty()),
-                astNodeFactory.methodInvocation(parentMethodInvocation.getName().getFullyQualifiedName(),
+        return nodeFactory.infixExpression(TIMES,
+                cardinality(arguments.size() == 2 ? Optional.of(arguments.get(1)) : empty()),
+                nodeFactory.methodInvocation(parentMethodInvocation.getName().getFullyQualifiedName(),
                         (List<ASTNode>) parentMethodInvocation.arguments().stream()
-                                .map(astNodeFactory::clone).collect(toList()),
-                        (Expression) astNodeFactory.clone(arguments.get(0))));
+                                .map(nodeFactory::clone).collect(toList()),
+                        (Expression) nodeFactory.clone(arguments.get(0))));
     }
 
-    private Expression numberOfInvocation(Optional<Object> arg) {
+    private Expression cardinality(Optional<Object> arg) {
         return arg
                 .filter(astNode -> astNode instanceof MethodInvocation)
                 .map(astNode -> (MethodInvocation) astNode)
-                .flatMap(this::numberOfInvocation)
-                .orElse(astNodeFactory.simpleName("_"));
+                .flatMap(this::cardinality)
+                .orElse(nodeFactory.numberLiteral("1"));
     }
 
-    private Optional<Expression> numberOfInvocation(MethodInvocation methodInvocation) {
+    private Optional<Expression> cardinality(MethodInvocation methodInvocation) {
         if (methodInvocation.arguments().isEmpty()) {
             if (methodInvocation.getName().getFullyQualifiedName().equals("never")) {
-                return Optional.of(astNodeFactory.numberLiteral("0"));
+                return Optional.of(nodeFactory.numberLiteral("0"));
+            }
+            if (methodInvocation.getName().getFullyQualifiedName().equals("atLeastOnce")) {
+                return Optional.of(nodeFactory.parenthesizedExpression(nodeFactory
+                        .infixExpression(
+                                RANGE,
+                                nodeFactory.numberLiteral("1"),
+                                nodeFactory.simpleName("_"))));
             }
         }
         if (methodInvocation.arguments().size() == 1) {
             if (methodInvocation.getName().getFullyQualifiedName().equals("times")) {
-                return Optional.of((Expression) astNodeFactory.clone(methodInvocation.arguments().get(0)));
+                return Optional.of((Expression) nodeFactory.clone(methodInvocation.arguments().get(0)));
+            }
+            if (methodInvocation.getName().getFullyQualifiedName().equals("atLeast")) {
+                return Optional.of(nodeFactory.parenthesizedExpression(nodeFactory
+                        .infixExpression(
+                                RANGE,
+                                (Expression) nodeFactory.clone(methodInvocation.arguments().get(0)),
+                                nodeFactory.simpleName("_"))));
+            }
+            if (methodInvocation.getName().getFullyQualifiedName().equals("atMost")) {
+                return Optional.of(nodeFactory.parenthesizedExpression(nodeFactory
+                        .infixExpression(
+                                RANGE,
+                                nodeFactory.simpleName("_"),
+                                (Expression) nodeFactory.clone(methodInvocation.arguments().get(0)))));
             }
         }
         LOG.warn(format("Unsupported VerificationMode: %s", methodInvocation.getName().getFullyQualifiedName()));

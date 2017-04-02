@@ -62,8 +62,8 @@ class MockitoVerifyFeatureTest extends Specification {
 
         where:
         methodInvocation                                                                                                | expected
-        nodeFactory.methodInvocation('someMethod', [], verifyInvocation())                                              | '_ * mockedObject.someMethod()'
-        nodeFactory.methodInvocation('someMethod', [nodeFactory.numberLiteral('1'), anObject('a')], verifyInvocation()) | '_ * mockedObject.someMethod(1,a)'
+        nodeFactory.methodInvocation('someMethod', [], verifyInvocation())                                              | '1 * mockedObject.someMethod()'
+        nodeFactory.methodInvocation('someMethod', [nodeFactory.numberLiteral('1'), anObject('a')], verifyInvocation()) | '1 * mockedObject.someMethod(1,a)'
     }
 
     def 'should return Spock\' mock interaction verification when using VerificationMode'() {
@@ -77,13 +77,16 @@ class MockitoVerifyFeatureTest extends Specification {
         expression.toString() == expected
 
         where:
-        verificationMode                                                        | expected
-        nodeFactory.methodInvocation('never', [])                               | '0 * mockedObject.someMethod()'
-        nodeFactory.methodInvocation('times', [nodeFactory.numberLiteral('3')]) | '3 * mockedObject.someMethod()'
+        verificationMode                                                          | expected
+        nodeFactory.methodInvocation('never', [])                                 | '0 * mockedObject.someMethod()'
+        nodeFactory.methodInvocation('atLeastOnce', [])                           | '(1 .. _) * mockedObject.someMethod()'
+        nodeFactory.methodInvocation('times', [nodeFactory.numberLiteral('3')])   | '3 * mockedObject.someMethod()'
+        nodeFactory.methodInvocation('atMost', [nodeFactory.numberLiteral('3')])  | '(_ .. 3) * mockedObject.someMethod()'
+        nodeFactory.methodInvocation('atLeast', [nodeFactory.numberLiteral('3')]) | '(3 .. _) * mockedObject.someMethod()'
     }
 
     def
-    'should log warning for unsupported VerificationMode and fallback to any VerificationMode'() {
+    'should log warning for unsupported VerificationMode and fallback to single invocation verification'() {
         given:
         def verificationMode = 'neverEver'
         def methodInvocation = nodeFactory.methodInvocation('method', [], verifyInvocation(nodeFactory.methodInvocation(verificationMode, [])))
@@ -95,7 +98,7 @@ class MockitoVerifyFeatureTest extends Specification {
         1 * appender.doAppend({ LoggingEvent event ->
             event.level == WARN && event.message == "Unsupported VerificationMode: $verificationMode"
         } as ILoggingEvent)
-        expression.toString() == '_ * mockedObject.method()'
+        expression.toString() == '1 * mockedObject.method()'
     }
 
     private MethodInvocation verifyInvocation() {

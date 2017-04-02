@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
@@ -87,6 +88,12 @@ public class ASTNodeFactory {
         NumberLiteral numberLiteral = ast.newNumberLiteral();
         numberLiteral.setToken(token);
         return numberLiteral;
+    }
+
+    public ParenthesizedExpression parenthesizedExpression(Expression expression) {
+        ParenthesizedExpression parenthesizedExpression = ast.newParenthesizedExpression();
+        parenthesizedExpression.setExpression(expression);
+        return parenthesizedExpression;
     }
 
     public StringLiteral stringLiteral(String token) {
@@ -219,6 +226,10 @@ public class ASTNodeFactory {
             PrefixExpression prefixExpression = (PrefixExpression) expression;
             return prefixExpression(prefixExpression.getOperator(),
                     clone(prefixExpression.getOperand()));
+        }
+        if (expression instanceof ParenthesizedExpression) {
+            ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression;
+            return parenthesizedExpression(clone(parenthesizedExpression.getExpression()));
         }
         if (expression instanceof PostfixExpression) {
             PostfixExpression postfixExpression = (PostfixExpression) expression;
