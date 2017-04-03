@@ -14,7 +14,13 @@ import static java.util.stream.Collectors.toList;
 public enum SupportedTestFeature {
     MOCK_ANNOTATION(of("org.mockito.Mock"), of(FIELD_FEATURE)),
     MOCK_METHOD(of("org.mockito.Mockito.mock"), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
-    MOCKITO_VERIFY(of("org.mockito.Mockito.verify"), of(TEST_METHOD)),
+    MOCKITO_VERIFY(of(
+            "org.mockito.Mockito.verify",
+            "org.mockito.Mockito.times",
+            "org.mockito.Mockito.never",
+            "org.mockito.Mockito.atLeast",
+            "org.mockito.Mockito.atMost",
+            "org.mockito.Mockito.atLeastOnce"), of(TEST_METHOD)),
     BEFORE(of("org.junit.Before"), emptyList()),
     BEFORE_CLASS(of("org.junit.BeforeClass"), emptyList()),
     AFTER(of("org.junit.After"), emptyList()),

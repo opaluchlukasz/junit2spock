@@ -5,6 +5,10 @@ import org.junit.Test;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.atLeastOnce;
 
 public class MockitoTest {
 
@@ -25,12 +29,12 @@ public class MockitoTest {
             when(mockedList.get(0)).thenReturn("first");
         }
 
-        verify(mockedList).get(0);
+        org.mockito.Mockito.verify(mockedList).get(0);
         verify(mockedList, never()).clear();
         verify(mockedList, times(cardinality())).size();
         verify(mockedList, atLeastOnce()).size();
-        verify(mockedList, atLeast(2)).size();
-        verify(mockedList, atMost(4)).size();
+        verify(mockedList, Mockito.atLeast(2)).size();
+        verify(mockedList, org.mockito.Mockito.atMost(4)).size();
     }
 
     private Integer cardinality() {
