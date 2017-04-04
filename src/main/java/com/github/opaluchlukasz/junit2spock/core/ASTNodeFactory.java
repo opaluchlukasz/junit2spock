@@ -79,9 +79,16 @@ public class ASTNodeFactory {
     public MethodInvocation methodInvocation(String name, List<ASTNode> arguments, Expression expression) {
         MethodInvocation methodInvocation = ast.newMethodInvocation();
         methodInvocation.setName(simpleName(name));
-        Optional.ofNullable(expression).ifPresent(ex -> methodInvocation.setExpression(ex));
+        Optional.ofNullable(expression).ifPresent(methodInvocation::setExpression);
         arguments.forEach(astNode -> methodInvocation.arguments().add(astNode));
         return methodInvocation;
+    }
+
+    public FieldAccess fieldAccess(String name, Expression expression) {
+        FieldAccess fieldAccess = ast.newFieldAccess();
+        fieldAccess.setName(simpleName(name));
+        Optional.ofNullable(expression).ifPresent(fieldAccess::setExpression);
+        return fieldAccess;
     }
 
     public NumberLiteral numberLiteral(String token) {

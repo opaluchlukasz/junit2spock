@@ -27,6 +27,7 @@ class MockitoTest extends Specification {
 		(1 .. _) * mockedList.size()
 		(2 .. _) * mockedList.size()
 		(_ .. 4) * mockedList.size()
+		0 * mockedList._
 	}
 
 	private Integer cardinality() {

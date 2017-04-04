@@ -53,7 +53,7 @@ class MockitoVerifyFeatureTest extends Specification {
         mockitoVerifyFeature.applicable(expressionStatement).isPresent()
     }
 
-    def 'should return Spock\' mock interaction verification'() {
+    def 'should return Spock\'s mock interaction verification'() {
         when:
         InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
 
@@ -66,7 +66,7 @@ class MockitoVerifyFeatureTest extends Specification {
         nodeFactory.methodInvocation('someMethod', [nodeFactory.numberLiteral('1'), anObject('a')], verifyInvocation()) | '1 * mockedObject.someMethod(1,a)'
     }
 
-    def 'should return Spock\' mock interaction verification when using VerificationMode'() {
+    def 'should return Spock\'s mock interaction verification when using VerificationMode'() {
         given:
         def verificationMethodInvocation = nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', [], verifyInvocation(verificationMode)))
 

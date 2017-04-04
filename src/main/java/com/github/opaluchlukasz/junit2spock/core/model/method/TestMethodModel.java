@@ -22,6 +22,7 @@ import static com.github.opaluchlukasz.junit2spock.core.feature.AssertNullFeatur
 import static com.github.opaluchlukasz.junit2spock.core.feature.AssertTrueFeature.ASSERT_TRUE;
 import static com.github.opaluchlukasz.junit2spock.core.feature.GivenWillReturnFeature.WILL_RETURN;
 import static com.github.opaluchlukasz.junit2spock.core.feature.MockitoVerifyFeature.VERIFY;
+import static com.github.opaluchlukasz.junit2spock.core.feature.MockitoVerifyNoMoreInteractionsFeature.VERIFY_NO_MORE_INTERACTIONS;
 import static com.github.opaluchlukasz.junit2spock.core.feature.WhenThenReturnFeature.THEN_RETURN;
 import static com.github.opaluchlukasz.junit2spock.core.feature.WhenThenThrowFeature.THEN_THROW;
 import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.annotatedWith;
@@ -41,8 +42,8 @@ public class TestMethodModel extends MethodModel {
     private static final String THROWN = "thrown";
     private static final String ASSERT_THAT = "assertThat";
 
-    public static final String[] THEN_BLOCK_START = {ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, ASSERT_TRUE,
-        ASSERT_FALSE, ASSERT_NULL, THROWN, ASSERT_THAT, VERIFY};
+    public static final String[] THEN_BLOCK_START = new String[]{ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, ASSERT_TRUE,
+        ASSERT_FALSE, ASSERT_NULL, THROWN, ASSERT_THAT, VERIFY, VERIFY_NO_MORE_INTERACTIONS};
     private static final String[] MOCKING  = {THEN_RETURN, THEN_THROW, WILL_RETURN};
 
     TestMethodModel(MethodDeclaration methodDeclaration) {

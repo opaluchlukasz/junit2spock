@@ -21,6 +21,7 @@ public enum SupportedTestFeature {
             "org.mockito.Mockito.atLeast",
             "org.mockito.Mockito.atMost",
             "org.mockito.Mockito.atLeastOnce"), of(TEST_METHOD)),
+    MOCKITO_VERIFY_NO_MORE_INTERACTIONS(of("org.mockito.Mockito.verifyNoMoreInteractions"), of(TEST_METHOD)),
     BEFORE(of("org.junit.Before"), emptyList()),
     BEFORE_CLASS(of("org.junit.BeforeClass"), emptyList()),
     AFTER(of("org.junit.After"), emptyList()),

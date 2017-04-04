@@ -31,6 +31,8 @@ final class FeatureFactory {
                 return new MockAnnotationFeature(astNodeFactory);
             case MOCKITO_VERIFY:
                 return new MockitoVerifyFeature(astNodeFactory);
+            case MOCKITO_VERIFY_NO_MORE_INTERACTIONS:
+                return new MockitoVerifyNoMoreInteractionsFeature(astNodeFactory);
             case MOCK_METHOD:
                 return new MockMethodFeature(astNodeFactory);
             default:

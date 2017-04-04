@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class MockitoTest {
 
@@ -35,6 +36,7 @@ public class MockitoTest {
         verify(mockedList, atLeastOnce()).size();
         verify(mockedList, Mockito.atLeast(2)).size();
         verify(mockedList, org.mockito.Mockito.atMost(4)).size();
+        verifyNoMoreInteractions(mockedList);
     }
 
     private Integer cardinality() {
