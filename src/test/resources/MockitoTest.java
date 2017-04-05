@@ -3,6 +3,8 @@ package foo.bar;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
@@ -15,6 +17,8 @@ public class MockitoTest {
 
     @Mock
     public Object mocked;
+    @Mock
+    public List<String> mockedList;
 
     @Before
     public void before() {

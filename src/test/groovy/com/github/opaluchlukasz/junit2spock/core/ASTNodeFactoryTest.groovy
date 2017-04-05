@@ -12,12 +12,14 @@ import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.InstanceofExpression
 import org.eclipse.jdt.core.dom.NullLiteral
 import org.eclipse.jdt.core.dom.NumberLiteral
+import org.eclipse.jdt.core.dom.ParameterizedType
 import org.eclipse.jdt.core.dom.PostfixExpression
 import org.eclipse.jdt.core.dom.PrefixExpression
 import org.eclipse.jdt.core.dom.PrimitiveType
 import org.eclipse.jdt.core.dom.SimpleName
 import org.eclipse.jdt.core.dom.SimpleType
 import org.eclipse.jdt.core.dom.StringLiteral
+import org.eclipse.jdt.core.dom.Type
 import org.eclipse.jdt.core.dom.TypeLiteral
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement
 import spock.lang.Shared
@@ -250,5 +252,26 @@ class ASTNodeFactoryTest extends Specification {
         modifiers                                         | expectedLiteral
         []                                                | 'Comparable someField;\n'
         [nodeFactory.annotation('Immutable', emptyMap())] | '@Immutable Comparable someField;\n'
+    }
+
+    def 'should create parameterized type'() {
+        given:
+        ParameterizedType parameterizedType = nodeFactory.parameterizedType(nodeFactory.simpleType(nodeFactory.simpleName('Map')),
+                [nodeFactory.simpleType(nodeFactory.simpleName('String')), nodeFactory.simpleType(nodeFactory.simpleName('Object'))])
+
+        expect:
+        parameterizedType.toString() == 'Map<String,Object>'
+    }
+
+    def 'should clone parameterized type'() {
+        given:
+        ParameterizedType parameterizedType = nodeFactory.parameterizedType(nodeFactory.simpleType(nodeFactory.simpleName('Map')),
+                [nodeFactory.simpleType(nodeFactory.simpleName('String')), nodeFactory.simpleType(nodeFactory.simpleName('Object'))])
+
+        when:
+        Type clonedParameterizedType = nodeFactory.clone(parameterizedType)
+
+        then:
+        parameterizedType.toString() == clonedParameterizedType.toString()
     }
 }

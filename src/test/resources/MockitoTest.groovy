@@ -1,8 +1,10 @@
 package foo.bar
+import java.util.List
 import spock.lang.Specification
 
 class MockitoTest extends Specification {
 	Object mocked=Mock(Object)
+	List<String> mockedList=Mock(List)
 
 	def setup() {
 		mockedList.get(1) >> 'second'

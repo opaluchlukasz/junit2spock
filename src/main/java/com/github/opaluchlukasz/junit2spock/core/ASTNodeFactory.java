@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -189,11 +190,22 @@ public class ASTNodeFactory {
         if (type instanceof PrimitiveType) {
             return primitiveType(((PrimitiveType) type).getPrimitiveTypeCode());
         }
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            List typeArguments = (List) parameterizedType.typeArguments().stream().map(typeArgument -> clone(typeArgument)).collect(toList());
+            return parameterizedType(clone(parameterizedType.getType()), typeArguments);
+        }
         if (type instanceof ArrayType) {
             ArrayType arrayType = (ArrayType) type;
             return arrayType(clone(arrayType.getElementType()), arrayType.dimensions().size());
         }
         throw new UnsupportedOperationException("Unsupported astNode type:" + type.getClass().getName());
+    }
+
+    public ParameterizedType parameterizedType(Type type, List typeArguments) {
+        ParameterizedType cloned = ast.newParameterizedType(type);
+        cloned.typeArguments().addAll(typeArguments);
+        return cloned;
     }
 
     public ArrayType arrayType(Type type, int dimensions) {
