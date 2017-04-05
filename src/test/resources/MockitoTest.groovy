@@ -8,7 +8,8 @@ class MockitoTest extends Specification {
 
 	def setup() {
 		mockedList.get(1) >> 'second'
-		mockedList.get(2) >> {
+		mockedList.get(2) >>> ['second', 'third', 'four']
+		mockedList.get(3) >> {
 			throw new IndexOutOfBoundsException('out of bound')
 		}
 		mockedList.get(0) >> 'some'

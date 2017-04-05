@@ -6,8 +6,8 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static WhenThenReturnFeature.THEN_RETURN
-import static WhenThenReturnFeature.WHEN
+import static com.github.opaluchlukasz.junit2spock.core.feature.WhenThenReturnFeature.THEN_RETURN
+import static com.github.opaluchlukasz.junit2spock.core.feature.WhenThenReturnFeature.WHEN
 
 class MockitoReturnFeatureTest extends Specification {
 
@@ -49,16 +49,15 @@ class MockitoReturnFeatureTest extends Specification {
         expression.toString() == "$stubbedMethod() >> true" as String
     }
 
-    def 'should throw an exception for incorrect thenReturn method invocation'() {
+    def 'should return Spock\' expression for sequenced of returned data'() {
         given:
-        MethodInvocation methodInvocation = nodeFactory.methodInvocation(THEN_RETURN,
-                [nodeFactory.numberLiteral('0'), nodeFactory.numberLiteral('0')])
+        def stubbedMethod = 'someMethod'
+        MethodInvocation methodInvocation = nodeFactory
+                .methodInvocation(THEN_RETURN, [nodeFactory.booleanLiteral(true), nodeFactory.booleanLiteral(false)],
+                nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation(stubbedMethod, [])]))
+        Object expression = returnFeature.apply(methodInvocation)
 
-        when:
-        returnFeature.apply(methodInvocation, methodInvocation)
-
-        then:
-        UnsupportedOperationException ex = thrown()
-        ex.message == 'Supported only 1-arity thenReturn invocation'
+        expect:
+        expression.toString() == "$stubbedMethod() >>> [true, false]" as String
     }
 }

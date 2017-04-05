@@ -23,7 +23,8 @@ public class MockitoTest {
     @Before
     public void before() {
         when(mockedList.get(1)).thenReturn("second");
-        when(mockedList.get(2)).thenThrow(new IndexOutOfBoundsException("out of bound"));
+        when(mockedList.get(2)).thenReturn("second", "third", "four");
+        when(mockedList.get(3)).thenThrow(new IndexOutOfBoundsException("out of bound"));
         given(mockedList.get(0)).willReturn("some");
     }
 

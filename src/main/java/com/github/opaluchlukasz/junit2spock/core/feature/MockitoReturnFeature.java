@@ -1,14 +1,15 @@
 package com.github.opaluchlukasz.junit2spock.core.feature;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.node.SpockMockReturnSequences;
 import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
 import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
 
 public class MockitoReturnFeature extends Feature<MethodInvocation> {
@@ -31,15 +32,17 @@ public class MockitoReturnFeature extends Feature<MethodInvocation> {
     }
 
     @Override
-    public InfixExpression apply(Object object, MethodInvocation whenMethodInvocation) {
+    public Object apply(Object object, MethodInvocation whenMethodInvocation) {
         MethodInvocation methodInvocation = methodInvocation(object, thenReturn).get();
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 1) {
             return astNodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
                     argumentAsExpression(whenMethodInvocation.arguments().get(0)),
                     argumentAsExpression(arguments.get(0)));
+        } else {
+            return new SpockMockReturnSequences(argumentAsExpression(whenMethodInvocation.arguments().get(0)),
+                    (List<Object>) arguments.stream().map(this::argumentAsExpression).collect(toList()));
         }
-        throw new UnsupportedOperationException("Supported only 1-arity thenReturn invocation");
     }
 
     private Expression argumentAsExpression(Object argument) {
