@@ -46,7 +46,7 @@ public final class App {
             outputFile.createNewFile();
             FileUtils.writeStringToFile(outputFile, toBeSaved.asGroovyClass(), UTF_8);
         } catch (IOException ex) {
-            LOG.error("Unable to save output file", ex);
+            LOG.error(format("Unable to save output file: %s", toBeSaved.outputFilePath()), ex);
         }
     }
 
@@ -55,9 +55,9 @@ public final class App {
             Spocker spocker = new Spocker(readAllLines(path, UTF_8).stream().collect(joining(SEPARATOR)));
             return Optional.of(spocker);
         } catch (IOException ex) {
-            LOG.error("Unable to read path", ex);
+            LOG.error(format("Unable to read path: %s", path.toString()), ex);
         } catch (Exception ex) {
-            LOG.error("Unable to parse file", ex);
+            LOG.error(format("Unable to parse file: %s", path.toString()), ex);
         }
         return Optional.empty();
     }

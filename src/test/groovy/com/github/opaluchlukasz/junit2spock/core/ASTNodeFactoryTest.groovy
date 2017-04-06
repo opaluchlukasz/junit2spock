@@ -4,8 +4,10 @@ import org.eclipse.jdt.core.dom.Annotation
 import org.eclipse.jdt.core.dom.ArrayCreation
 import org.eclipse.jdt.core.dom.ArrayInitializer
 import org.eclipse.jdt.core.dom.BooleanLiteral
+import org.eclipse.jdt.core.dom.CastExpression
 import org.eclipse.jdt.core.dom.CharacterLiteral
 import org.eclipse.jdt.core.dom.Dimension
+import org.eclipse.jdt.core.dom.Expression
 import org.eclipse.jdt.core.dom.FieldDeclaration
 import org.eclipse.jdt.core.dom.ImportDeclaration
 import org.eclipse.jdt.core.dom.InfixExpression
@@ -273,5 +275,24 @@ class ASTNodeFactoryTest extends Specification {
 
         then:
         parameterizedType.toString() == clonedParameterizedType.toString()
+    }
+
+    def 'should create cast expression'() {
+        given:
+        CastExpression castExpression = nodeFactory.castExpression(nodeFactory.simpleType(nodeFactory.simpleName('Map')), nodeFactory.simpleName('variable'))
+
+        expect:
+        castExpression.toString() == '(Map)variable'
+    }
+
+    def 'should clone cast expression'() {
+        given:
+        CastExpression castExpression = nodeFactory.castExpression(nodeFactory.simpleType(nodeFactory.simpleName('Map')), nodeFactory.simpleName('variable'))
+
+        when:
+        Expression clonedCastExpression = nodeFactory.clone(castExpression)
+
+        then:
+        castExpression.toString() == clonedCastExpression.toString()
     }
 }

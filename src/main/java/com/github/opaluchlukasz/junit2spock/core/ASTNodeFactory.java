@@ -8,6 +8,7 @@ import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Dimension;
@@ -231,6 +232,10 @@ public class ASTNodeFactory {
         if (expression instanceof CharacterLiteral) {
             return characterLiteral(((CharacterLiteral) expression).charValue());
         }
+        if (expression instanceof CastExpression) {
+            CastExpression toBeCloned = (CastExpression) expression;
+            return castExpression(clone(toBeCloned.getType()), clone(toBeCloned.getExpression()));
+        }
         if (expression instanceof ArrayInitializer) {
             ArrayInitializer arrayInitializer = (ArrayInitializer) expression;
             List expressions = (List) arrayInitializer.expressions().stream().map(this::clone).collect(toList());
@@ -296,10 +301,17 @@ public class ASTNodeFactory {
         throw new UnsupportedOperationException("Unsupported expression type:" + expression.getClass().getName());
     }
 
+    public CastExpression castExpression(Type type, Expression expression) {
+        CastExpression castExpression = ast.newCastExpression();
+        castExpression.setExpression(expression);
+        castExpression.setType(type);
+        return castExpression;
+    }
+
     public ArrayInitializer arrayInitializer(List expressions) {
-        ArrayInitializer clonedArrayInitializer = ast.newArrayInitializer();
-        clonedArrayInitializer.expressions().addAll(expressions);
-        return clonedArrayInitializer;
+        ArrayInitializer arrayInitializer = ast.newArrayInitializer();
+        arrayInitializer.expressions().addAll(expressions);
+        return arrayInitializer;
     }
 
     public ArrayCreation arrayCreation(ArrayType arrayType, List dimensions, ArrayInitializer arrayInitializer) {
@@ -405,7 +417,7 @@ public class ASTNodeFactory {
     private Expression classInstanceCreation(ClassInstanceCreation toBeCloned) {
         ClassInstanceCreation clonedClassInstanceCreation = ast.newClassInstanceCreation();
         clonedClassInstanceCreation.setExpression(clone(toBeCloned.getExpression()));
-        clonedClassInstanceCreation.setType(simpleType(simpleName(toBeCloned.getType().toString())));
+        clonedClassInstanceCreation.setType(clone(toBeCloned.getType()));
         List cloned = (List) toBeCloned.arguments().stream().map(this::clone).collect(toList());
         clonedClassInstanceCreation.arguments().addAll(cloned);
         return clonedClassInstanceCreation;
