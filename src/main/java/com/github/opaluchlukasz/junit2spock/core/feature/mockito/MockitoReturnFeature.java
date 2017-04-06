@@ -1,6 +1,7 @@
-package com.github.opaluchlukasz.junit2spock.core.feature;
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
 import com.github.opaluchlukasz.junit2spock.core.node.SpockMockReturnSequences;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -18,7 +19,7 @@ public class MockitoReturnFeature extends Feature<MethodInvocation> {
     private final String when;
     private final String thenReturn;
 
-    MockitoReturnFeature(ASTNodeFactory astNodeFactory, String when, String thenReturn) {
+    public MockitoReturnFeature(ASTNodeFactory astNodeFactory, String when, String thenReturn) {
         this.astNodeFactory = astNodeFactory;
         this.when = when;
         this.thenReturn = thenReturn;

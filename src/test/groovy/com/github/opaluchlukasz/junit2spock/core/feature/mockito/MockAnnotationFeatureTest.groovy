@@ -1,4 +1,4 @@
-package com.github.opaluchlukasz.junit2spock.core.feature
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import org.eclipse.jdt.core.dom.FieldDeclaration

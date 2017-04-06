@@ -1,13 +1,14 @@
-package com.github.opaluchlukasz.junit2spock.core.feature
+package com.github.opaluchlukasz.junit2spock.core.feature.junit
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertTrueFeature
 import org.eclipse.jdt.core.dom.Expression
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static com.github.opaluchlukasz.junit2spock.core.feature.AssertTrueFeature.ASSERT_TRUE
+import static com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertTrueFeature.ASSERT_TRUE
 
 class AssertTrueFeatureTest extends Specification {
 

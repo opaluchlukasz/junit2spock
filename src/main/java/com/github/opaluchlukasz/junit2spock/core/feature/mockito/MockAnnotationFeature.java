@@ -1,6 +1,7 @@
-package com.github.opaluchlukasz.junit2spock.core.feature;
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
@@ -16,7 +17,7 @@ public class MockAnnotationFeature extends Feature<Annotation> {
 
     private final ASTNodeFactory astNodeFactory;
 
-    MockAnnotationFeature(ASTNodeFactory astNodeFactory) {
+    public MockAnnotationFeature(ASTNodeFactory astNodeFactory) {
         this.astNodeFactory = astNodeFactory;
     }
 

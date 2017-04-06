@@ -1,6 +1,7 @@
-package com.github.opaluchlukasz.junit2spock.core.feature
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockMethodFeature
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement
 import spock.lang.Shared
 import spock.lang.Specification

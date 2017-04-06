@@ -1,13 +1,14 @@
-package com.github.opaluchlukasz.junit2spock.core.feature
+package com.github.opaluchlukasz.junit2spock.core.feature.junit
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNotNullFeature
 import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static com.github.opaluchlukasz.junit2spock.core.feature.AssertNotNullFeature.ASSERT_NOT_NULL
+import static com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNotNullFeature.ASSERT_NOT_NULL
 
 class AssertNotNullFeatureTest extends Specification {
 

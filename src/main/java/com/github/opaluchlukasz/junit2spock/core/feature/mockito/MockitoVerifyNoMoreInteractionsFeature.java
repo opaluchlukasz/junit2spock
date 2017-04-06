@@ -1,6 +1,7 @@
-package com.github.opaluchlukasz.junit2spock.core.feature;
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -17,7 +18,7 @@ public class MockitoVerifyNoMoreInteractionsFeature extends Feature<MethodInvoca
 
     private final ASTNodeFactory nodeFactory;
 
-    MockitoVerifyNoMoreInteractionsFeature(ASTNodeFactory nodeFactory) {
+    public MockitoVerifyNoMoreInteractionsFeature(ASTNodeFactory nodeFactory) {
         this.nodeFactory = nodeFactory;
     }
 

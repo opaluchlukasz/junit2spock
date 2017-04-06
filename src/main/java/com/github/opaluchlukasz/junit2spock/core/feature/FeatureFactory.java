@@ -2,6 +2,18 @@ package com.github.opaluchlukasz.junit2spock.core.feature;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.SupportedTestFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertEqualsFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertFalseFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNotNullFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNullFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertTrueFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.GivenWillReturnFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockAnnotationFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockMethodFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyNoMoreInteractionsFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenReturnFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature;
 
 final class FeatureFactory {
 

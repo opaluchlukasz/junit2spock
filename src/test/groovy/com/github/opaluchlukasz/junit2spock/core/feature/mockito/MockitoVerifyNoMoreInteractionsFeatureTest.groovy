@@ -1,11 +1,12 @@
-package com.github.opaluchlukasz.junit2spock.core.feature
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyNoMoreInteractionsFeature
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static com.github.opaluchlukasz.junit2spock.core.feature.MockitoVerifyNoMoreInteractionsFeature.VERIFY_NO_MORE_INTERACTIONS
+import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyNoMoreInteractionsFeature.VERIFY_NO_MORE_INTERACTIONS
 
 class MockitoVerifyNoMoreInteractionsFeatureTest extends Specification {
 

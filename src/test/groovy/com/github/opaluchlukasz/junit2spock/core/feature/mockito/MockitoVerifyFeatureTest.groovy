@@ -1,10 +1,11 @@
-package com.github.opaluchlukasz.junit2spock.core.feature
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFeature
 import org.eclipse.jdt.core.dom.ExpressionStatement
 import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.MethodInvocation
@@ -14,7 +15,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import static ch.qos.logback.classic.Level.WARN
-import static com.github.opaluchlukasz.junit2spock.core.feature.MockitoVerifyFeature.VERIFY
+import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFeature.VERIFY
 import static org.slf4j.LoggerFactory.getLogger
 
 class MockitoVerifyFeatureTest extends Specification {

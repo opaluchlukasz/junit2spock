@@ -1,6 +1,7 @@
-package com.github.opaluchlukasz.junit2spock.core.feature;
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -14,7 +15,7 @@ public class MockMethodFeature extends Feature<VariableDeclarationStatement> {
 
     private final ASTNodeFactory astNodeFactory;
 
-    MockMethodFeature(ASTNodeFactory astNodeFactory) {
+    public MockMethodFeature(ASTNodeFactory astNodeFactory) {
         this.astNodeFactory = astNodeFactory;
     }
 

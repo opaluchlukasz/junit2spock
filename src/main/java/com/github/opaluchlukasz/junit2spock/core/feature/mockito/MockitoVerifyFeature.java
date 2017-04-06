@@ -1,6 +1,7 @@
-package com.github.opaluchlukasz.junit2spock.core.feature;
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -27,7 +28,7 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
 
     private final ASTNodeFactory nodeFactory;
 
-    MockitoVerifyFeature(ASTNodeFactory nodeFactory) {
+    public MockitoVerifyFeature(ASTNodeFactory nodeFactory) {
         this.nodeFactory = nodeFactory;
     }
 

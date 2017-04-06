@@ -1,6 +1,7 @@
-package com.github.opaluchlukasz.junit2spock.core.feature;
+package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
 import com.github.opaluchlukasz.junit2spock.core.node.SpockMockBehaviour;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
@@ -18,7 +19,7 @@ public class WhenThenThrowFeature extends Feature<MethodInvocation> {
 
     private final ASTNodeFactory astNodeFactory;
 
-    WhenThenThrowFeature(ASTNodeFactory astNodeFactory) {
+    public WhenThenThrowFeature(ASTNodeFactory astNodeFactory) {
         this.astNodeFactory = astNodeFactory;
     }
 
