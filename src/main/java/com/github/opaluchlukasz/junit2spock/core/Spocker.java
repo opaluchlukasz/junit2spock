@@ -10,8 +10,10 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import java.util.List;
 
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static java.io.File.separator;
 import static java.util.regex.Matcher.quoteReplacement;
+import static java.util.regex.Pattern.quote;
 import static org.eclipse.jdt.core.dom.ASTParser.K_COMPILATION_UNIT;
 
 public class Spocker {
@@ -19,6 +21,11 @@ public class Spocker {
     private final TypeModel typeModel;
 
     public Spocker(String source) {
+
+        source = source.replaceAll("//(?i)\\s*" + quote("given") + SEPARATOR, "givenBlockStart();");
+        source = source.replaceAll("//(?i)\\s*" + quote("when") + SEPARATOR, "whenBlockStart();");
+        source = source.replaceAll("//(?i)\\s*" + quote("then") + SEPARATOR, "thenBlockStart();");
+
         ASTParser parser = ASTParser.newParser(AST.JLS8);
         parser.setSource(source.toCharArray());
         parser.setKind(K_COMPILATION_UNIT);

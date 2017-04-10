@@ -12,7 +12,7 @@ public enum Applicable {
         List<Feature> features = new FeatureProvider(astNodeFactory).features(this);
         for (int i = 0; i < statements.size(); i++) {
             Object bodyNode = statements.get(i);
-            statements.remove(bodyNode);
+            statements.remove(i);
             for (Feature testMethodFeature : features) {
                 bodyNode = testMethodFeature.apply(bodyNode);
             }

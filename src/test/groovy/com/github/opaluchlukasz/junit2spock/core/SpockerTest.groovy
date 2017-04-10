@@ -41,6 +41,16 @@ class SpockerTest extends Specification {
         spocker.outputFilePath() == "foo${separator}bar${separator}Junit4Test.groovy"
     }
 
+    def 'should transform given/when/then comments into Spock\'s blocks'() {
+        given:
+        String source = readFromResources('CommentsAsMarkerForBlocks.java')
+        String expected = normalize(readFromResources('CommentsAsMarkerForBlocks.groovy'))
+        Spocker spocker = new Spocker(source)
+
+        expect:
+        normalize(spocker.asGroovyClass()) == expected
+    }
+
     private String readFromResources(String filename) {
         new Scanner(getClass().getClassLoader().getResourceAsStream(filename), UTF_8.toString()).useDelimiter("\\A").next()
     }

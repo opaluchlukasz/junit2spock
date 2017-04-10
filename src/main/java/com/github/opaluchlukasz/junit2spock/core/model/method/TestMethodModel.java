@@ -1,6 +1,8 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
+import com.github.opaluchlukasz.junit2spock.core.Spocker;
+import com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -9,8 +11,13 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.TypeLiteral;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.TEST_METHOD;
@@ -32,6 +39,8 @@ import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.when;
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
+import static java.lang.String.format;
+import static java.util.Collections.reverseOrder;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.commons.lang3.StringUtils.splitByCharacterTypeCamelCase;
@@ -39,12 +48,17 @@ import static org.apache.commons.lang3.StringUtils.wrapIfMissing;
 
 public class TestMethodModel extends MethodModel {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Spocker.class);
+
     private static final String THROWN = "thrown";
     private static final String ASSERT_THAT = "assertThat";
 
     public static final String[] THEN_BLOCK_START = new String[]{ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, ASSERT_TRUE,
         ASSERT_FALSE, ASSERT_NULL, THROWN, ASSERT_THAT, VERIFY, VERIFY_NO_MORE_INTERACTIONS};
     private static final String[] MOCKING  = {THEN_RETURN, THEN_THROW, WILL_RETURN};
+    public static final String GIVEN_BLOCK_START_MARKER_METHOD = "givenBlockStart";
+    public static final String WHEN_BLOCK_START_MARKER_METHOD = "whenBlockStart";
+    public static final String THEN_BLOCK_START_MARKER_METHOD = "thenBlockStart";
 
     TestMethodModel(MethodDeclaration methodDeclaration) {
         super(methodDeclaration);
@@ -93,38 +107,68 @@ public class TestMethodModel extends MethodModel {
     }
 
     private void addSpockSpecificBlocksToBody() {
-        int thenIndex = thenExpectBlockStart();
-        boolean then = isWhenThenStrategy(thenIndex);
+        List<Integer> givenIndexes = markerMethod(GIVEN_BLOCK_START_MARKER_METHOD);
+        List<Integer> whenIndexes = markerMethod(WHEN_BLOCK_START_MARKER_METHOD);
+        List<Integer> thenIndexes = markerMethod(THEN_BLOCK_START_MARKER_METHOD);
 
-        List<Object> body = body();
+        Map<Integer, SpockBlockNode> blocksToBeAdded = new HashMap<>();
+        if (givenIndexes.size() > 0) {
+            blocksToBeAdded.put(givenIndexes.get(0), given());
+        }
 
-        if (then) {
-            body.add(thenIndex, then());
-            body.add(thenIndex - 1, when());
-            if (thenIndex - 2 >= 0) {
-                body.add(0, given());
+        if (whenIndexes.size() != thenIndexes.size()) {
+            LOG.warn(format("Numbers of when/then blocks do not match for test method: %s", getMethodName()));
+        }
+
+        whenIndexes.forEach(index -> blocksToBeAdded.put(index, when()));
+        thenIndexes.forEach(index -> blocksToBeAdded.put(index, then()));
+
+        blocksToBeAdded.keySet().stream().sorted(reverseOrder()).forEach(key -> body().add(key, blocksToBeAdded.get(key)));
+
+        body().removeIf(node -> methodInvocation(node, new String[]{GIVEN_BLOCK_START_MARKER_METHOD,
+            WHEN_BLOCK_START_MARKER_METHOD, THEN_BLOCK_START_MARKER_METHOD}).isPresent());
+
+        if (thenIndexes.size() == 0) {
+            int thenIndex = thenExpectBlockStart();
+            int whenIndex = whenBlockStart(thenIndex);
+            int givenIndex = givenBlockStart(whenIndex, thenIndex);
+
+            List<Object> body = body();
+
+            if (whenIndex != -1) {
+                body.add(thenIndex, then());
+                body.add(whenIndex, when());
+            } else {
+                body.add(thenIndex, expect());
             }
-        } else {
-            body.add(thenIndex, expect());
-            if (thenIndex - 1 >= 0) {
-                body.add(0, given());
+
+            if (givenIndex != -1) {
+                body.add(givenIndex, given());
             }
         }
     }
 
-    private boolean isWhenThenStrategy(int index) {
-        if (index == 0) {
-            return false;
-        } else {
-            List<Object> body = body();
-            if (body.get(index - 1) instanceof ExpressionStatement) {
-                Expression expression = ((ExpressionStatement) body.get(index - 1)).getExpression();
-                if (expression instanceof MethodInvocation) {
-                    return !methodInvocation(body.get(index - 1), MOCKING).isPresent();
-                }
+    private int givenBlockStart(int whenIndex, int thenIndex) {
+        if (whenIndex == 0 || thenIndex == 0) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private int whenBlockStart(int thenIndex) {
+        if (thenIndex == 0) {
+            return -1;
+        }
+
+        List<Object> body = body();
+        if (body.get(thenIndex - 1) instanceof ExpressionStatement) {
+            Expression expression = ((ExpressionStatement) body.get(thenIndex - 1)).getExpression();
+            if (expression instanceof MethodInvocation) {
+                return !methodInvocation(body.get(thenIndex - 1), MOCKING).isPresent() ? thenIndex - 1 : -1;
             }
         }
-        return false;
+
+        return -1;
     }
 
     private int thenExpectBlockStart() {
@@ -136,5 +180,16 @@ public class TestMethodModel extends MethodModel {
             }
         }
         return 0;
+    }
+
+    private List<Integer> markerMethod(String markerMethodName) {
+        List<Integer> indexes = new LinkedList<>();
+        List<Object> body = body();
+        for (int i = 0; i < body.size(); i++) {
+            if (methodInvocation(body.get(i), markerMethodName).isPresent()) {
+                indexes.add(i);
+            }
+        }
+        return indexes;
     }
 }
