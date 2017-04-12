@@ -5,21 +5,22 @@ import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.MethodDeclaration
 import org.eclipse.jdt.core.dom.MethodInvocation
 import org.eclipse.jdt.core.dom.SimpleName
+import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
-import static com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel.THEN_BLOCK_START
-import static com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel.THROWN
+import static com.github.opaluchlukasz.junit2spock.core.model.method.CodeBasedSpockBlocksStrategy.THEN_BLOCK_START
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.expect
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.when
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
 import static org.eclipse.jdt.core.dom.AST.newAST
+import static org.spockframework.util.Identifiers.THROWN
 
 class TestMethodModelTest extends Specification {
 
-    private ASTNodeFactory nodeFactory = new ASTNodeFactory()
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
     def 'should return \'def\' as a method modifier'() {
         expect:
