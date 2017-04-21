@@ -85,8 +85,7 @@ class MockitoVerifyFeatureTest extends Specification {
         nodeFactory.methodInvocation('atLeast', [nodeFactory.numberLiteral('3')]) | '(3 .. _) * mockedObject.someMethod()'
     }
 
-    def
-    'should log warning for unsupported VerificationMode and fallback to single invocation verification'() {
+    def 'should log warning for unsupported VerificationMode and fallback to single invocation verification'() {
         given:
         def verificationMode = 'neverEver'
         def methodInvocation = nodeFactory.methodInvocation('method', [], verifyInvocation(nodeFactory.methodInvocation(verificationMode, [])))
@@ -99,6 +98,17 @@ class MockitoVerifyFeatureTest extends Specification {
             event.level == WARN && event.message == "Unsupported VerificationMode: $verificationMode"
         } as ILoggingEvent)
         expression.toString() == '1 * mockedObject.method()'
+    }
+
+    def 'should replace anyObject matcher with Spock\'s wildcard'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.numberLiteral("1"), nodeFactory.methodInvocation('anyObject', [])], verifyInvocation())
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        expression.toString() == '1 * mockedObject.method(1,_)'
     }
 
     private MethodInvocation verifyInvocation() {

@@ -25,6 +25,7 @@ class MockitoTest extends Specification {
 
 		expect:
 		1 * mockedList.get(0)
+		1 * mockedList.get(_)
 		0 * mockedList.clear()
 		cardinality() * mockedList.size()
 		(1 .. _) * mockedList.size()

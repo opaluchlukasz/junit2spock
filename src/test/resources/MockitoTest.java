@@ -12,6 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Matchers.anyObject;
 
 public class MockitoTest {
 
@@ -36,6 +37,7 @@ public class MockitoTest {
         }
 
         org.mockito.Mockito.verify(mockedList).get(0);
+        verify(mockedList).get(anyObject());
         verify(mockedList, never()).clear();
         verify(mockedList, times(cardinality())).size();
         verify(mockedList, atLeastOnce()).size();

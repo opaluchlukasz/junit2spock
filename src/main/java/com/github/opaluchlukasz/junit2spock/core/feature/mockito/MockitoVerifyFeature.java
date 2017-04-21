@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +52,19 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                 cardinality(arguments.size() == 2 ? Optional.of(arguments.get(1)) : empty()),
                 nodeFactory.methodInvocation(parentMethodInvocation.getName().getFullyQualifiedName(),
                         (List<ASTNode>) parentMethodInvocation.arguments().stream()
-                                .map(nodeFactory::clone).collect(toList()),
+                                .map(this::applyMatchers).collect(toList()),
                         (Expression) nodeFactory.clone(arguments.get(0))));
+    }
+
+    private Object applyMatchers(Object argument) {
+        if (methodInvocation(argument, "anyObject").isPresent()) {
+            return wildcard();
+        }
+        return nodeFactory.clone(argument);
+    }
+
+    private SimpleName wildcard() {
+        return nodeFactory.simpleName("_");
     }
 
     private Expression cardinality(Optional<Object> arg) {
@@ -73,7 +85,7 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                         .infixExpression(
                                 RANGE,
                                 nodeFactory.numberLiteral("1"),
-                                nodeFactory.simpleName("_"))));
+                                wildcard())));
             }
         }
         if (methodInvocation.arguments().size() == 1) {
@@ -85,13 +97,13 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                         .infixExpression(
                                 RANGE,
                                 (Expression) nodeFactory.clone(methodInvocation.arguments().get(0)),
-                                nodeFactory.simpleName("_"))));
+                                wildcard())));
             }
             if (methodInvocation.getName().getFullyQualifiedName().equals("atMost")) {
                 return Optional.of(nodeFactory.parenthesizedExpression(nodeFactory
                         .infixExpression(
                                 RANGE,
-                                nodeFactory.simpleName("_"),
+                                wildcard(),
                                 (Expression) nodeFactory.clone(methodInvocation.arguments().get(0)))));
             }
         }
