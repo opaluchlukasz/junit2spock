@@ -9,7 +9,7 @@ import static java.nio.charset.StandardCharsets.UTF_8
 class SpockerTest extends Specification {
 
     @Unroll
-    def 'should return groovy test class for junit test class (#input)'() {
+    def 'should return groovy class for java class (#input)'() {
         given:
         String source = readFromResources("${input}.java")
         String expected = normalize(readFromResources("${input}.groovy"))
@@ -19,7 +19,7 @@ class SpockerTest extends Specification {
         normalize(spocker.asGroovyClass()) == expected
 
         where:
-        input << ['MockitoTest', 'Junit4Test', 'IfStatementWrapperTest']
+        input << ['MockitoTest', 'Junit4Test', 'IfStatementWrapperTest', 'InnerType']
     }
 
     def 'should return interface for java interface'() {

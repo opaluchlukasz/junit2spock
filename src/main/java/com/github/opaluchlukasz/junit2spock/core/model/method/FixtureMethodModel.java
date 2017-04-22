@@ -3,8 +3,6 @@ package com.github.opaluchlukasz.junit2spock.core.model.method;
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
-import java.util.Optional;
-
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIXTURE_METHOD;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 
@@ -34,7 +32,7 @@ public class FixtureMethodModel extends MethodModel {
     }
 
     @Override
-    protected Optional<String> methodModifier() {
-        return Optional.of("def");
+    protected String methodModifier() {
+        return "def ";
     }
 }

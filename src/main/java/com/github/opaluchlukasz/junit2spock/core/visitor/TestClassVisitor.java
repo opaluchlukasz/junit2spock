@@ -9,33 +9,56 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
+import java.util.Stack;
+
 public class TestClassVisitor extends ASTVisitor {
 
-    private final ClassModelBuilder classModelBuilder = new ClassModelBuilder();
+    private final Stack<ClassModelBuilder> classModelBuilders;
+
+    public TestClassVisitor() {
+        classModelBuilders = new Stack<>();
+        classModelBuilders.push(new ClassModelBuilder());
+    }
+
+    private ClassModelBuilder currentClassModelBuilder() {
+        return classModelBuilders.peek();
+    }
 
     @Override
     public boolean visit(TypeDeclaration node) {
-        classModelBuilder.withAST(node.getAST());
-        classModelBuilder.withClassName(node.getName());
-        classModelBuilder.withSuperType(node.getSuperclassType());
+        if (currentClassModelBuilder().className() != null) {
+            classModelBuilders.push(new ClassModelBuilder());
+        }
+        currentClassModelBuilder().withAST(node.getAST());
+        currentClassModelBuilder().withClassName(node.getName());
+        currentClassModelBuilder().withModifiers(node.modifiers());
+        currentClassModelBuilder().withSuperType(node.getSuperclassType());
         return true;
     }
 
     @Override
+    public void endVisit(TypeDeclaration node) {
+        if (classModelBuilders.size() > 1) {
+            TypeModel typeModel = classModelBuilders.pop().build();
+            currentClassModelBuilder().withInnerType(typeModel);
+        }
+    }
+
+    @Override
     public boolean visit(ImportDeclaration node) {
-        classModelBuilder.withImport(node);
+        currentClassModelBuilder().withImport(node);
         return false;
     }
 
     @Override
     public boolean visit(PackageDeclaration node) {
-        classModelBuilder.withPackageDeclaration(node);
+        currentClassModelBuilder().withPackageDeclaration(node);
         return false;
     }
 
     @Override
     public boolean visit(FieldDeclaration node) {
-        classModelBuilder.withField(node);
+        currentClassModelBuilder().withField(node);
         return false;
     }
 
@@ -43,11 +66,11 @@ public class TestClassVisitor extends ASTVisitor {
     public boolean visit(MethodDeclaration methodDeclaration) {
         MethodVisitor visitor = new MethodVisitor();
         methodDeclaration.accept(visitor);
-        classModelBuilder.withMethod(visitor.methodModel());
+        currentClassModelBuilder().withMethod(visitor.methodModel());
         return false;
     }
 
     public TypeModel classModel() {
-        return classModelBuilder.build();
+        return currentClassModelBuilder().build();
     }
 }

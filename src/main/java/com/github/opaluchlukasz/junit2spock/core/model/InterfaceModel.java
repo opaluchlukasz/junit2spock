@@ -18,14 +18,14 @@ import static java.util.Collections.unmodifiableList;
 @Immutable
 public class InterfaceModel implements TypeModel {
 
-    private final String className;
+    private final String typeName;
     private final PackageDeclaration packageDeclaration;
     private final List<FieldDeclaration> fields;
     private final List<MethodModel> methods;
     private final List<ImportDeclaration> imports;
     private final Optional<String> superClassType;
 
-    InterfaceModel(String className, Type superClassType, PackageDeclaration packageDeclaration,
+    InterfaceModel(String typeName, Type superClassType, PackageDeclaration packageDeclaration,
                List<FieldDeclaration> fields, List<MethodModel> methods, List<ImportDeclaration> imports) {
 
         LinkedList<ImportDeclaration> importDeclarations = new LinkedList<>(imports);
@@ -33,7 +33,7 @@ public class InterfaceModel implements TypeModel {
 
         this.superClassType = Optional.ofNullable(superClassType).map(Object::toString);
 
-        this.className = className;
+        this.typeName = typeName;
         this.packageDeclaration = packageDeclaration;
         this.fields = unmodifiableList(new LinkedList<>(fields));
         this.methods = unmodifiableList(new LinkedList<>(methods));
@@ -41,7 +41,7 @@ public class InterfaceModel implements TypeModel {
     }
 
     @Override
-    public String asGroovyClass() {
+    public String asGroovyClass(int typeIndent) {
         StringBuilder builder = new StringBuilder();
         Optional.ofNullable(packageDeclaration).ifPresent(builder::append);
 
@@ -51,8 +51,7 @@ public class InterfaceModel implements TypeModel {
                 .filter(importDeclaration -> !supported.contains(importDeclaration.getName().getFullyQualifiedName()))
                 .forEach(builder::append);
 
-        builder.append(SEPARATOR).append("interface ")
-                .append(className);
+        builder.append(SEPARATOR).append("interface ").append(typeName);
 
         superClassType.ifPresent(superClass -> builder.append(" extends ").append(superClass));
 
@@ -61,7 +60,7 @@ public class InterfaceModel implements TypeModel {
 
         fields.forEach(field -> builder.append(field.toString()));
 
-        methods.forEach(methodModel -> builder.append(methodModel.methodDeclaration(1)).append(SEPARATOR));
+        methods.forEach(methodModel -> builder.append(methodModel.methodDeclaration(typeIndent + 1)).append(SEPARATOR));
 
         builder.append("}");
 
@@ -77,6 +76,6 @@ public class InterfaceModel implements TypeModel {
 
     @Override
     public String typeName() {
-        return className;
+        return typeName;
     }
 }

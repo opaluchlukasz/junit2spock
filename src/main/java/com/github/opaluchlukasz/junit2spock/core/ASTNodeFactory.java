@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -343,6 +344,12 @@ public class ASTNodeFactory {
         prefixExpression.setOperator(operator);
         prefixExpression.setOperand(expression);
         return prefixExpression;
+    }
+
+    public TypeDeclaration typeDeclaration(String name) {
+        TypeDeclaration typeDeclaration = ast.newTypeDeclaration();
+        typeDeclaration.setName(simpleName(name));
+        return typeDeclaration;
     }
 
     public InstanceofExpression instanceofExpression(Expression expression, Type type) {

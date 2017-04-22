@@ -25,7 +25,7 @@ class Junit4Test extends Specification {
 		thrown(IndexOutOfBoundsException)
 	}
 
-	private String helper() {
+	private static String helper() {
 		return 'bar'
 	}
 

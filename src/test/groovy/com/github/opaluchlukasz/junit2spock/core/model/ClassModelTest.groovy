@@ -26,7 +26,7 @@ class ClassModelTest extends Specification {
                 .build()
 
         then:
-        testClass.asGroovyClass().contains("class $testClassName extends Specification")
+        testClass.asGroovyClass(0).contains("class $testClassName extends Specification")
     }
 
     def 'should not extend declared supertype class when there are no test methods in class'() {
@@ -40,7 +40,7 @@ class ClassModelTest extends Specification {
                 .build()
 
         then:
-        testClass.asGroovyClass().contains("class $testClassName extends Object")
+        testClass.asGroovyClass(0).contains("class $testClassName extends Object")
     }
 
 

@@ -72,7 +72,7 @@ public abstract class MethodModel {
         StringBuilder methodBuilder = new StringBuilder();
 
         indent(methodBuilder, baseIndentationInTabs);
-        methodModifier().ifPresent(methodModifier -> methodBuilder.append(methodModifier).append(" "));
+        methodBuilder.append(groovism.apply(methodModifier()));
 
         returnedType().ifPresent(type -> methodBuilder.append(type).append(" "));
 
@@ -107,5 +107,5 @@ public abstract class MethodModel {
                 .map(Object::toString);
     }
 
-    protected abstract Optional<String> methodModifier();
+    protected abstract String methodModifier();
 }

@@ -3,11 +3,8 @@ package com.github.opaluchlukasz.junit2spock.core.model.method;
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
-import java.util.Optional;
-
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.REGULAR_METHOD;
-import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.isPrivate;
-import static java.util.Optional.empty;
+import static java.util.stream.Collectors.joining;
 
 public class RegularMethodModel extends MethodModel {
 
@@ -32,10 +29,10 @@ public class RegularMethodModel extends MethodModel {
     }
 
     @Override
-    protected Optional<String> methodModifier() {
-        if (isPrivate(methodDeclaration())) {
-            return Optional.of("private");
+    protected String methodModifier() {
+        if (methodDeclaration().modifiers().size() == 0) {
+            return "";
         }
-        return empty();
+        return (String) methodDeclaration().modifiers().stream().map(Object::toString).collect(joining(" ", "", " "));
     }
 }

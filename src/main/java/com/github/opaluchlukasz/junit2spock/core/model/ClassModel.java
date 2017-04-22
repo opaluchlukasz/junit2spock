@@ -22,8 +22,10 @@ import java.util.Optional;
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIELD_FEATURE;
 import static com.github.opaluchlukasz.junit2spock.core.groovism.GroovismChainProvider.provide;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indent;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.joining;
 
 @Immutable
 public class ClassModel implements TypeModel {
@@ -35,10 +37,14 @@ public class ClassModel implements TypeModel {
     private final List<ImportDeclaration> imports;
     private final Optional<String> superClassType;
     private final ASTNodeFactory astNodeFactory;
+    private final List<TypeModel> innerTypes;
+    private final List modifiers;
     private final Groovism groovism;
 
+    // CHECKSTYLE.OFF: ParameterNumber
     ClassModel(String className, Type superClassType, PackageDeclaration packageDeclaration,
-               List<FieldDeclaration> fields, List<MethodModel> methods, List<ImportDeclaration> imports, AST ast) {
+               List<FieldDeclaration> fields, List<MethodModel> methods, List<ImportDeclaration> imports, AST ast,
+               List<TypeModel> innerTypes, List modifiers) {
         astNodeFactory = new ASTNodeFactory(ast);
         groovism = provide();
 
@@ -55,8 +61,11 @@ public class ClassModel implements TypeModel {
         this.packageDeclaration = packageDeclaration;
         this.fields = unmodifiableList(fieldDeclarations(fields));
         this.methods = unmodifiableList(new LinkedList<>(methods));
+        this.modifiers = unmodifiableList(new LinkedList<>(modifiers));
         this.imports = unmodifiableList(importDeclarations);
+        this.innerTypes = unmodifiableList(new LinkedList<>(innerTypes));
     }
+    // CHECKSTYLE.ON: ParameterNumber
 
     private List<FieldDeclaration> fieldDeclarations(List<FieldDeclaration> fieldDeclarations) {
         List<FieldDeclaration> result = new LinkedList<>();
@@ -76,7 +85,7 @@ public class ClassModel implements TypeModel {
     }
 
     @Override
-    public String asGroovyClass() {
+    public String asGroovyClass(int classIndent) {
         StringBuilder builder = new StringBuilder();
         Optional.ofNullable(packageDeclaration)
                 .map(declaration -> groovism.apply(declaration.toString()))
@@ -89,7 +98,11 @@ public class ClassModel implements TypeModel {
                 .map(declaration -> groovism.apply(declaration.toString()))
                 .forEach(builder::append);
 
-        builder.append(SEPARATOR).append("class ")
+        builder.append(SEPARATOR);
+        indent(builder, classIndent);
+
+        builder.append(groovism.apply((String) modifiers.stream().map(Object::toString).collect(joining(" ", "", " "))));
+        builder.append("class ")
                 .append(className);
 
         superClassType.ifPresent(superClass -> builder.append(" extends ").append(superClass));
@@ -97,12 +110,15 @@ public class ClassModel implements TypeModel {
         builder.append(" {")
                 .append(SEPARATOR);
 
-        fields.forEach(field -> builder.append(indentation(1)).append(groovism.apply(field.toString())));
+        fields.forEach(field -> builder.append(indentation(classIndent + 1)).append(groovism.apply(field.toString())));
 
         builder.append(SEPARATOR);
 
-        methods.forEach(methodModel -> builder.append(methodModel.asGroovyMethod(1)));
+        methods.forEach(methodModel -> builder.append(methodModel.asGroovyMethod(classIndent + 1)));
 
+        innerTypes.forEach(classModel -> builder.append(classModel.asGroovyClass(classIndent + 1)));
+
+        indent(builder, classIndent);
         builder.append("}");
 
         builder.append(SEPARATOR);

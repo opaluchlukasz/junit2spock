@@ -29,7 +29,7 @@ class FixtureMethodModelTest extends Specification {
 
     def 'should return \'def\' as a method modifier'() {
         expect:
-        fixtureMethodModel(aMethod(nodeFactory.ast).build(), 'setup').methodModifier().get() == 'def'
+        fixtureMethodModel(aMethod(nodeFactory.ast).build(), 'setup').methodModifier() == 'def '
     }
 
     private static FixtureMethodModel fixtureMethodModel(MethodDeclaration methodDeclaration, String name) {

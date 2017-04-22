@@ -47,14 +47,11 @@ public class Spocker {
 
     private TypeDeclaration typeDeclaration(CompilationUnit cu) {
         List<TypeDeclaration> types = cu.types();
-        if (types.size() > 1) {
-            throw new IllegalArgumentException("Inner types not supported");
-        }
         return types.get(0);
     }
 
     public String asGroovyClass() {
-        return typeModel.asGroovyClass();
+        return typeModel.asGroovyClass(0);
     }
 
     public String outputFilePath() {

@@ -28,7 +28,7 @@ public class Junit4Test {
         new ArrayList<Object>().get(0);
     }
 
-    private String helper() {
+    private static String helper() {
         return "bar";
     }
 }
