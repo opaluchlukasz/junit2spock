@@ -66,8 +66,13 @@ public class ASTNodeFactory {
     }
 
     public ImportDeclaration importDeclaration(Class<?> clazz) {
+        return importDeclaration(clazz.getName(), false);
+    }
+
+    public ImportDeclaration importDeclaration(String name, boolean isStatic) {
         ImportDeclaration importDeclaration = ast.newImportDeclaration();
-        importDeclaration.setName(ast.newName(clazz.getName()));
+        importDeclaration.setName(ast.newName(name));
+        importDeclaration.setStatic(isStatic);
         return importDeclaration;
     }
 

@@ -3,6 +3,8 @@ package com.github.opaluchlukasz.junit2spock.core.visitor
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import spock.lang.Specification
 
+import java.time.ZonedDateTime
+
 class TestClassVisitorTest extends Specification {
 
     private ASTNodeFactory astNodeFactory = new ASTNodeFactory()
@@ -10,7 +12,7 @@ class TestClassVisitorTest extends Specification {
     def 'should add import to class model builder'() {
         given:
         TestClassVisitor testClassVisitor = new TestClassVisitor()
-        def importDeclaration = astNodeFactory.importDeclaration(Object)
+        def importDeclaration = astNodeFactory.importDeclaration(ZonedDateTime)
 
         when:
         testClassVisitor.visit(importDeclaration)

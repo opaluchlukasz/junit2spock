@@ -1,5 +1,4 @@
 package foo.bar
-import java.util.Optional
 
 class InnerType {
 

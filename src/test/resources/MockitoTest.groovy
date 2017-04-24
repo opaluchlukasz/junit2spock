@@ -1,5 +1,4 @@
 package foo.bar
-import java.util.List
 import spock.lang.Specification
 
 class MockitoTest extends Specification {

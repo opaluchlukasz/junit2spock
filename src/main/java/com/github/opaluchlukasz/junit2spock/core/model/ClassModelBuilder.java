@@ -11,6 +11,7 @@ import org.eclipse.jdt.core.dom.Type;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class ClassModelBuilder {
     private List<ImportDeclaration> imports = new LinkedList<>();
@@ -33,7 +34,7 @@ public class ClassModelBuilder {
     }
 
     public ClassModelBuilder withImport(ImportDeclaration node) {
-        imports.add(node);
+        Optional.of(node).filter(new ImportFilter()).ifPresent(imports::add);
         return this;
     }
 
