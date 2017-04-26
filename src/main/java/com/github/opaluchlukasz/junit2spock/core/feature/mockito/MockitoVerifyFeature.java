@@ -2,18 +2,22 @@ package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
+import com.google.common.collect.ImmutableMap;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import static com.github.opaluchlukasz.junit2spock.core.node.CustomInfixOperator.CAST;
 import static com.github.opaluchlukasz.junit2spock.core.node.CustomInfixOperator.RANGE;
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static java.lang.String.format;
@@ -26,6 +30,7 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
     private static final Logger LOG = LoggerFactory.getLogger(MockitoVerifyFeature.class);
 
     public static final String VERIFY = "verify";
+    private static final Map<String, String> MATCHER_TYPE_OVERRIDE = ImmutableMap.of("Char", "Character", "Int", "Integer");
 
     private final ASTNodeFactory nodeFactory;
 
@@ -60,7 +65,22 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
         if (methodInvocation(argument, "anyObject").isPresent()) {
             return wildcard();
         }
-        return nodeFactory.clone(argument);
+        Optional<MethodInvocation> methodInvocation = methodInvocation(argument, "anyBoolean", "anyByte", "anyChar", "anyInt",
+                "anyLong", "anyFloat", "anyDouble", "anyShort", "anyString", "anyList", "anySet", "anyMap", "anyCollection",
+                "anyIterable");
+        return methodInvocation
+                .map(methodInv -> classMatcher(getClass(methodInv)))
+                .orElseGet(() -> nodeFactory.clone(argument));
+    }
+
+    private String getClass(MethodInvocation methodInv) {
+        String type = methodInv.getName().getIdentifier().replaceFirst("any", "");
+        return MATCHER_TYPE_OVERRIDE.getOrDefault(type, type);
+    }
+
+    private Object classMatcher(String type) {
+        TypeLiteral classLiteral = nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(type)));
+        return nodeFactory.infixExpression(CAST, wildcard(), classLiteral);
     }
 
     private SimpleName wildcard() {

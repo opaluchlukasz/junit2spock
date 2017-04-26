@@ -12,12 +12,27 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyByte;
+import static org.mockito.Matchers.anyChar;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyFloat;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyShort;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyIterable;
 import static org.mockito.Matchers.anyObject;
 
 public class MockitoTest {
 
     @Mock
-    public Object mocked;
+    public SomeClass mocked;
     @Mock
     public List<String> mockedList;
 
@@ -38,6 +53,8 @@ public class MockitoTest {
 
         org.mockito.Mockito.verify(mockedList).get(0);
         verify(mockedList).get(anyObject());
+        verify(mocked).someMethod(anyBoolean(), anyByte(), anyChar(), anyInt(), anyLong(), anyFloat(), anyDouble());
+        verify(mocked).someOtherMethod(anyShort(), anyString(), anyList(), anySet(), anyMap(), anyCollection(), anyIterable());
         verify(mockedList, never()).clear();
         verify(mockedList, times(cardinality())).size();
         verify(mockedList, atLeastOnce()).size();

@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.dom.SimpleName
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
+import spock.lang.Unroll
 
 import static ch.qos.logback.classic.Level.WARN
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFeature.VERIFY
@@ -109,6 +110,34 @@ class MockitoVerifyFeatureTest extends Specification {
 
         then:
         expression.toString() == '1 * mockedObject.method(1,_)'
+    }
+
+    @Unroll
+    def 'should replace #matcherMethod matcher with Spock\'s wildcard with cast'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation(matcherMethod, [])], verifyInvocation())
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        expression.toString() == "1 * mockedObject.method(_ as ${clazz.simpleName}.class)"
+
+        where:
+        clazz      | matcherMethod
+        Byte       | 'anyByte'
+        Character  | 'anyChar'
+        Integer    | 'anyInt'
+        Long       | 'anyLong'
+        Float      | 'anyFloat'
+        Double     | 'anyDouble'
+        Short      | 'anyShort'
+        String     | 'anyString'
+        List       | 'anyList'
+        Set        | 'anySet'
+        Map        | 'anyMap'
+        Collection | 'anyCollection'
+        Iterable   | 'anyIterable'
     }
 
     private MethodInvocation verifyInvocation() {

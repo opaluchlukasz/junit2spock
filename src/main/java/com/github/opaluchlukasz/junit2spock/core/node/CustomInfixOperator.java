@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 public final class CustomInfixOperator {
 
     public static final Operator RANGE = getOperator("..");
+    public static final Operator CAST = getOperator("as");
 
     private CustomInfixOperator() {
         //NOOP
