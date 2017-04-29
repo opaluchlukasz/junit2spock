@@ -7,12 +7,11 @@ import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
 import com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.Type;
-import org.spockframework.util.Immutable;
 import spock.lang.Specification;
 
 import java.util.LinkedList;
@@ -27,43 +26,40 @@ import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentat
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.joining;
 
-@Immutable
-public class ClassModel implements TypeModel {
+public class ClassModel extends TypeModel {
 
+    private final ASTNodeFactory astNodeFactory;
     private final String className;
+    private final Optional<Type> superClassType;
     private final PackageDeclaration packageDeclaration;
     private final List<FieldDeclaration> fields;
     private final List<MethodModel> methods;
     private final List<ImportDeclaration> imports;
-    private final Optional<String> superClassType;
-    private final ASTNodeFactory astNodeFactory;
     private final List<TypeModel> innerTypes;
-    private final List modifiers;
+    private final List<Modifier> modifiers;
     private final Groovism groovism;
 
     // CHECKSTYLE.OFF: ParameterNumber
-    ClassModel(String className, Type superClassType, PackageDeclaration packageDeclaration,
-               List<FieldDeclaration> fields, List<MethodModel> methods, List<ImportDeclaration> imports, AST ast,
-               List<TypeModel> innerTypes, List modifiers) {
-        astNodeFactory = new ASTNodeFactory(ast);
+    ClassModel(ASTNodeFactory astNodeFactory, String className, Type superClassType, PackageDeclaration packageDeclaration,
+               List<FieldDeclaration> fields, List<MethodModel> methods, List<ImportDeclaration> imports,
+               List<TypeModel> innerTypes, List<Modifier> modifiers) {
         groovism = provide();
 
-        LinkedList<ImportDeclaration> importDeclarations = new LinkedList<>(imports);
-
-        if (isTestClass(methods)) {
-            this.superClassType = Optional.of(Specification.class.getSimpleName());
-            importDeclarations.add(astNodeFactory.importDeclaration(Specification.class));
-        } else {
-            this.superClassType = Optional.ofNullable(superClassType).map(Object::toString);
-        }
-
+        this.astNodeFactory = astNodeFactory;
         this.className = className;
         this.packageDeclaration = packageDeclaration;
-        this.fields = unmodifiableList(fieldDeclarations(fields));
+        this.fields = fieldDeclarations(fields);
         this.methods = unmodifiableList(new LinkedList<>(methods));
         this.modifiers = unmodifiableList(new LinkedList<>(modifiers));
-        this.imports = unmodifiableList(importDeclarations);
+        this.imports = imports;
         this.innerTypes = unmodifiableList(new LinkedList<>(innerTypes));
+        if (isTestClass(methods)) {
+            this.superClassType = Optional.of(astNodeFactory
+                    .simpleType(astNodeFactory.simpleName(Specification.class.getSimpleName())));
+            imports.add(astNodeFactory.importDeclaration(Specification.class));
+        } else {
+            this.superClassType = Optional.ofNullable(superClassType);
+        }
     }
     // CHECKSTYLE.ON: ParameterNumber
 
@@ -101,7 +97,7 @@ public class ClassModel implements TypeModel {
         builder.append(SEPARATOR);
         indent(builder, classIndent);
 
-        builder.append(groovism.apply((String) modifiers.stream().map(Object::toString).collect(joining(" ", "", " "))));
+        builder.append(groovism.apply(modifiers.stream().map(Object::toString).collect(joining(" ", "", " "))));
         builder.append("class ")
                 .append(className);
 

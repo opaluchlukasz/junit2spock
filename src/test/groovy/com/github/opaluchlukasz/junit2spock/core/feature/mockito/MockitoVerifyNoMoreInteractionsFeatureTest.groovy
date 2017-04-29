@@ -1,18 +1,23 @@
 package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
-import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyNoMoreInteractionsFeature
+import org.eclipse.jdt.core.dom.AST
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyNoMoreInteractionsFeature.VERIFY_NO_MORE_INTERACTIONS
+import static org.eclipse.jdt.core.dom.AST.JLS8
+import static org.eclipse.jdt.core.dom.AST.newAST
 
 class MockitoVerifyNoMoreInteractionsFeatureTest extends Specification {
 
     @Subject private MockitoVerifyNoMoreInteractionsFeature mockitoVerifyNoMoreInteractionsFeature =
             new MockitoVerifyNoMoreInteractionsFeature(nodeFactory)
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
+    private static final AST ast = newAST(JLS8)
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
 
     def 'should return false for non verifyNoMoreInteractions method invocation'() {
         expect:

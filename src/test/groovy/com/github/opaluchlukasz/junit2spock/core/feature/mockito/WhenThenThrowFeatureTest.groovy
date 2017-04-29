@@ -1,8 +1,8 @@
 package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
-import com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature
 import com.github.opaluchlukasz.junit2spock.core.node.SpockMockBehaviour
+import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
 import spock.lang.Specification
@@ -10,10 +10,15 @@ import spock.lang.Subject
 
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.THEN_THROW
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.WHEN
+import static org.eclipse.jdt.core.dom.AST.JLS8
+import static org.eclipse.jdt.core.dom.AST.newAST
 
 class WhenThenThrowFeatureTest extends Specification {
 
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
+    private static final AST ast = newAST(JLS8)
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
 
     @Subject private WhenThenThrowFeature thenThrowFeature = new WhenThenThrowFeature(nodeFactory)
 

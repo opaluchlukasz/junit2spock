@@ -1,14 +1,22 @@
 package com.github.opaluchlukasz.junit2spock.core.model
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import org.eclipse.jdt.core.dom.AST
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
+import static org.eclipse.jdt.core.dom.AST.JLS8
+import static org.eclipse.jdt.core.dom.AST.newAST
+
 class ImportFilterTest extends Specification {
 
+    private static final AST ast = newAST(JLS8)
+
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
     @Subject private ImportFilter importFilter = new ImportFilter()
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
 
     def 'should not filter out static imports'() {
         expect:

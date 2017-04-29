@@ -1,20 +1,28 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.MethodDeclaration
+import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
+import static org.eclipse.jdt.core.dom.AST.JLS8
+import static org.eclipse.jdt.core.dom.AST.newAST
 import static org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.PRIVATE_KEYWORD
 import static org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.STATIC_KEYWORD
 
 class RegularMethodModelTest extends Specification {
 
-    private ASTNodeFactory nodeFactory = new ASTNodeFactory()
+    private static final AST ast = newAST(JLS8)
+
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
 
     def 'should return unchanged test name'() {
         given:
-        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
+        MethodDeclaration methodDeclaration = aMethod(ast)
                 .withName('someMethodName')
                 .build()
         RegularMethodModel regularMethodModel = aRegularMethodModel(methodDeclaration)
@@ -25,13 +33,13 @@ class RegularMethodModelTest extends Specification {
 
     def 'should return empty string as a method suffix'() {
         expect:
-        aRegularMethodModel(aMethod(nodeFactory.ast).build()).methodSuffix() == ''
+        aRegularMethodModel(aMethod(ast).build()).methodSuffix() == ''
     }
 
     def 'should return method modifier'() {
         given:
-        def methodDeclarationBuilder = aMethod(nodeFactory.ast)
-        modifiers.each {methodDeclarationBuilder.withModifier(it)}
+        def methodDeclarationBuilder = aMethod(ast)
+        modifiers.each { methodDeclarationBuilder.withModifier(it) }
         annotations.each { methodDeclarationBuilder.withAnnotation(nodeFactory.annotation(it, [:])) }
         def methodDeclaration = methodDeclarationBuilder.build()
 
@@ -48,7 +56,7 @@ class RegularMethodModelTest extends Specification {
         []                                | ['Override', 'SuppressWarnings'] | '@Override @SuppressWarnings '
     }
 
-    private static RegularMethodModel aRegularMethodModel(MethodDeclaration methodDeclaration) {
-        new RegularMethodModel(methodDeclaration)
+    private RegularMethodModel aRegularMethodModel(MethodDeclaration methodDeclaration) {
+        new RegularMethodModel(nodeFactory, methodDeclaration)
     }
 }

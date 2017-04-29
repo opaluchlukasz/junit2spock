@@ -1,6 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.node
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.Block
 import org.eclipse.jdt.core.dom.BooleanLiteral
 import org.eclipse.jdt.core.dom.Expression
@@ -11,23 +12,26 @@ import org.eclipse.jdt.core.dom.Statement
 import org.eclipse.jdt.core.dom.ThrowStatement
 import spock.lang.Shared
 import spock.lang.Specification
-import spock.lang.Unroll
 
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.REGULAR_METHOD
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
+import static org.eclipse.jdt.core.dom.AST.*
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS
 
 class IfStatementWrapperTest extends Specification {
 
-    @Shared private static ASTNodeFactory nf = new ASTNodeFactory()
+    private static final AST ast = newAST(JLS8)
+    @Shared static private ASTNodeFactory nf = new ASTNodeFactory({
+        get: ast
+    })
 
-    @Unroll
     def 'should have proper toString method'() {
         given:
         IfStatement statement = ifStatement(expression, thenStatement, elseStatement)
+        IfStatementWrapper ifStatementWrapper = new IfStatementWrapper(statement, 0, REGULAR_METHOD, nf)
 
         expect:
-        new IfStatementWrapper(statement, 0, REGULAR_METHOD).toString() == expected
+        ifStatementWrapper.toString() == expected
 
         where:
         expression        | thenStatement                                        | elseStatement                                 | expected

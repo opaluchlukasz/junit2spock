@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -8,8 +9,8 @@ import static java.util.stream.Collectors.joining;
 
 public class RegularMethodModel extends MethodModel {
 
-    RegularMethodModel(MethodDeclaration methodDeclaration) {
-        super(methodDeclaration);
+    RegularMethodModel(ASTNodeFactory nodeFactory, MethodDeclaration methodDeclaration) {
+        super(nodeFactory, methodDeclaration);
         methodType().applyFeaturesToStatements(body(), astNodeFactory());
     }
 

@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core
 
+import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.Annotation
 import org.eclipse.jdt.core.dom.ArrayCreation
 import org.eclipse.jdt.core.dom.ArrayInitializer
@@ -29,14 +30,17 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import static java.util.Collections.emptyMap
+import static org.eclipse.jdt.core.dom.AST.*
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.LESS_EQUALS
 import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.DECREMENT
 import static org.eclipse.jdt.core.dom.PrimitiveType.CHAR
 import static org.eclipse.jdt.core.dom.PrimitiveType.INT
 
 class ASTNodeFactoryTest extends Specification {
-
-    @Subject @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
+    private static final AST ast = newAST(JLS8)
+    @Subject @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
 
     def 'should create import declaration'() {
         given:

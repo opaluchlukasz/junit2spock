@@ -1,6 +1,5 @@
 package com.github.opaluchlukasz.junit2spock.core;
 
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.ArrayCreation;
@@ -27,6 +26,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
@@ -43,6 +43,8 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -53,16 +55,14 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.core.dom.PrimitiveType.INT;
 
+@Component
 public class ASTNodeFactory {
 
-    private final AST ast;
+    private final AstProvider ast;
 
-    public ASTNodeFactory() {
-        ast = AST.newAST(AST.JLS8);
-    }
-
-    public ASTNodeFactory(AST ast) {
-        this.ast = ast;
+    @Autowired
+    public ASTNodeFactory(AstProvider astProvider) {
+        this.ast = astProvider;
     }
 
     public ImportDeclaration importDeclaration(Class<?> clazz) {
@@ -70,14 +70,20 @@ public class ASTNodeFactory {
     }
 
     public ImportDeclaration importDeclaration(String name, boolean isStatic) {
-        ImportDeclaration importDeclaration = ast.newImportDeclaration();
-        importDeclaration.setName(ast.newName(name));
+        ImportDeclaration importDeclaration = ast.get().newImportDeclaration();
+        importDeclaration.setName(ast.get().newName(name));
         importDeclaration.setStatic(isStatic);
         return importDeclaration;
     }
 
     public SimpleName simpleName(String name) {
-        return ast.newSimpleName(name);
+        return ast.get().newSimpleName(name);
+    }
+
+    public PackageDeclaration packageDeclaration(Name name) {
+        PackageDeclaration packageDeclaration = ast.get().newPackageDeclaration();
+        packageDeclaration.setName(name);
+        return packageDeclaration;
     }
 
     public MethodInvocation methodInvocation(String name, List<ASTNode> arguments) {
@@ -85,7 +91,7 @@ public class ASTNodeFactory {
     }
 
     public MethodInvocation methodInvocation(String name, List<ASTNode> arguments, Expression expression) {
-        MethodInvocation methodInvocation = ast.newMethodInvocation();
+        MethodInvocation methodInvocation = ast.get().newMethodInvocation();
         methodInvocation.setName(simpleName(name));
         Optional.ofNullable(expression).ifPresent(methodInvocation::setExpression);
         arguments.forEach(astNode -> methodInvocation.arguments().add(astNode));
@@ -93,26 +99,26 @@ public class ASTNodeFactory {
     }
 
     public FieldAccess fieldAccess(String name, Expression expression) {
-        FieldAccess fieldAccess = ast.newFieldAccess();
+        FieldAccess fieldAccess = ast.get().newFieldAccess();
         fieldAccess.setName(simpleName(name));
         Optional.ofNullable(expression).ifPresent(fieldAccess::setExpression);
         return fieldAccess;
     }
 
     public NumberLiteral numberLiteral(String token) {
-        NumberLiteral numberLiteral = ast.newNumberLiteral();
+        NumberLiteral numberLiteral = ast.get().newNumberLiteral();
         numberLiteral.setToken(token);
         return numberLiteral;
     }
 
     public ParenthesizedExpression parenthesizedExpression(Expression expression) {
-        ParenthesizedExpression parenthesizedExpression = ast.newParenthesizedExpression();
+        ParenthesizedExpression parenthesizedExpression = ast.get().newParenthesizedExpression();
         parenthesizedExpression.setExpression(expression);
         return parenthesizedExpression;
     }
 
     public StringLiteral stringLiteral(String token) {
-        StringLiteral stringLiteral = ast.newStringLiteral();
+        StringLiteral stringLiteral = ast.get().newStringLiteral();
         stringLiteral.setLiteralValue(token);
         return stringLiteral;
     }
@@ -122,7 +128,7 @@ public class ASTNodeFactory {
     }
 
     public ClassInstanceCreation classInstanceCreation(Type type, ASTNode... arguments) {
-        ClassInstanceCreation classInstanceCreation = ast.newClassInstanceCreation();
+        ClassInstanceCreation classInstanceCreation = ast.get().newClassInstanceCreation();
         classInstanceCreation.setType(type);
         classInstanceCreation.arguments().addAll(asList(arguments));
         return classInstanceCreation;
@@ -131,19 +137,19 @@ public class ASTNodeFactory {
     public VariableDeclarationStatement variableDeclarationStatement(String name, Type type, Expression initializer) {
         VariableDeclarationFragment variableDeclarationFragment = variableDeclarationFragment(name);
         variableDeclarationFragment.setInitializer(initializer);
-        VariableDeclarationStatement statement = ast.newVariableDeclarationStatement(variableDeclarationFragment);
+        VariableDeclarationStatement statement = ast.get().newVariableDeclarationStatement(variableDeclarationFragment);
         statement.setType(type);
         return statement;
     }
 
     public VariableDeclarationFragment variableDeclarationFragment(String name) {
-        VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
+        VariableDeclarationFragment variableDeclarationFragment = ast.get().newVariableDeclarationFragment();
         variableDeclarationFragment.setName(simpleName(name));
         return variableDeclarationFragment;
     }
 
     public InfixExpression infixExpression(InfixExpression.Operator operator, Expression leftOperand, Expression rightOperand) {
-        InfixExpression infixExpression = ast.newInfixExpression();
+        InfixExpression infixExpression = ast.get().newInfixExpression();
         infixExpression.setOperator(operator);
         infixExpression.setLeftOperand(leftOperand);
         infixExpression.setRightOperand(rightOperand);
@@ -151,7 +157,7 @@ public class ASTNodeFactory {
     }
 
     private Annotation annotation(String name) {
-        MarkerAnnotation annotation = ast.newMarkerAnnotation();
+        MarkerAnnotation annotation = ast.get().newMarkerAnnotation();
         annotation.setTypeName(simpleName(name));
         return annotation;
     }
@@ -160,7 +166,7 @@ public class ASTNodeFactory {
         if (values.isEmpty()) {
             return annotation(name);
         } else {
-            NormalAnnotation annotation = ast.newNormalAnnotation();
+            NormalAnnotation annotation = ast.get().newNormalAnnotation();
             annotation.setTypeName(simpleName(name));
             List<MemberValuePair> valuePairs = values.entrySet().stream()
                     .map(this::memberValuePair).collect(toList());
@@ -183,11 +189,11 @@ public class ASTNodeFactory {
     }
 
     public Dimension dimension() {
-        return ast.newDimension();
+        return ast.get().newDimension();
     }
 
     public ExpressionStatement expressionStatement(Expression expression) {
-        return ast.newExpressionStatement(expression);
+        return ast.get().newExpressionStatement(expression);
     }
 
     public Type clone(Type type) {
@@ -210,13 +216,13 @@ public class ASTNodeFactory {
     }
 
     public ParameterizedType parameterizedType(Type type, List typeArguments) {
-        ParameterizedType cloned = ast.newParameterizedType(type);
+        ParameterizedType cloned = ast.get().newParameterizedType(type);
         cloned.typeArguments().addAll(typeArguments);
         return cloned;
     }
 
     public ArrayType arrayType(Type type, int dimensions) {
-        return ast.newArrayType(type, dimensions);
+        return ast.get().newArrayType(type, dimensions);
     }
 
     public Expression clone(Expression expression) {
@@ -280,16 +286,16 @@ public class ASTNodeFactory {
         }
         if (expression instanceof QualifiedName) {
             QualifiedName qualifiedName = (QualifiedName) expression;
-            return ast.newQualifiedName((Name) clone(qualifiedName.getQualifier()),
+            return ast.get().newQualifiedName((Name) clone(qualifiedName.getQualifier()),
                     (SimpleName) clone(qualifiedName.getName()));
         }
         if (expression instanceof TypeLiteral) {
-            TypeLiteral typeLiteral = ast.newTypeLiteral();
+            TypeLiteral typeLiteral = ast.get().newTypeLiteral();
             typeLiteral.setType(clone(((TypeLiteral) expression).getType()));
             return typeLiteral;
         }
         if (expression instanceof ThisExpression) {
-            return ast.newThisExpression();
+            return ast.get().newThisExpression();
         }
         if (expression instanceof FieldAccess) {
             return fieldAccess((FieldAccess) expression);
@@ -308,20 +314,20 @@ public class ASTNodeFactory {
     }
 
     public CastExpression castExpression(Type type, Expression expression) {
-        CastExpression castExpression = ast.newCastExpression();
+        CastExpression castExpression = ast.get().newCastExpression();
         castExpression.setExpression(expression);
         castExpression.setType(type);
         return castExpression;
     }
 
     public ArrayInitializer arrayInitializer(List expressions) {
-        ArrayInitializer arrayInitializer = ast.newArrayInitializer();
+        ArrayInitializer arrayInitializer = ast.get().newArrayInitializer();
         arrayInitializer.expressions().addAll(expressions);
         return arrayInitializer;
     }
 
     public ArrayCreation arrayCreation(ArrayType arrayType, List dimensions, ArrayInitializer arrayInitializer) {
-        ArrayCreation clonedArrayCreation = ast.newArrayCreation();
+        ArrayCreation clonedArrayCreation = ast.get().newArrayCreation();
         clonedArrayCreation.setType(arrayType);
         clonedArrayCreation.setInitializer(arrayInitializer);
         clonedArrayCreation.dimensions().addAll(dimensions);
@@ -329,7 +335,7 @@ public class ASTNodeFactory {
     }
 
     public PostfixExpression postfixExpression(Expression expression, PostfixExpression.Operator operator) {
-        PostfixExpression postfixExpression = ast.newPostfixExpression();
+        PostfixExpression postfixExpression = ast.get().newPostfixExpression();
         postfixExpression.setOperator(operator);
         postfixExpression.setOperand(expression);
         return postfixExpression;
@@ -338,73 +344,73 @@ public class ASTNodeFactory {
     public FieldDeclaration fieldDeclaration(VariableDeclarationFragment variableDeclarationFragment,
                                              Type type,
                                              ASTNode... modifiers) {
-        FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(variableDeclarationFragment);
+        FieldDeclaration fieldDeclaration = ast.get().newFieldDeclaration(variableDeclarationFragment);
         fieldDeclaration.setType(type);
         stream(modifiers).forEach(modifier -> fieldDeclaration.modifiers().add(modifier));
         return fieldDeclaration;
     }
 
     public PrefixExpression prefixExpression(PrefixExpression.Operator operator, Expression expression) {
-        PrefixExpression prefixExpression = ast.newPrefixExpression();
+        PrefixExpression prefixExpression = ast.get().newPrefixExpression();
         prefixExpression.setOperator(operator);
         prefixExpression.setOperand(expression);
         return prefixExpression;
     }
 
     public TypeDeclaration typeDeclaration(String name) {
-        TypeDeclaration typeDeclaration = ast.newTypeDeclaration();
+        TypeDeclaration typeDeclaration = ast.get().newTypeDeclaration();
         typeDeclaration.setName(simpleName(name));
         return typeDeclaration;
     }
 
     public InstanceofExpression instanceofExpression(Expression expression, Type type) {
-        InstanceofExpression instanceofExpression = ast.newInstanceofExpression();
+        InstanceofExpression instanceofExpression = ast.get().newInstanceofExpression();
         instanceofExpression.setLeftOperand(expression);
         instanceofExpression.setRightOperand(type);
         return instanceofExpression;
     }
 
     public CharacterLiteral characterLiteral(char c) {
-        CharacterLiteral characterLiteral = ast.newCharacterLiteral();
+        CharacterLiteral characterLiteral = ast.get().newCharacterLiteral();
         characterLiteral.setCharValue(c);
         return characterLiteral;
     }
 
     public BooleanLiteral booleanLiteral(boolean value) {
-        return ast.newBooleanLiteral(value);
+        return ast.get().newBooleanLiteral(value);
     }
 
     public SimpleType simpleType(Name name) {
-        return ast.newSimpleType(name);
+        return ast.get().newSimpleType(name);
     }
 
     public TypeLiteral typeLiteral(Type type) {
-        TypeLiteral typeLiteral = ast.newTypeLiteral();
+        TypeLiteral typeLiteral = ast.get().newTypeLiteral();
         typeLiteral.setType(type);
         return typeLiteral;
     }
 
     public NullLiteral nullLiteral() {
-        return ast.newNullLiteral();
+        return ast.get().newNullLiteral();
     }
 
     public Block block() {
-        return ast.newBlock();
+        return ast.get().newBlock();
     }
 
     public PrimitiveType primitiveType(PrimitiveType.Code code) {
-        return ast.newPrimitiveType(code);
+        return ast.get().newPrimitiveType(code);
     }
 
     public ThrowStatement throwStatement(Expression toBeThrown) {
-        ThrowStatement throwStatement = ast.newThrowStatement();
+        ThrowStatement throwStatement = ast.get().newThrowStatement();
         throwStatement.setExpression(toBeThrown);
         return throwStatement;
     }
 
     private MethodInvocation methodInvocation(MethodInvocation methodInvocation) {
-        MethodInvocation clonedMethodInvocation = ast.newMethodInvocation();
-        clonedMethodInvocation.setName(ast.newSimpleName(methodInvocation.getName().toString()));
+        MethodInvocation clonedMethodInvocation = ast.get().newMethodInvocation();
+        clonedMethodInvocation.setName(ast.get().newSimpleName(methodInvocation.getName().toString()));
 
         List cloned = (List) methodInvocation.arguments().stream().map(this::clone).collect(toList());
         clonedMethodInvocation.arguments().addAll(cloned);
@@ -413,21 +419,21 @@ public class ASTNodeFactory {
     }
 
     private MemberValuePair memberValuePair(Map.Entry<String, Expression> entrySet) {
-        MemberValuePair memberValuePair = ast.newMemberValuePair();
+        MemberValuePair memberValuePair = ast.get().newMemberValuePair();
         memberValuePair.setName(simpleName(entrySet.getKey()));
         memberValuePair.setValue(entrySet.getValue());
         return memberValuePair;
     }
 
     private Expression fieldAccess(FieldAccess toBeCopied) {
-        FieldAccess fieldAccess = ast.newFieldAccess();
+        FieldAccess fieldAccess = ast.get().newFieldAccess();
         fieldAccess.setExpression(clone(toBeCopied.getExpression()));
         fieldAccess.setName((SimpleName) clone(toBeCopied.getName()));
         return fieldAccess;
     }
 
     private Expression classInstanceCreation(ClassInstanceCreation toBeCloned) {
-        ClassInstanceCreation clonedClassInstanceCreation = ast.newClassInstanceCreation();
+        ClassInstanceCreation clonedClassInstanceCreation = ast.get().newClassInstanceCreation();
         clonedClassInstanceCreation.setExpression(clone(toBeCloned.getExpression()));
         clonedClassInstanceCreation.setType(clone(toBeCloned.getType()));
         List cloned = (List) toBeCloned.arguments().stream().map(this::clone).collect(toList());
@@ -436,6 +442,6 @@ public class ASTNodeFactory {
     }
 
     public IfStatement ifStatement() {
-        return ast.newIfStatement();
+        return ast.get().newIfStatement();
     }
 }

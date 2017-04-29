@@ -20,13 +20,13 @@ import static java.util.stream.Collectors.joining;
 
 public abstract class MethodModel {
 
+    private final ASTNodeFactory astNodeFactory;
     private final MethodDeclaration methodDeclaration;
     private final Groovism groovism;
-    private final ASTNodeFactory astNodeFactory;
     private final List<Object> body = new LinkedList<>();
 
-    MethodModel(MethodDeclaration methodDeclaration) {
-        astNodeFactory = new ASTNodeFactory(methodDeclaration.getAST());
+    MethodModel(ASTNodeFactory astNodeFactory, MethodDeclaration methodDeclaration) {
+        this.astNodeFactory = astNodeFactory;
         this.methodDeclaration = methodDeclaration;
         groovism = provide();
         if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
@@ -36,7 +36,7 @@ public abstract class MethodModel {
 
     private Object wrap(Object statement) {
         if (statement instanceof IfStatement) {
-            return new IfStatementWrapper((IfStatement) statement, 1, methodType());
+            return new IfStatementWrapper((IfStatement) statement, 1, methodType(), astNodeFactory);
         }
         return statement;
     }

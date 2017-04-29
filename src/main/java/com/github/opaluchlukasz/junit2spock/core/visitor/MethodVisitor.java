@@ -7,11 +7,16 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 public class MethodVisitor extends ASTVisitor {
 
+    private final MethodModelFactory methodModelFactory;
     private MethodModel methodModel;
+
+    MethodVisitor(MethodModelFactory methodModelFactory) {
+        this.methodModelFactory = methodModelFactory;
+    }
 
     @Override
     public boolean visit(MethodDeclaration methodDeclaration) {
-        methodModel = MethodModelFactory.get(methodDeclaration);
+        methodModel = methodModelFactory.get(methodDeclaration);
         return true;
     }
 

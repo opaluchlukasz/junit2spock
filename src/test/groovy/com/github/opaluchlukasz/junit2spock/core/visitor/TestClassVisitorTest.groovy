@@ -1,18 +1,33 @@
 package com.github.opaluchlukasz.junit2spock.core.visitor
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.AstProxy
+import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModelFactory
+import org.eclipse.jdt.core.dom.AST
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
+import spock.lang.Shared
 import spock.lang.Specification
 
 import java.time.ZonedDateTime
+import java.util.function.Supplier
 
+import static org.eclipse.jdt.core.dom.AST.JLS8
+import static org.eclipse.jdt.core.dom.AST.newAST
+
+@ContextConfiguration(classes = [AstProxy, ASTNodeFactory, MethodModelFactory, VisitorFactory])
 class TestClassVisitorTest extends Specification {
 
-    private ASTNodeFactory astNodeFactory = new ASTNodeFactory()
+    @Autowired private Supplier<TestClassVisitor> testClassVisitorSupplier
+    private static final AST ast = newAST(JLS8)
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
 
     def 'should add import to class model builder'() {
         given:
-        TestClassVisitor testClassVisitor = new TestClassVisitor()
-        def importDeclaration = astNodeFactory.importDeclaration(ZonedDateTime)
+        TestClassVisitor testClassVisitor = testClassVisitorSupplier.get()
+        def importDeclaration = nodeFactory.importDeclaration(ZonedDateTime)
 
         when:
         testClassVisitor.visit(importDeclaration)
@@ -23,11 +38,11 @@ class TestClassVisitorTest extends Specification {
 
     def 'should create another class model for inner class'() {
         given:
-        TestClassVisitor testClassVisitor = new TestClassVisitor()
+        TestClassVisitor testClassVisitor = testClassVisitorSupplier.get()
         def typeName = 'SomeClass'
         def innerTypeName = 'SomeInnerClass'
-        def typeDeclaration = astNodeFactory.typeDeclaration(typeName)
-        def innerTypeDeclaration = astNodeFactory.typeDeclaration(innerTypeName)
+        def typeDeclaration = nodeFactory.typeDeclaration(typeName)
+        def innerTypeDeclaration = nodeFactory.typeDeclaration(innerTypeName)
 
         when:
         testClassVisitor.visit(typeDeclaration)
@@ -45,11 +60,11 @@ class TestClassVisitorTest extends Specification {
 
     def 'should persist inner type model within parent class'() {
         given:
-        TestClassVisitor testClassVisitor = new TestClassVisitor()
+        TestClassVisitor testClassVisitor = testClassVisitorSupplier.get()
         def typeName = 'SomeClass'
         def innerTypeName = 'SomeInnerClass'
-        def typeDeclaration = astNodeFactory.typeDeclaration(typeName)
-        def innerTypeDeclaration = astNodeFactory.typeDeclaration(innerTypeName)
+        def typeDeclaration = nodeFactory.typeDeclaration(typeName)
+        def innerTypeDeclaration = nodeFactory.typeDeclaration(innerTypeName)
 
         when:
         testClassVisitor.visit(typeDeclaration)

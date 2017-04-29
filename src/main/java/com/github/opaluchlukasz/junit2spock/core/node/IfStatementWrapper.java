@@ -18,22 +18,23 @@ import static java.util.regex.Pattern.quote;
 
 public class IfStatementWrapper {
 
+    private final ASTNodeFactory astNodeFactory;
     private final Expression expression;
     private final LinkedList thenBlock;
     private final LinkedList elseBlock;
     private final int indentationLevel;
     private final Applicable applicable;
-    private final ASTNodeFactory astNodeFactory;
     private final Groovism groovism;
 
-    public IfStatementWrapper(IfStatement statement, int indentationLevel, Applicable applicable) {
-        this.astNodeFactory = new ASTNodeFactory(statement.getAST());
+    public IfStatementWrapper(IfStatement statement, int indentationLevel, Applicable applicable, ASTNodeFactory astNodeFactory) {
         this.expression = statement.getExpression();
         this.indentationLevel = indentationLevel;
         this.applicable = applicable;
         this.groovism = provide();
         this.thenBlock = new LinkedList<>();
         this.elseBlock = new LinkedList<>();
+        this.astNodeFactory = astNodeFactory;
+
         statementsFrom(statement.getThenStatement(), thenBlock);
         statementsFrom(statement.getElseStatement(), elseBlock);
         applicable.applyFeaturesToStatements(thenBlock, astNodeFactory);
@@ -50,7 +51,7 @@ public class IfStatementWrapper {
 
     private Object wrap(Object statement, int indentation) {
         if (statement instanceof IfStatement) {
-            return new IfStatementWrapper((IfStatement) statement, indentation, applicable);
+            return new IfStatementWrapper((IfStatement) statement, indentation, applicable, astNodeFactory);
         }
         return statement;
     }

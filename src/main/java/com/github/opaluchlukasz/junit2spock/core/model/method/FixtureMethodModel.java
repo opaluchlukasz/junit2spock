@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -10,8 +11,10 @@ public class FixtureMethodModel extends MethodModel {
 
     private final String fixtureMethodName;
 
-    FixtureMethodModel(MethodDeclaration methodDeclaration, String fixtureMethodName) {
-        super(methodDeclaration);
+    FixtureMethodModel(ASTNodeFactory nodeFactory,
+                       MethodDeclaration methodDeclaration,
+                       String fixtureMethodName) {
+        super(nodeFactory, methodDeclaration);
         this.fixtureMethodName = fixtureMethodName;
         methodType().applyFeaturesToStatements(body(), astNodeFactory());
     }

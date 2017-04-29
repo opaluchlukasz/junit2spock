@@ -9,9 +9,16 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
+import java.util.function.Supplier;
+
 public class InterfaceVisitor extends ASTVisitor {
 
+    private final Supplier<MethodVisitor> methodVisitorSupplier;
     private final InterfaceModelBuilder interfaceModelBuilder = new InterfaceModelBuilder();
+
+    InterfaceVisitor(Supplier<MethodVisitor> methodVisitorSupplier) {
+        this.methodVisitorSupplier = methodVisitorSupplier;
+    }
 
     @Override
     public boolean visit(TypeDeclaration node) {
@@ -40,7 +47,7 @@ public class InterfaceVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(MethodDeclaration methodDeclaration) {
-        MethodVisitor visitor = new MethodVisitor();
+        MethodVisitor visitor = methodVisitorSupplier.get();
         methodDeclaration.accept(visitor);
         interfaceModelBuilder.withMethod(visitor.methodModel());
         return false;

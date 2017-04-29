@@ -5,6 +5,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.ExpressionStatement
 import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.MethodInvocation
@@ -16,12 +17,17 @@ import spock.lang.Unroll
 
 import static ch.qos.logback.classic.Level.WARN
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFeature.VERIFY
+import static org.eclipse.jdt.core.dom.AST.*
 import static org.slf4j.LoggerFactory.getLogger
 
 class MockitoVerifyFeatureTest extends Specification {
 
+    private static final AST ast = newAST(JLS8)
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
+
     @Subject private MockitoVerifyFeature mockitoVerifyFeature = new MockitoVerifyFeature(nodeFactory)
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
     private Appender<ILoggingEvent> appender = Mock(Appender)
     private Logger logger = (Logger) getLogger(MockitoVerifyFeature)
 

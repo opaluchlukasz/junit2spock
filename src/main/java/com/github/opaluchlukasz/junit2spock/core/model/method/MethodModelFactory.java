@@ -1,29 +1,36 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.annotatedWith;
 import static com.github.opaluchlukasz.junit2spock.core.model.method.MethodDeclarationHelper.isTestMethod;
 
-public final class MethodModelFactory {
+@Component
+public class MethodModelFactory {
 
-    private MethodModelFactory() {
-        // NOOP
+    private final ASTNodeFactory nodeFactory;
+
+    @Autowired
+    public MethodModelFactory(ASTNodeFactory nodeFactory) {
+        this.nodeFactory = nodeFactory;
     }
 
-    public static MethodModel get(MethodDeclaration methodDeclaration) {
+    public MethodModel get(MethodDeclaration methodDeclaration) {
         if (isTestMethod(methodDeclaration)) {
-            return new TestMethodModel(methodDeclaration);
+            return new TestMethodModel(nodeFactory, methodDeclaration);
         } else if (annotatedWith(methodDeclaration, "Before").isPresent()) {
-            return new FixtureMethodModel(methodDeclaration, "setup");
+            return new FixtureMethodModel(nodeFactory, methodDeclaration, "setup");
         } else if (annotatedWith(methodDeclaration, "BeforeClass").isPresent()) {
-            return new FixtureMethodModel(methodDeclaration, "setupSpec");
+            return new FixtureMethodModel(nodeFactory, methodDeclaration, "setupSpec");
         } else if (annotatedWith(methodDeclaration, "After").isPresent()) {
-            return new FixtureMethodModel(methodDeclaration, "cleanup");
+            return new FixtureMethodModel(nodeFactory, methodDeclaration, "cleanup");
         } else if (annotatedWith(methodDeclaration, "AfterClass").isPresent()) {
-            return new FixtureMethodModel(methodDeclaration, "cleanupSpec");
+            return new FixtureMethodModel(nodeFactory, methodDeclaration, "cleanupSpec");
         } else {
-            return new RegularMethodModel(methodDeclaration);
+            return new RegularMethodModel(nodeFactory, methodDeclaration);
         }
     }
 }

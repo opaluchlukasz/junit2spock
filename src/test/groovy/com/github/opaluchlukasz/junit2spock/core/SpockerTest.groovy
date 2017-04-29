@@ -1,22 +1,28 @@
 package com.github.opaluchlukasz.junit2spock.core
 
+import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModelFactory
+import com.github.opaluchlukasz.junit2spock.core.visitor.VisitorFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
+import spock.lang.Subject
 import spock.lang.Unroll
 
-import static java.io.File.separator
 import static java.nio.charset.StandardCharsets.UTF_8
 
+@ContextConfiguration(classes = [Spocker, AstProxy, ASTNodeFactory, MethodModelFactory, VisitorFactory])
 class SpockerTest extends Specification {
+
+    @Autowired @Subject private Spocker spocker
 
     @Unroll
     def 'should return groovy class for java class (#input)'() {
         given:
         String source = readFromResources("${input}.java")
         String expected = normalize(readFromResources("${input}.groovy"))
-        Spocker spocker = new Spocker(source)
 
         expect:
-        normalize(spocker.asGroovyClass()) == expected
+        normalize(spocker.toGroovyTypeModel(source).asGroovyClass(0)) == expected
 
         where:
         input << ['MockitoTest', 'Junit4Test', 'IfStatementWrapperTest', 'InnerType']
@@ -26,29 +32,18 @@ class SpockerTest extends Specification {
         given:
         String source = readFromResources('SomeInterface.java')
         String expected = normalize(readFromResources('SomeInterface.groovy'))
-        Spocker spocker = new Spocker(source)
 
         expect:
-        normalize(spocker.asGroovyClass()) == expected
-    }
-
-    def 'should return output file path'() {
-        given:
-        String source = readFromResources('Junit4Test.java')
-        Spocker spocker = new Spocker(source)
-
-        expect:
-        spocker.outputFilePath() == "foo${separator}bar${separator}Junit4Test.groovy"
+        normalize(spocker.toGroovyTypeModel(source).asGroovyClass(0)) == expected
     }
 
     def 'should transform given/when/then comments into Spock\'s blocks'() {
         given:
         String source = readFromResources('CommentsAsMarkerForBlocks.java')
         String expected = normalize(readFromResources('CommentsAsMarkerForBlocks.groovy'))
-        Spocker spocker = new Spocker(source)
 
         expect:
-        normalize(spocker.asGroovyClass()) == expected
+        normalize(spocker.toGroovyTypeModel(source).asGroovyClass(0)) == expected
     }
 
     private String readFromResources(String filename) {

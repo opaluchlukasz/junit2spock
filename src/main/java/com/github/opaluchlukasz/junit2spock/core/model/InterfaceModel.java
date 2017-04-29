@@ -16,7 +16,7 @@ import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATO
 import static java.util.Collections.unmodifiableList;
 
 @Immutable
-public class InterfaceModel implements TypeModel {
+public class InterfaceModel extends TypeModel {
 
     private final String typeName;
     private final PackageDeclaration packageDeclaration;

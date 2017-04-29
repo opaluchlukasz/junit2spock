@@ -5,6 +5,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import org.eclipse.jdt.core.dom.AST
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -12,11 +13,18 @@ import static ch.qos.logback.classic.Level.WARN
 import static com.github.opaluchlukasz.junit2spock.core.model.method.CommentBasedSpockBlocksStrategy.GIVEN_BLOCK_START_MARKER_METHOD
 import static com.github.opaluchlukasz.junit2spock.core.model.method.CommentBasedSpockBlocksStrategy.THEN_BLOCK_START_MARKER_METHOD
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.given
+import static org.eclipse.jdt.core.dom.AST.JLS8
+import static org.eclipse.jdt.core.dom.AST.newAST
 import static org.slf4j.LoggerFactory.getLogger
 
 class CommentBasedSpockBlocksStrategyTest extends Specification {
 
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
+    private static final AST ast = newAST(JLS8)
+
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
+
     private Appender<ILoggingEvent> appender = Mock(Appender)
     private Logger logger = (Logger) getLogger(CommentBasedSpockBlocksStrategy)
 

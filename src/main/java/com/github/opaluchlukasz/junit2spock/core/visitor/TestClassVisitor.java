@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.visitor;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.model.ClassModelBuilder;
 import com.github.opaluchlukasz.junit2spock.core.model.TypeModel;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -10,14 +11,19 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import java.util.Stack;
+import java.util.function.Supplier;
 
 public class TestClassVisitor extends ASTVisitor {
 
+    private final Supplier<MethodVisitor> methodVisitorSupplier;
+    private final ASTNodeFactory astNodeFactory;
     private final Stack<ClassModelBuilder> classModelBuilders;
 
-    public TestClassVisitor() {
+    TestClassVisitor(Supplier<MethodVisitor> methodVisitorSupplier, ASTNodeFactory astNodeFactory) {
+        this.methodVisitorSupplier = methodVisitorSupplier;
+        this.astNodeFactory = astNodeFactory;
         classModelBuilders = new Stack<>();
-        classModelBuilders.push(new ClassModelBuilder());
+        classModelBuilders.push(new ClassModelBuilder(astNodeFactory));
     }
 
     private ClassModelBuilder currentClassModelBuilder() {
@@ -27,9 +33,8 @@ public class TestClassVisitor extends ASTVisitor {
     @Override
     public boolean visit(TypeDeclaration node) {
         if (currentClassModelBuilder().className() != null) {
-            classModelBuilders.push(new ClassModelBuilder());
+            classModelBuilders.push(new ClassModelBuilder(astNodeFactory));
         }
-        currentClassModelBuilder().withAST(node.getAST());
         currentClassModelBuilder().withClassName(node.getName());
         currentClassModelBuilder().withModifiers(node.modifiers());
         currentClassModelBuilder().withSuperType(node.getSuperclassType());
@@ -64,7 +69,7 @@ public class TestClassVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(MethodDeclaration methodDeclaration) {
-        MethodVisitor visitor = new MethodVisitor();
+        MethodVisitor visitor = methodVisitorSupplier.get();
         methodDeclaration.accept(visitor);
         currentClassModelBuilder().withMethod(visitor.methodModel());
         return false;

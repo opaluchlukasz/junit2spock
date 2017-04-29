@@ -15,25 +15,29 @@ import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.give
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.then
 import static com.github.opaluchlukasz.junit2spock.core.node.SpockBlockNode.when
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
+import static org.eclipse.jdt.core.dom.AST.*
 import static org.eclipse.jdt.core.dom.AST.newAST
 import static org.spockframework.util.Identifiers.THROWN
 
 class TestMethodModelTest extends Specification {
+    private static final AST ast = newAST(JLS8)
 
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
 
     def 'should return \'def\' as a method modifier'() {
         expect:
-        aTestMethodModel(aMethod(newAST(AST.JLS8)).build()).methodModifier() == 'def '
+        aTestMethodModel(aMethod(ast).build()).methodModifier() == 'def '
     }
 
     def 'should return line separator as a method suffix'() {
         expect:
-        aTestMethodModel(aMethod(newAST(AST.JLS8)).build()).methodSuffix() == SEPARATOR
+        aTestMethodModel(aMethod(ast).build()).methodSuffix() == SEPARATOR
     }
 
     def 'should add expect block if test has single statement'(String methodName) {
-        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
+        MethodDeclaration methodDeclaration = aMethod(ast)
                 .withBodyExpression(nodeFactory.methodInvocation(methodName,
                 [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
                 .build()
@@ -48,7 +52,7 @@ class TestMethodModelTest extends Specification {
 
     def 'should add given before expect when setup performed'(String methodName) {
         given:
-        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
+        MethodDeclaration methodDeclaration = aMethod(ast)
                 .withBodyStatement(nodeFactory.variableDeclarationStatement('object'))
                 .withBodyExpression(nodeFactory.methodInvocation(methodName,
                 [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
@@ -65,7 +69,7 @@ class TestMethodModelTest extends Specification {
 
     def 'should add when/then when last statement before assertions is method invocation'(String methodName) {
         given:
-        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
+        MethodDeclaration methodDeclaration = aMethod(ast)
                 .withBodyExpression(nodeFactory.methodInvocation('someMethod', []))
                 .withBodyExpression(nodeFactory.methodInvocation(methodName,
                 [nodeFactory.numberLiteral("0"), nodeFactory.numberLiteral("0")]))
@@ -81,7 +85,7 @@ class TestMethodModelTest extends Specification {
     }
 
     def 'should add given before when/then when setup performed'(String methodName) {
-        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
+        MethodDeclaration methodDeclaration = aMethod(ast)
                 .withBodyStatement(nodeFactory.variableDeclarationStatement('object'))
                 .withBodyExpression(nodeFactory.methodInvocation('someMethod', []))
                 .withBodyExpression(nodeFactory.methodInvocation(methodName,
@@ -102,7 +106,7 @@ class TestMethodModelTest extends Specification {
         given:
         def exceptionName = nodeFactory.simpleType(nodeFactory.simpleName(NullPointerException.getSimpleName()))
         def testAnnotation = nodeFactory.annotation('Test', ['expected': nodeFactory.typeLiteral(exceptionName)])
-        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
+        MethodDeclaration methodDeclaration = aMethod(ast)
                 .withAnnotation(testAnnotation)
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
@@ -118,7 +122,7 @@ class TestMethodModelTest extends Specification {
 
     def 'should return human readable test name'() {
         given:
-        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast)
+        MethodDeclaration methodDeclaration = aMethod(ast)
                 .withName('shouldReturnTrueWhenConditionIsMet')
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
@@ -127,7 +131,7 @@ class TestMethodModelTest extends Specification {
         testMethodModel.methodName == "'should return true when condition is met'"
     }
 
-    private static TestMethodModel aTestMethodModel(MethodDeclaration methodDeclaration) {
-        new TestMethodModel(methodDeclaration)
+    private TestMethodModel aTestMethodModel(MethodDeclaration methodDeclaration) {
+        new TestMethodModel(nodeFactory, methodDeclaration)
     }
 }

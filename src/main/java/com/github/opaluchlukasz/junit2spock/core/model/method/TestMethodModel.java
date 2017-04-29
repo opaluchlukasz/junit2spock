@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
@@ -21,10 +22,9 @@ import static org.spockframework.util.Identifiers.THROWN;
 
 public class TestMethodModel extends MethodModel {
 
-    TestMethodModel(MethodDeclaration methodDeclaration) {
-        super(methodDeclaration);
-
-        addThrownSupport(methodDeclaration);
+    TestMethodModel(ASTNodeFactory astNodeFactory, MethodDeclaration methodDeclaration) {
+        super(astNodeFactory, methodDeclaration);
+        addThrownSupport(methodDeclaration());
         addSpockSpecificBlocksToBody();
         methodType().applyFeaturesToStatements(body(), astNodeFactory());
     }
@@ -32,6 +32,22 @@ public class TestMethodModel extends MethodModel {
     @Override
     protected String methodSuffix() {
         return SEPARATOR;
+    }
+
+    @Override
+    protected String methodModifier() {
+        return "def ";
+    }
+
+    @Override
+    protected String getMethodName() {
+        return wrapIfMissing(join(splitByCharacterTypeCamelCase(methodDeclaration().getName().toString()), ' '), "'")
+                .toLowerCase();
+    }
+
+    @Override
+    protected Applicable methodType() {
+        return TEST_METHOD;
     }
 
     private void addThrownSupport(MethodDeclaration methodDeclaration) {
@@ -49,22 +65,6 @@ public class TestMethodModel extends MethodModel {
         return ((NormalAnnotation) annotation).values().stream()
                 .filter(value -> ((MemberValuePair) value).getName().getFullyQualifiedName().equals("expected"))
                 .map(value -> ((MemberValuePair) value).getValue()).findFirst();
-    }
-
-    @Override
-    protected String methodModifier() {
-        return "def ";
-    }
-
-    @Override
-    protected String getMethodName() {
-        return wrapIfMissing(join(splitByCharacterTypeCamelCase(methodDeclaration().getName().toString()), ' '), "'")
-                .toLowerCase();
-    }
-
-    @Override
-    protected Applicable methodType() {
-        return TEST_METHOD;
     }
 
     private void addSpockSpecificBlocksToBody() {

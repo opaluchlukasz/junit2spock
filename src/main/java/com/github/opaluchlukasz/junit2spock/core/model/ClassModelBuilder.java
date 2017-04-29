@@ -1,7 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.model;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class ClassModelBuilder {
+    private final ASTNodeFactory astNodeFactory;
     private List<ImportDeclaration> imports = new LinkedList<>();
     private List<MethodModel> methods = new LinkedList<>();
     private List<FieldDeclaration> fields = new LinkedList<>();
@@ -22,7 +23,10 @@ public class ClassModelBuilder {
     private PackageDeclaration packageDeclaration;
     private Type superclassType;
     private List<Modifier> modifiers = new LinkedList<>();
-    private AST ast;
+
+    public ClassModelBuilder(ASTNodeFactory astNodeFactory) {
+        this.astNodeFactory = astNodeFactory;
+    }
 
     public ClassModelBuilder withClassName(SimpleName className) {
         this.className = className.getFullyQualifiedName();
@@ -63,26 +67,20 @@ public class ClassModelBuilder {
         return this;
     }
 
-    public ClassModelBuilder withAST(AST ast) {
-        this.ast = ast;
-        return this;
-    }
-
-    public ClassModelBuilder withModifiers(List modifiers) {
+    public ClassModelBuilder withModifiers(List<Modifier> modifiers) {
         this.modifiers = modifiers;
         return this;
     }
 
     public TypeModel build() {
-        return new ClassModel(className,
+        return new ClassModel(astNodeFactory,
+                className,
                 superclassType,
                 packageDeclaration,
                 fields,
                 methods,
                 imports,
-                ast,
                 innerTypes,
                 modifiers);
     }
-
 }

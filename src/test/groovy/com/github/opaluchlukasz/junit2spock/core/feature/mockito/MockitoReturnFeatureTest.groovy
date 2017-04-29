@@ -1,7 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
-import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoReturnFeature
+import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
 import spock.lang.Specification
@@ -12,7 +12,10 @@ import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThen
 
 class MockitoReturnFeatureTest extends Specification {
 
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory()
+    private static final AST ast = AST.newAST(AST.JLS8)
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+        get: ast
+    })
 
     @Subject private MockitoReturnFeature returnFeature = new MockitoReturnFeature(nodeFactory, WHEN, THEN_RETURN)
 
