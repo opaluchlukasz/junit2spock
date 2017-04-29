@@ -2,9 +2,9 @@ package com.github.opaluchlukasz.junit2spock.core.model;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Type;
@@ -22,7 +22,7 @@ public class ClassModelBuilder {
     private String className;
     private PackageDeclaration packageDeclaration;
     private Type superclassType;
-    private List<Modifier> modifiers = new LinkedList<>();
+    private List<ASTNode> modifiers = new LinkedList<>();
 
     public ClassModelBuilder(ASTNodeFactory astNodeFactory) {
         this.astNodeFactory = astNodeFactory;
@@ -67,7 +67,7 @@ public class ClassModelBuilder {
         return this;
     }
 
-    public ClassModelBuilder withModifiers(List<Modifier> modifiers) {
+    public ClassModelBuilder withModifiers(List<ASTNode> modifiers) {
         this.modifiers = modifiers;
         return this;
     }

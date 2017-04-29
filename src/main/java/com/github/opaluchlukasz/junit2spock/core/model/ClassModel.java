@@ -7,9 +7,9 @@ import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
 import com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import spock.lang.Specification;
@@ -36,13 +36,13 @@ public class ClassModel extends TypeModel {
     private final List<MethodModel> methods;
     private final List<ImportDeclaration> imports;
     private final List<TypeModel> innerTypes;
-    private final List<Modifier> modifiers;
+    private final List<ASTNode> modifiers;
     private final Groovism groovism;
 
     // CHECKSTYLE.OFF: ParameterNumber
     ClassModel(ASTNodeFactory astNodeFactory, String className, Type superClassType, PackageDeclaration packageDeclaration,
                List<FieldDeclaration> fields, List<MethodModel> methods, List<ImportDeclaration> imports,
-               List<TypeModel> innerTypes, List<Modifier> modifiers) {
+               List<TypeModel> innerTypes, List<ASTNode> modifiers) {
         groovism = provide();
 
         this.astNodeFactory = astNodeFactory;
