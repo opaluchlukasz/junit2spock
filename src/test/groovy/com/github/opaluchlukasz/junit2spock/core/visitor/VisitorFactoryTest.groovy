@@ -38,16 +38,4 @@ class VisitorFactoryTest extends Specification {
         then:
         visitor1 != visitor2
     }
-
-    def 'should return new instance of MethodVisitor on every invocation'() {
-        given:
-        Supplier<MethodVisitor> methodVisitor = visitorFactory.methodVisitor()
-
-        when:
-        MethodVisitor visitor1 = methodVisitor.get()
-        MethodVisitor visitor2 = methodVisitor.get()
-
-        then:
-        visitor1 != visitor2
-    }
 }

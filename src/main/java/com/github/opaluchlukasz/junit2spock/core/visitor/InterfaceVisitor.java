@@ -2,6 +2,7 @@ package com.github.opaluchlukasz.junit2spock.core.visitor;
 
 import com.github.opaluchlukasz.junit2spock.core.model.InterfaceModelBuilder;
 import com.github.opaluchlukasz.junit2spock.core.model.TypeModel;
+import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModelFactory;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
@@ -9,15 +10,13 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
-import java.util.function.Supplier;
-
 public class InterfaceVisitor extends ASTVisitor {
 
-    private final Supplier<MethodVisitor> methodVisitorSupplier;
+    private final MethodModelFactory methodModelFactory;
     private final InterfaceModelBuilder interfaceModelBuilder = new InterfaceModelBuilder();
 
-    InterfaceVisitor(Supplier<MethodVisitor> methodVisitorSupplier) {
-        this.methodVisitorSupplier = methodVisitorSupplier;
+    InterfaceVisitor(MethodModelFactory methodModelFactory) {
+        this.methodModelFactory = methodModelFactory;
     }
 
     @Override
@@ -47,9 +46,7 @@ public class InterfaceVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(MethodDeclaration methodDeclaration) {
-        MethodVisitor visitor = methodVisitorSupplier.get();
-        methodDeclaration.accept(visitor);
-        interfaceModelBuilder.withMethod(visitor.methodModel());
+        interfaceModelBuilder.withMethod(methodModelFactory.get(methodDeclaration));
         return false;
     }
 

@@ -3,6 +3,7 @@ package com.github.opaluchlukasz.junit2spock.core.visitor;
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.model.ClassModelBuilder;
 import com.github.opaluchlukasz.junit2spock.core.model.TypeModel;
+import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModelFactory;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
@@ -11,16 +12,15 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import java.util.Stack;
-import java.util.function.Supplier;
 
 public class TestClassVisitor extends ASTVisitor {
 
-    private final Supplier<MethodVisitor> methodVisitorSupplier;
     private final ASTNodeFactory astNodeFactory;
+    private final MethodModelFactory methodModelFactory;
     private final Stack<ClassModelBuilder> classModelBuilders;
 
-    TestClassVisitor(Supplier<MethodVisitor> methodVisitorSupplier, ASTNodeFactory astNodeFactory) {
-        this.methodVisitorSupplier = methodVisitorSupplier;
+    TestClassVisitor(MethodModelFactory methodModelFactory, ASTNodeFactory astNodeFactory) {
+        this.methodModelFactory = methodModelFactory;
         this.astNodeFactory = astNodeFactory;
         classModelBuilders = new Stack<>();
         classModelBuilders.push(new ClassModelBuilder(astNodeFactory));
@@ -69,9 +69,7 @@ public class TestClassVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(MethodDeclaration methodDeclaration) {
-        MethodVisitor visitor = methodVisitorSupplier.get();
-        methodDeclaration.accept(visitor);
-        currentClassModelBuilder().withMethod(visitor.methodModel());
+        currentClassModelBuilder().withMethod(methodModelFactory.get(methodDeclaration));
         return false;
     }
 

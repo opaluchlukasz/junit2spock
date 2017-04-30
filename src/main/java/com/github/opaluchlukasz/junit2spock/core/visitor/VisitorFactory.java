@@ -11,23 +11,16 @@ import java.util.function.Supplier;
 @Configuration
 public class VisitorFactory {
 
-    @Autowired
-    private MethodModelFactory methodModelFactory;
-    @Autowired
-    private ASTNodeFactory astNodeFactory;
-
-    @Bean
-    public Supplier<MethodVisitor> methodVisitor() {
-        return () -> new MethodVisitor(methodModelFactory);
-    }
+    @Autowired private MethodModelFactory methodModelFactory;
+    @Autowired private ASTNodeFactory astNodeFactory;
 
     @Bean
     public Supplier<TestClassVisitor> testClassVisitor() {
-        return () -> new TestClassVisitor(methodVisitor(), astNodeFactory);
+        return () -> new TestClassVisitor(methodModelFactory, astNodeFactory);
     }
 
     @Bean
     public Supplier<InterfaceVisitor> interfaceVisitor() {
-        return () -> new InterfaceVisitor(methodVisitor());
+        return () -> new InterfaceVisitor(methodModelFactory);
     }
 }
