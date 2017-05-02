@@ -3,7 +3,6 @@ package com.github.opaluchlukasz.junit2spock.core.model;
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.SupportedTestFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
-import com.github.opaluchlukasz.junit2spock.core.feature.FeatureProvider;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModel;
 import com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel;
@@ -65,7 +64,7 @@ public class ClassModel extends TypeModel {
 
     private List<FieldDeclaration> fieldDeclarations(List<FieldDeclaration> fieldDeclarations) {
         List<FieldDeclaration> result = new LinkedList<>();
-        List<Feature> features = new FeatureProvider(astNodeFactory).features(FIELD_FEATURE);
+        List<Feature> features = FIELD_FEATURE.features();
         for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
             FieldDeclaration toApply = fieldDeclaration;
             for (Feature feature : features) {

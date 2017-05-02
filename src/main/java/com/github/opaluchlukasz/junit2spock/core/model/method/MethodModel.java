@@ -36,7 +36,7 @@ public abstract class MethodModel {
 
     private Object wrap(Object statement) {
         if (statement instanceof IfStatement) {
-            return new IfStatementWrapper((IfStatement) statement, 1, methodType(), astNodeFactory);
+            return new IfStatementWrapper((IfStatement) statement, 1, methodType());
         }
         return statement;
     }
@@ -48,7 +48,7 @@ public abstract class MethodModel {
 
         methodBuilder.append(body().stream()
                 .map(node -> nodeAsString(baseIndentationInTabs, node))
-                .map(groovism::apply)
+                .map(groovism)
                 .collect(joining(SEPARATOR, "", methodSuffix())));
 
         indent(methodBuilder, baseIndentationInTabs).append("}");

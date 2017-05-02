@@ -1,5 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core.model;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public final class ModifierHelper {
         //NOOP
     }
 
-    public static Optional<Annotation> annotatedWith(List modifiers, String annotationName) {
+    public static Optional<Annotation> annotatedWith(List<ASTNode> modifiers, String annotationName) {
         Optional<?> optionalAnnotation = modifiers.stream()
                 .filter(modifier -> modifier instanceof Annotation)
                 .filter(modifier -> ((Annotation) modifier).getTypeName().getFullyQualifiedName().equals(annotationName)).findFirst();

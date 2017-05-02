@@ -1,14 +1,15 @@
 package com.github.opaluchlukasz.junit2spock.core;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIELD_FEATURE;
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.FIXTURE_METHOD;
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.REGULAR_METHOD;
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.TEST_METHOD;
-import static com.google.common.collect.ImmutableList.of;
+import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Arrays.stream;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
 
 public enum SupportedTestFeature {
@@ -38,14 +39,14 @@ public enum SupportedTestFeature {
             "org.mockito.Matchers.anyCollection",
             "org.mockito.Matchers.anyIterable"), of(TEST_METHOD)),
     MOCKITO_VERIFY_NO_MORE_INTERACTIONS(of("org.mockito.Mockito.verifyNoMoreInteractions"), of(TEST_METHOD)),
-    BEFORE(of("org.junit.Before"), emptyList()),
-    BEFORE_CLASS(of("org.junit.BeforeClass"), emptyList()),
-    AFTER(of("org.junit.After"), emptyList()),
-    AFTER_CLASS(of("org.junit.AfterClass"), emptyList()),
+    BEFORE(of("org.junit.Before"), emptySet()),
+    BEFORE_CLASS(of("org.junit.BeforeClass"), emptySet()),
+    AFTER(of("org.junit.After"), emptySet()),
+    AFTER_CLASS(of("org.junit.AfterClass"), emptySet()),
     THEN_RETURN(of("org.mockito.Mockito.when"), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
     WILL_RETURN(of("org.mockito.BDDMockito.given"), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
-    THEN_THROW(emptyList(), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
-    TEST_ANNOTATION(of("org.junit.Test"), emptyList()),
+    THEN_THROW(emptySet(), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
+    TEST_ANNOTATION(of("org.junit.Test"), emptySet()),
     ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals",
             "org.junit.Assert.assertArrayEquals", "junit.framework.Assert.assertArrayEquals"), of(TEST_METHOD)),
     ASSERT_NOT_NULL(of("org.junit.Assert.assertNotNull", "junit.framework.Assert.assertNotNull"), of(TEST_METHOD)),
@@ -53,10 +54,10 @@ public enum SupportedTestFeature {
     ASSERT_TRUE(of("org.junit.Assert.assertTrue", "junit.framework.Assert.assertTrue"), of(TEST_METHOD)),
     ASSERT_FALSE(of("org.junit.Assert.assertFalse", "junit.framework.Assert.assertFalse"), of(TEST_METHOD));
 
-    private final List<String> imports;
-    private final List<Applicable> applicables;
+    private final Set<String> imports;
+    private final Set<Applicable> applicables;
 
-    SupportedTestFeature(List<String> imports, List<Applicable> applicables) {
+    SupportedTestFeature(Set<String> imports, Set<Applicable> applicables) {
         this.imports = imports;
         this.applicables = applicables;
     }

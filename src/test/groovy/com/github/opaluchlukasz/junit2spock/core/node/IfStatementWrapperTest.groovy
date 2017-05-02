@@ -1,6 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.node
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.util.TestConfig
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.Block
 import org.eclipse.jdt.core.dom.BooleanLiteral
@@ -10,25 +11,28 @@ import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.SimpleName
 import org.eclipse.jdt.core.dom.Statement
 import org.eclipse.jdt.core.dom.ThrowStatement
+import org.springframework.test.context.ContextConfiguration
 import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.REGULAR_METHOD
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
-import static org.eclipse.jdt.core.dom.AST.*
+import static org.eclipse.jdt.core.dom.AST.JLS8
+import static org.eclipse.jdt.core.dom.AST.newAST
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS
 
+@ContextConfiguration(classes = TestConfig.class)
 class IfStatementWrapperTest extends Specification {
 
     private static final AST ast = newAST(JLS8)
-    @Shared static private ASTNodeFactory nf = new ASTNodeFactory({
+    @Shared private ASTNodeFactory nf = new ASTNodeFactory({
         get: ast
     })
 
     def 'should have proper toString method'() {
         given:
         IfStatement statement = ifStatement(expression, thenStatement, elseStatement)
-        IfStatementWrapper ifStatementWrapper = new IfStatementWrapper(statement, 0, REGULAR_METHOD, nf)
+        IfStatementWrapper ifStatementWrapper = new IfStatementWrapper(statement, 0, REGULAR_METHOD)
 
         expect:
         ifStatementWrapper.toString() == expected
@@ -44,17 +48,17 @@ class IfStatementWrapperTest extends Specification {
         infixExpression() | block(ifStatement(infixExpression(), block(), null)) | null                                          | "\tif (a == true) {$SEPARATOR\t\tif (a == true) {$SEPARATOR\t\t}$SEPARATOR\t}$SEPARATOR"
     }
 
-    private static ThrowStatement throwStatement() {
+    private ThrowStatement throwStatement() {
         nf.throwStatement(nf.classInstanceCreation(nf.simpleType(nf.simpleName('Foo'))))
     }
 
-    private static Block block(Statement... statements) {
+    private Block block(Statement... statements) {
         def block = nf.block()
         block.statements().addAll(statements)
         block
     }
 
-    private static IfStatement ifStatement(Expression expression, Statement thenStatement, Statement elseStatement) {
+    private IfStatement ifStatement(Expression expression, Statement thenStatement, Statement elseStatement) {
         IfStatement ifStatement = nf.ifStatement()
         ifStatement.setExpression(expression)
         if (thenStatement != null) {
@@ -64,7 +68,7 @@ class IfStatementWrapperTest extends Specification {
         ifStatement
     }
 
-    private static InfixExpression infixExpression() {
+    private InfixExpression infixExpression() {
         SimpleName varA = nf.simpleName('a')
         BooleanLiteral trueLiteral = nf.booleanLiteral(true)
         nf.infixExpression(EQUALS, varA, trueLiteral)

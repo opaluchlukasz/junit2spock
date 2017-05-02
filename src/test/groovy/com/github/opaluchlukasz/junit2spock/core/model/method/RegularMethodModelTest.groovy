@@ -1,28 +1,26 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
-import org.eclipse.jdt.core.dom.AST
+import com.github.opaluchlukasz.junit2spock.core.AstProvider
+import com.github.opaluchlukasz.junit2spock.core.util.TestConfig
 import org.eclipse.jdt.core.dom.MethodDeclaration
-import spock.lang.Shared
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
-import static org.eclipse.jdt.core.dom.AST.JLS8
-import static org.eclipse.jdt.core.dom.AST.newAST
 import static org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.PRIVATE_KEYWORD
 import static org.eclipse.jdt.core.dom.Modifier.ModifierKeyword.STATIC_KEYWORD
 
+@ContextConfiguration(classes = TestConfig.class)
 class RegularMethodModelTest extends Specification {
 
-    private static final AST ast = newAST(JLS8)
-
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
-        get: ast
-    })
+    @Autowired private ASTNodeFactory nodeFactory
+    @Autowired private AstProvider astProvider
 
     def 'should return unchanged test name'() {
         given:
-        MethodDeclaration methodDeclaration = aMethod(ast)
+        MethodDeclaration methodDeclaration = aMethod(astProvider.get())
                 .withName('someMethodName')
                 .build()
         RegularMethodModel regularMethodModel = aRegularMethodModel(methodDeclaration)
@@ -33,12 +31,12 @@ class RegularMethodModelTest extends Specification {
 
     def 'should return empty string as a method suffix'() {
         expect:
-        aRegularMethodModel(aMethod(ast).build()).methodSuffix() == ''
+        aRegularMethodModel(aMethod(astProvider.get()).build()).methodSuffix() == ''
     }
 
     def 'should return method modifier'() {
         given:
-        def methodDeclarationBuilder = aMethod(ast)
+        def methodDeclarationBuilder = aMethod(astProvider.get())
         modifiers.each { methodDeclarationBuilder.withModifier(it) }
         annotations.each { methodDeclarationBuilder.withAnnotation(nodeFactory.annotation(it, [:])) }
         def methodDeclaration = methodDeclarationBuilder.build()

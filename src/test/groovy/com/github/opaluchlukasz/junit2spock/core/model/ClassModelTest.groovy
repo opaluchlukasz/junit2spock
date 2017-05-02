@@ -1,29 +1,29 @@
 package com.github.opaluchlukasz.junit2spock.core.model
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.AstProvider
 import com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel
-import org.eclipse.jdt.core.dom.AST
+import com.github.opaluchlukasz.junit2spock.core.util.TestConfig
 import org.eclipse.jdt.core.dom.MethodDeclaration
-import spock.lang.Shared
+import org.eclipse.jdt.core.dom.SimpleName
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
 import static java.io.File.separator
-import static org.eclipse.jdt.core.dom.AST.JLS8
-import static org.eclipse.jdt.core.dom.AST.newAST
 
+@ContextConfiguration(classes = TestConfig.class)
 class ClassModelTest extends Specification {
 
     private static final String CLASS_NAME = 'TestClass'
-    private static final AST ast = newAST(JLS8)
 
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
-        get: ast
-    })
+    @Autowired private ASTNodeFactory nodeFactory
+    @Autowired private AstProvider astProvider
 
     def 'should extend spock.lang.Specification class when there are test methods in class'() {
         given:
-        MethodDeclaration methodDeclaration = aMethod(ast).build()
+        MethodDeclaration methodDeclaration = aMethod(astProvider.get()).build()
 
         when:
         ClassModel classModel = new ClassModelBuilder(nodeFactory)
@@ -52,7 +52,7 @@ class ClassModelTest extends Specification {
 
     def 'should add spock.lang.Specification import statement when there are test methods in class'() {
         given:
-        MethodDeclaration methodDeclaration = aMethod(ast).build()
+        MethodDeclaration methodDeclaration = aMethod(astProvider.get()).build()
 
         when:
         def classModel = new ClassModelBuilder(nodeFactory)
@@ -72,19 +72,40 @@ class ClassModelTest extends Specification {
                 .findAll {declaration -> "$declaration.importName" == "${Specification.getName()}"} .size() == 0
     }
 
-    def 'should return output file path'() {
+    def 'should return output file path for type with simple package declaration'() {
         when:
         TypeModel classModel = new ClassModelBuilder(nodeFactory)
                 .withClassName(nodeFactory.simpleName(CLASS_NAME))
-                .withPackageDeclaration(nodeFactory.packageDeclaration(packageName))
+                .withPackageDeclaration(nodeFactory.packageDeclaration(simpleName('foo')))
                 .build()
 
         then:
-        classModel.outputFilePath() == outputPath
+        classModel.outputFilePath() == "foo${separator}${CLASS_NAME}.groovy"
+    }
 
-        where:
-        packageName                                                                        | outputPath
-        nodeFactory.simpleName('foo')                                                      | "foo${separator}${CLASS_NAME}.groovy"
-        ast.newQualifiedName(nodeFactory.simpleName('foo'), nodeFactory.simpleName('bar')) | "foo${separator}bar${separator}${CLASS_NAME}.groovy"
+    def 'should return output file path for type with complex package declaration'() {
+        when:
+        TypeModel classModel = new ClassModelBuilder(nodeFactory)
+                .withClassName(nodeFactory.simpleName(CLASS_NAME))
+                .withPackageDeclaration(nodeFactory
+                .packageDeclaration(astProvider.get().newQualifiedName(simpleName('foo'), simpleName('bar'))))
+                .build()
+
+        then:
+        classModel.outputFilePath() == "foo${separator}bar${separator}${CLASS_NAME}.groovy"
+    }
+
+    def 'should return output file path for type with no package declared'() {
+        when:
+        TypeModel classModel = new ClassModelBuilder(nodeFactory)
+                .withClassName(nodeFactory.simpleName(CLASS_NAME))
+                .build()
+
+        then:
+        classModel.outputFilePath() == "${CLASS_NAME}.groovy"
+    }
+
+    private SimpleName simpleName(String name) {
+        nodeFactory.simpleName(name)
     }
 }

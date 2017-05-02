@@ -11,7 +11,7 @@ public class RegularMethodModel extends MethodModel {
 
     RegularMethodModel(ASTNodeFactory nodeFactory, MethodDeclaration methodDeclaration) {
         super(nodeFactory, methodDeclaration);
-        methodType().applyFeaturesToStatements(body(), astNodeFactory());
+        methodType().applyFeaturesToStatements(body());
     }
 
     @Override

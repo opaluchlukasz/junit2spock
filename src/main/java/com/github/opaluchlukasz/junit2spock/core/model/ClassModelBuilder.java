@@ -72,7 +72,7 @@ public class ClassModelBuilder {
         return this;
     }
 
-    public TypeModel build() {
+    public ClassModel build() {
         return new ClassModel(astNodeFactory,
                 className,
                 superclassType,

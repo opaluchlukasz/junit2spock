@@ -14,14 +14,20 @@ import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFe
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyNoMoreInteractionsFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenReturnFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 final class FeatureFactory {
 
-    private FeatureFactory() {
-        //NOOP
+    private final ASTNodeFactory astNodeFactory;
+
+    @Autowired
+    FeatureFactory(ASTNodeFactory astNodeFactory) {
+        this.astNodeFactory = astNodeFactory;
     }
 
-    static Feature provide(SupportedTestFeature supportedTestFeatures, ASTNodeFactory astNodeFactory) {
+    Feature provide(SupportedTestFeature supportedTestFeatures) {
         switch (supportedTestFeatures) {
             case THEN_RETURN:
                 return new WhenThenReturnFeature(astNodeFactory);

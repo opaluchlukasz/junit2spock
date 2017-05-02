@@ -1,6 +1,5 @@
 package com.github.opaluchlukasz.junit2spock.core.node;
 
-import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import org.eclipse.jdt.core.dom.Block;
@@ -18,7 +17,6 @@ import static java.util.regex.Pattern.quote;
 
 public class IfStatementWrapper {
 
-    private final ASTNodeFactory astNodeFactory;
     private final Expression expression;
     private final LinkedList thenBlock;
     private final LinkedList elseBlock;
@@ -26,19 +24,18 @@ public class IfStatementWrapper {
     private final Applicable applicable;
     private final Groovism groovism;
 
-    public IfStatementWrapper(IfStatement statement, int indentationLevel, Applicable applicable, ASTNodeFactory astNodeFactory) {
+    public IfStatementWrapper(IfStatement statement, int indentationLevel, Applicable applicable) {
         this.expression = statement.getExpression();
         this.indentationLevel = indentationLevel;
         this.applicable = applicable;
         this.groovism = provide();
         this.thenBlock = new LinkedList<>();
         this.elseBlock = new LinkedList<>();
-        this.astNodeFactory = astNodeFactory;
 
         statementsFrom(statement.getThenStatement(), thenBlock);
         statementsFrom(statement.getElseStatement(), elseBlock);
-        applicable.applyFeaturesToStatements(thenBlock, astNodeFactory);
-        applicable.applyFeaturesToStatements(elseBlock, astNodeFactory);
+        applicable.applyFeaturesToStatements(thenBlock);
+        applicable.applyFeaturesToStatements(elseBlock);
     }
 
     private void statementsFrom(Statement statement, LinkedList extracted) {
@@ -51,7 +48,7 @@ public class IfStatementWrapper {
 
     private Object wrap(Object statement, int indentation) {
         if (statement instanceof IfStatement) {
-            return new IfStatementWrapper((IfStatement) statement, indentation, applicable, astNodeFactory);
+            return new IfStatementWrapper((IfStatement) statement, indentation, applicable);
         }
         return statement;
     }

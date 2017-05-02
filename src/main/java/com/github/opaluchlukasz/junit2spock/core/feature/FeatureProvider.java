@@ -1,24 +1,27 @@
 package com.github.opaluchlukasz.junit2spock.core.feature;
 
-import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 import static com.github.opaluchlukasz.junit2spock.core.SupportedTestFeature.featuresTypes;
 import static java.util.stream.Collectors.toList;
 
+@Component
 public class FeatureProvider {
 
-    private final ASTNodeFactory astNodeFactory;
+    private final FeatureFactory featureFactory;
 
-    public FeatureProvider(ASTNodeFactory astNodeFactory) {
-        this.astNodeFactory = astNodeFactory;
+    @Autowired
+    public FeatureProvider(FeatureFactory featureFactory) {
+        this.featureFactory = featureFactory;
     }
 
     public List<Feature> features(Applicable applicable) {
         return featuresTypes(applicable).stream()
-                .map(supported -> FeatureFactory.provide(supported, astNodeFactory))
+                .map(featureFactory::provide)
                 .collect(toList());
     }
 }

@@ -1,7 +1,6 @@
 package com.github.opaluchlukasz.junit2spock.core
 
-import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModelFactory
-import com.github.opaluchlukasz.junit2spock.core.visitor.VisitorFactory
+import com.github.opaluchlukasz.junit2spock.core.util.TestConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
@@ -10,7 +9,7 @@ import spock.lang.Unroll
 
 import static java.nio.charset.StandardCharsets.UTF_8
 
-@ContextConfiguration(classes = [Spocker, AstProxy, ASTNodeFactory, MethodModelFactory, VisitorFactory])
+@ContextConfiguration(classes = TestConfig.class)
 class SpockerTest extends Specification {
 
     @Autowired @Subject private Spocker spocker

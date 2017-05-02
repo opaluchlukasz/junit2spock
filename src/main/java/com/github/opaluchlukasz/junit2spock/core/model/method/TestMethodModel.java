@@ -26,7 +26,7 @@ public class TestMethodModel extends MethodModel {
         super(astNodeFactory, methodDeclaration);
         addThrownSupport(methodDeclaration());
         addSpockSpecificBlocksToBody();
-        methodType().applyFeaturesToStatements(body(), astNodeFactory());
+        methodType().applyFeaturesToStatements(body());
     }
 
     @Override

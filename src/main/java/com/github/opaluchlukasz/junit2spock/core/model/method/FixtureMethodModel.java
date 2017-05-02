@@ -16,7 +16,7 @@ public class FixtureMethodModel extends MethodModel {
                        String fixtureMethodName) {
         super(nodeFactory, methodDeclaration);
         this.fixtureMethodName = fixtureMethodName;
-        methodType().applyFeaturesToStatements(body(), astNodeFactory());
+        methodType().applyFeaturesToStatements(body());
     }
 
     @Override
