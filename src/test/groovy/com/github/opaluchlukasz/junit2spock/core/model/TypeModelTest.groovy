@@ -14,7 +14,7 @@ import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclaratio
 import static java.io.File.separator
 
 @ContextConfiguration(classes = TestConfig.class)
-class ClassModelTest extends Specification {
+class TypeModelTest extends Specification {
 
     private static final String CLASS_NAME = 'TestClass'
 
@@ -26,8 +26,8 @@ class ClassModelTest extends Specification {
         MethodDeclaration methodDeclaration = aMethod(astProvider.get()).build()
 
         when:
-        ClassModel classModel = new ClassModelBuilder(nodeFactory)
-                .withClassName(nodeFactory.simpleName(CLASS_NAME))
+        ClassModel classModel = new TypeModelBuilder(nodeFactory)
+                .withTypeName(nodeFactory.simpleName(CLASS_NAME))
                 .withMethod(new TestMethodModel(nodeFactory, methodDeclaration))
                 .build()
 
@@ -40,8 +40,8 @@ class ClassModelTest extends Specification {
         def testClassName = 'TestClass'
 
         when:
-        ClassModel classModel = new ClassModelBuilder(nodeFactory)
-                .withClassName(nodeFactory.simpleName(testClassName))
+        ClassModel classModel = new TypeModelBuilder(nodeFactory)
+                .withTypeName(nodeFactory.simpleName(testClassName))
                 .withSuperType(nodeFactory.simpleType(nodeFactory.simpleName('Object')))
                 .build()
 
@@ -55,7 +55,7 @@ class ClassModelTest extends Specification {
         MethodDeclaration methodDeclaration = aMethod(astProvider.get()).build()
 
         when:
-        def classModel = new ClassModelBuilder(nodeFactory)
+        def classModel = new TypeModelBuilder(nodeFactory)
                 .withMethod(new TestMethodModel(nodeFactory, methodDeclaration))
                 .build()
 
@@ -65,7 +65,7 @@ class ClassModelTest extends Specification {
 
     def 'should not add spock.lang.Specification import statement when there are no test methods in class'() {
         when:
-        def classModel = new ClassModelBuilder(nodeFactory).build()
+        def classModel = new TypeModelBuilder(nodeFactory).build()
 
         then:
         classModel.imports
@@ -74,8 +74,8 @@ class ClassModelTest extends Specification {
 
     def 'should return output file path for type with simple package declaration'() {
         when:
-        TypeModel classModel = new ClassModelBuilder(nodeFactory)
-                .withClassName(nodeFactory.simpleName(CLASS_NAME))
+        TypeModel classModel = new TypeModelBuilder(nodeFactory)
+                .withTypeName(nodeFactory.simpleName(CLASS_NAME))
                 .withPackageDeclaration(nodeFactory.packageDeclaration(simpleName('foo')))
                 .build()
 
@@ -85,8 +85,8 @@ class ClassModelTest extends Specification {
 
     def 'should return output file path for type with complex package declaration'() {
         when:
-        TypeModel classModel = new ClassModelBuilder(nodeFactory)
-                .withClassName(nodeFactory.simpleName(CLASS_NAME))
+        TypeModel classModel = new TypeModelBuilder(nodeFactory)
+                .withTypeName(nodeFactory.simpleName(CLASS_NAME))
                 .withPackageDeclaration(nodeFactory
                 .packageDeclaration(astProvider.get().newQualifiedName(simpleName('foo'), simpleName('bar'))))
                 .build()
@@ -97,8 +97,8 @@ class ClassModelTest extends Specification {
 
     def 'should return output file path for type with no package declared'() {
         when:
-        TypeModel classModel = new ClassModelBuilder(nodeFactory)
-                .withClassName(nodeFactory.simpleName(CLASS_NAME))
+        TypeModel classModel = new TypeModelBuilder(nodeFactory)
+                .withTypeName(nodeFactory.simpleName(CLASS_NAME))
                 .build()
 
         then:

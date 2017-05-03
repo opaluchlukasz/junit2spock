@@ -1,8 +1,8 @@
 package com.github.opaluchlukasz.junit2spock.core.visitor;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
-import com.github.opaluchlukasz.junit2spock.core.model.ClassModelBuilder;
 import com.github.opaluchlukasz.junit2spock.core.model.TypeModel;
+import com.github.opaluchlukasz.junit2spock.core.model.TypeModelBuilder;
 import com.github.opaluchlukasz.junit2spock.core.model.method.MethodModelFactory;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -13,67 +13,68 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import java.util.Stack;
 
-public class TestClassVisitor extends ASTVisitor {
+public class TypeVisitor extends ASTVisitor {
 
     private final ASTNodeFactory astNodeFactory;
     private final MethodModelFactory methodModelFactory;
-    private final Stack<ClassModelBuilder> classModelBuilders;
+    private final Stack<TypeModelBuilder> typeModelBuilders;
 
-    TestClassVisitor(MethodModelFactory methodModelFactory, ASTNodeFactory astNodeFactory) {
+    TypeVisitor(MethodModelFactory methodModelFactory, ASTNodeFactory astNodeFactory) {
         this.methodModelFactory = methodModelFactory;
         this.astNodeFactory = astNodeFactory;
-        classModelBuilders = new Stack<>();
-        classModelBuilders.push(new ClassModelBuilder(astNodeFactory));
-    }
-
-    private ClassModelBuilder currentClassModelBuilder() {
-        return classModelBuilders.peek();
+        typeModelBuilders = new Stack<>();
+        typeModelBuilders.push(new TypeModelBuilder(astNodeFactory));
     }
 
     @Override
     public boolean visit(TypeDeclaration node) {
-        if (currentClassModelBuilder().className() != null) {
-            classModelBuilders.push(new ClassModelBuilder(astNodeFactory));
+        if (currentTypeModelBuilder().typeName() != null) {
+            typeModelBuilders.push(new TypeModelBuilder(astNodeFactory));
         }
-        currentClassModelBuilder().withClassName(node.getName());
-        currentClassModelBuilder().withModifiers(node.modifiers());
-        currentClassModelBuilder().withSuperType(node.getSuperclassType());
+        currentTypeModelBuilder().withTypeName(node.getName())
+                .withModifiers(node.modifiers())
+                .withSuperType(node.getSuperclassType())
+                .withIsInterface(node.isInterface());
         return true;
     }
 
     @Override
     public void endVisit(TypeDeclaration node) {
-        if (classModelBuilders.size() > 1) {
-            TypeModel typeModel = classModelBuilders.pop().build();
-            currentClassModelBuilder().withInnerType(typeModel);
+        if (typeModelBuilders.size() > 1) {
+            TypeModel typeModel = typeModelBuilders.pop().build();
+            currentTypeModelBuilder().withInnerType(typeModel);
         }
     }
 
     @Override
     public boolean visit(ImportDeclaration node) {
-        currentClassModelBuilder().withImport(node);
+        currentTypeModelBuilder().withImport(node);
         return false;
     }
 
     @Override
     public boolean visit(PackageDeclaration node) {
-        currentClassModelBuilder().withPackageDeclaration(node);
+        currentTypeModelBuilder().withPackageDeclaration(node);
         return false;
     }
 
     @Override
     public boolean visit(FieldDeclaration node) {
-        currentClassModelBuilder().withField(node);
+        currentTypeModelBuilder().withField(node);
         return false;
     }
 
     @Override
     public boolean visit(MethodDeclaration methodDeclaration) {
-        currentClassModelBuilder().withMethod(methodModelFactory.get(methodDeclaration));
+        currentTypeModelBuilder().withMethod(methodModelFactory.get(methodDeclaration));
         return false;
     }
 
-    public TypeModel classModel() {
-        return currentClassModelBuilder().build();
+    public TypeModel typeModel() {
+        return currentTypeModelBuilder().build();
+    }
+
+    private TypeModelBuilder currentTypeModelBuilder() {
+        return typeModelBuilders.peek();
     }
 }

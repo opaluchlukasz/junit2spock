@@ -15,10 +15,11 @@ import static com.github.opaluchlukasz.junit2spock.core.groovism.GroovismChainPr
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indent;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
-import static com.github.opaluchlukasz.junit2spock.core.util.TypeUtil.isVoid;
 import static java.util.stream.Collectors.joining;
 
 public abstract class MethodModel {
+
+    static final String DEF_MODIFIER = "def ";
 
     private final ASTNodeFactory astNodeFactory;
     private final MethodDeclaration methodDeclaration;
@@ -103,7 +104,8 @@ public abstract class MethodModel {
 
     private Optional<String> returnedType() {
         return Optional.ofNullable(methodDeclaration.getReturnType2())
-                .filter(type -> !isVoid(type))
+                .filter(type -> !methodDeclaration.isConstructor())
+                .filter(type -> !methodModifier().equals(DEF_MODIFIER))
                 .map(Object::toString);
     }
 

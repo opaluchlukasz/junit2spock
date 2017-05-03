@@ -36,6 +36,6 @@ public class FixtureMethodModel extends MethodModel {
 
     @Override
     protected String methodModifier() {
-        return "def ";
+        return DEF_MODIFIER;
     }
 }

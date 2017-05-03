@@ -1,18 +1,22 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.util.TestConfig
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.MethodDeclaration
+import org.springframework.test.context.ContextConfiguration
 import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
+import static org.eclipse.jdt.core.dom.AST.*
 import static org.eclipse.jdt.core.dom.AST.JLS8
 
+@ContextConfiguration(classes = TestConfig.class)
 class FixtureMethodModelTest extends Specification {
 
-    private static final AST ast = AST.newAST(JLS8)
+    private static final AST ast = newAST(JLS8)
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
         get: ast
     })

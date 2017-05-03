@@ -17,23 +17,11 @@ class VisitorFactoryTest extends Specification {
 
     def 'should return new instance of TestClassVisitor on every invocation'() {
         given:
-        Supplier<TestClassVisitor> testClassVisitorSupplier = visitorFactory.testClassVisitor()
+        Supplier<TypeVisitor> testClassVisitorSupplier = visitorFactory.testClassVisitor()
 
         when:
-        TestClassVisitor visitor1 = testClassVisitorSupplier.get()
-        TestClassVisitor visitor2 = testClassVisitorSupplier.get()
-
-        then:
-        visitor1 != visitor2
-    }
-
-    def 'should return new instance of InterfaceVisitor on every invocation'() {
-        given:
-        Supplier<InterfaceVisitor> interfaceVisitorSupplier = visitorFactory.interfaceVisitor()
-
-        when:
-        InterfaceVisitor visitor1 = interfaceVisitorSupplier.get()
-        InterfaceVisitor visitor2 = interfaceVisitorSupplier.get()
+        TypeVisitor visitor1 = testClassVisitorSupplier.get()
+        TypeVisitor visitor2 = testClassVisitorSupplier.get()
 
         then:
         visitor1 != visitor2

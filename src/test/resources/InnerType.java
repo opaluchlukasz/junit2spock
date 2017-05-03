@@ -20,4 +20,8 @@ public class InnerType {
             return line.reverse();
         }
     }
+
+    public static interface InnerInterface extends SomeOtherInterface {
+        void method(Integer argument);
+    }
 }

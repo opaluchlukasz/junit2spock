@@ -27,7 +27,6 @@ import static java.util.stream.Collectors.joining;
 
 public class ClassModel extends TypeModel {
 
-    private final ASTNodeFactory astNodeFactory;
     private final String className;
     private final Optional<Type> superClassType;
     private final PackageDeclaration packageDeclaration;
@@ -44,7 +43,6 @@ public class ClassModel extends TypeModel {
                List<TypeModel> innerTypes, List<ASTNode> modifiers) {
         groovism = provide();
 
-        this.astNodeFactory = astNodeFactory;
         this.className = className;
         this.packageDeclaration = packageDeclaration;
         this.fields = fieldDeclarations(fields);
@@ -80,7 +78,7 @@ public class ClassModel extends TypeModel {
     }
 
     @Override
-    public String asGroovyClass(int classIndent) {
+    public String asGroovyClass(int typeIndent) {
         StringBuilder builder = new StringBuilder();
         Optional.ofNullable(packageDeclaration)
                 .map(declaration -> groovism.apply(declaration.toString()))
@@ -94,7 +92,7 @@ public class ClassModel extends TypeModel {
                 .forEach(builder::append);
 
         builder.append(SEPARATOR);
-        indent(builder, classIndent);
+        indent(builder, typeIndent);
 
         builder.append(groovism.apply(modifiers.stream().map(Object::toString).collect(joining(" ", "", " "))));
         builder.append("class ")
@@ -105,15 +103,15 @@ public class ClassModel extends TypeModel {
         builder.append(" {")
                 .append(SEPARATOR);
 
-        fields.forEach(field -> builder.append(indentation(classIndent + 1)).append(groovism.apply(field.toString())));
+        fields.forEach(field -> builder.append(indentation(typeIndent + 1)).append(groovism.apply(field.toString())));
 
         builder.append(SEPARATOR);
 
-        methods.forEach(methodModel -> builder.append(methodModel.asGroovyMethod(classIndent + 1)));
+        methods.forEach(methodModel -> builder.append(methodModel.asGroovyMethod(typeIndent + 1)));
 
-        innerTypes.forEach(classModel -> builder.append(classModel.asGroovyClass(classIndent + 1)));
+        innerTypes.forEach(classModel -> builder.append(classModel.asGroovyClass(typeIndent + 1)));
 
-        indent(builder, classIndent);
+        indent(builder, typeIndent);
         builder.append("}");
 
         builder.append(SEPARATOR);

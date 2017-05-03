@@ -15,12 +15,7 @@ public class VisitorFactory {
     @Autowired private ASTNodeFactory astNodeFactory;
 
     @Bean
-    public Supplier<TestClassVisitor> testClassVisitor() {
-        return () -> new TestClassVisitor(methodModelFactory, astNodeFactory);
-    }
-
-    @Bean
-    public Supplier<InterfaceVisitor> interfaceVisitor() {
-        return () -> new InterfaceVisitor(methodModelFactory);
+    public Supplier<TypeVisitor> testClassVisitor() {
+        return () -> new TypeVisitor(methodModelFactory, astNodeFactory);
     }
 }

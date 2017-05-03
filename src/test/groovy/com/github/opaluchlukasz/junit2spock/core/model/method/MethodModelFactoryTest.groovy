@@ -1,25 +1,22 @@
 package com.github.opaluchlukasz.junit2spock.core.model.method
 
-import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.util.TestConfig
 import org.eclipse.jdt.core.dom.AST
+import org.eclipse.jdt.core.dom.MarkerAnnotation
 import org.eclipse.jdt.core.dom.MethodDeclaration
-import spock.lang.Shared
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
-import spock.lang.Subject
 import spock.lang.Unroll
 
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
 
+@ContextConfiguration(classes = TestConfig.class)
 class MethodModelFactoryTest extends Specification {
 
-    private static final AST ast = newAST(JLS8)
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
-        get: ast
-    })
-
-    @Subject private MethodModelFactory methodModelFactory = new MethodModelFactory(nodeFactory)
+    @Autowired private MethodModelFactory methodModelFactory
 
     def 'should return TestMethodModel for test method'() {
         expect:
@@ -48,11 +45,12 @@ class MethodModelFactoryTest extends Specification {
         methodModelFactory.get(methodDeclaration) instanceof RegularMethodModel
 
         where:
-        methodDeclaration << [methodAnnotatedWith('SomOtherAnnotation'), aMethod(ast).build()]
+        methodDeclaration << [methodAnnotatedWith('SomOtherAnnotation'), aMethod(newAST(JLS8)).build()]
     }
 
     private static MethodDeclaration methodAnnotatedWith(String annotationName) {
-        def testAnnotation = ast.newMarkerAnnotation()
+        AST ast = newAST(JLS8)
+        MarkerAnnotation testAnnotation = ast.newMarkerAnnotation()
         testAnnotation.setTypeName(ast.newName(annotationName))
         aMethod(ast).withAnnotation(testAnnotation).build()
     }

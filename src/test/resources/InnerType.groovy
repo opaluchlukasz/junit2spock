@@ -22,4 +22,8 @@ class InnerType {
 		}
 
 	}
+
+	static interface InnerInterface {
+		void method(Integer argument)
+	}
 }
