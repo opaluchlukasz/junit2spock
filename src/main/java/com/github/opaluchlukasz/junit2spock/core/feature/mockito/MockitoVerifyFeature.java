@@ -58,7 +58,7 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                 nodeFactory.methodInvocation(parentMethodInvocation.getName().getFullyQualifiedName(),
                         (List<ASTNode>) parentMethodInvocation.arguments().stream()
                                 .map(this::applyMatchers).collect(toList()),
-                        (Expression) nodeFactory.clone(arguments.get(0))));
+                        nodeFactory.clone((Expression) arguments.get(0))));
     }
 
     private Object applyMatchers(Object argument) {
@@ -70,7 +70,7 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                 "anyIterable");
         return methodInvocation
                 .map(methodInv -> classMatcher(getClass(methodInv)))
-                .orElseGet(() -> nodeFactory.clone(argument));
+                .orElseGet(() -> nodeFactory.clone((ASTNode) argument));
     }
 
     private String getClass(MethodInvocation methodInv) {
@@ -110,13 +110,13 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
         }
         if (methodInvocation.arguments().size() == 1) {
             if (methodInvocation.getName().getFullyQualifiedName().equals("times")) {
-                return Optional.of((Expression) nodeFactory.clone(methodInvocation.arguments().get(0)));
+                return Optional.of(nodeFactory.clone((Expression) methodInvocation.arguments().get(0)));
             }
             if (methodInvocation.getName().getFullyQualifiedName().equals("atLeast")) {
                 return Optional.of(nodeFactory.parenthesizedExpression(nodeFactory
                         .infixExpression(
                                 RANGE,
-                                (Expression) nodeFactory.clone(methodInvocation.arguments().get(0)),
+                                nodeFactory.clone((Expression) methodInvocation.arguments().get(0)),
                                 wildcard())));
             }
             if (methodInvocation.getName().getFullyQualifiedName().equals("atMost")) {
@@ -124,7 +124,7 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                         .infixExpression(
                                 RANGE,
                                 wildcard(),
-                                (Expression) nodeFactory.clone(methodInvocation.arguments().get(0)))));
+                                nodeFactory.clone((Expression) methodInvocation.arguments().get(0)))));
             }
         }
         LOG.warn(format("Unsupported VerificationMode: %s", methodInvocation.getName().getFullyQualifiedName()));

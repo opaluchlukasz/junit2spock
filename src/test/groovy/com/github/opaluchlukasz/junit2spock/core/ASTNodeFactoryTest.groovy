@@ -2,27 +2,17 @@ package com.github.opaluchlukasz.junit2spock.core
 
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.Annotation
-import org.eclipse.jdt.core.dom.ArrayCreation
-import org.eclipse.jdt.core.dom.ArrayInitializer
 import org.eclipse.jdt.core.dom.BooleanLiteral
-import org.eclipse.jdt.core.dom.CastExpression
-import org.eclipse.jdt.core.dom.CharacterLiteral
-import org.eclipse.jdt.core.dom.Dimension
-import org.eclipse.jdt.core.dom.Expression
 import org.eclipse.jdt.core.dom.FieldDeclaration
 import org.eclipse.jdt.core.dom.ImportDeclaration
 import org.eclipse.jdt.core.dom.InfixExpression
-import org.eclipse.jdt.core.dom.InstanceofExpression
 import org.eclipse.jdt.core.dom.NullLiteral
 import org.eclipse.jdt.core.dom.NumberLiteral
-import org.eclipse.jdt.core.dom.ParameterizedType
-import org.eclipse.jdt.core.dom.PostfixExpression
 import org.eclipse.jdt.core.dom.PrefixExpression
 import org.eclipse.jdt.core.dom.PrimitiveType
 import org.eclipse.jdt.core.dom.SimpleName
 import org.eclipse.jdt.core.dom.SimpleType
 import org.eclipse.jdt.core.dom.StringLiteral
-import org.eclipse.jdt.core.dom.Type
 import org.eclipse.jdt.core.dom.TypeLiteral
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement
 import spock.lang.Shared
@@ -30,7 +20,8 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import static java.util.Collections.emptyMap
-import static org.eclipse.jdt.core.dom.AST.*
+import static org.eclipse.jdt.core.dom.AST.JLS8
+import static org.eclipse.jdt.core.dom.AST.newAST
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.LESS_EQUALS
 import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.DECREMENT
 import static org.eclipse.jdt.core.dom.PrimitiveType.CHAR
@@ -170,81 +161,6 @@ class ASTNodeFactoryTest extends Specification {
         prefixExpression.toString() == '--a'
     }
 
-    def 'should create postfix expression'() {
-        given:
-        PostfixExpression postfixExpression = nodeFactory.postfixExpression(nodeFactory.simpleName('a'),
-                PostfixExpression.Operator.DECREMENT)
-
-        expect:
-        postfixExpression.toString() == 'a--'
-    }
-
-    def 'should create instanceof expression'() {
-        given:
-        InstanceofExpression instanceofExpression = nodeFactory
-                .instanceofExpression(nodeFactory.numberLiteral('1'), nodeFactory
-                .simpleType(nodeFactory.simpleName('Integer')))
-
-        expect:
-        instanceofExpression.toString() == '1 instanceof Integer'
-    }
-
-    def 'should create character literal expression'() {
-        when:
-        CharacterLiteral characterLiteral = nodeFactory.characterLiteral('a' as char)
-
-        then:
-        characterLiteral.toString() == "'a'"
-    }
-
-    def 'should create dimension'() {
-        given:
-        Dimension dimension = nodeFactory.dimension()
-
-        expect:
-        dimension.toString() == '[]'
-    }
-
-    def 'should create array initializer'() {
-        given:
-        ArrayInitializer arrayInitializer = nodeFactory.arrayInitializer([nodeFactory.numberLiteral('13'),
-                                                                          nodeFactory.numberLiteral('14')])
-
-        expect:
-        arrayInitializer.toString() == '{13,14}'
-    }
-
-    def 'should create multidimensional array initializer'() {
-        given:
-        ArrayInitializer arrayInitializer1 = nodeFactory.arrayInitializer([nodeFactory.numberLiteral('11'),
-                                                                           nodeFactory.numberLiteral('12')])
-        ArrayInitializer arrayInitializer2 = nodeFactory.arrayInitializer([nodeFactory.numberLiteral('13'),
-                                                                           nodeFactory.numberLiteral('14')])
-        ArrayInitializer multidimensionalArrayInitializer = nodeFactory.arrayInitializer([arrayInitializer1,
-                                                                                          arrayInitializer2])
-
-        expect:
-        multidimensionalArrayInitializer.toString() == '{{11,12},{13,14}}'
-    }
-
-    def 'should create array creation expression'() {
-        given:
-        def arrayType = nodeFactory.arrayType(nodeFactory.primitiveType(INT), dimenssions.size())
-        ArrayCreation arrayCreation = nodeFactory.arrayCreation(arrayType,
-                dimenssions, initializer)
-
-        expect:
-        arrayCreation.toString() == literal
-
-        where:
-        dimenssions                      | initializer                                                                                                                    | literal
-        [nodeFactory.numberLiteral('1')] | null                                                                                                                           | 'new int[1]'
-        [nodeFactory.numberLiteral('1')] | nodeFactory.arrayInitializer([nodeFactory.numberLiteral('2')])                                                                 | 'new int[1]{2}'
-        [nodeFactory.numberLiteral('2'),
-         nodeFactory.numberLiteral('2')] | nodeFactory.arrayInitializer([nodeFactory.arrayInitializer([nodeFactory.numberLiteral('2'), nodeFactory.numberLiteral('3')]),
-                                                                         nodeFactory.arrayInitializer([nodeFactory.numberLiteral('0'), nodeFactory.numberLiteral('5')])]) | 'new int[2][2]{{2,3},{0,5}}'
-    }
-
     def 'should create field declaration with modifiers'() {
         given:
         def variableDeclarationFragment = nodeFactory.variableDeclarationFragment('someField')
@@ -258,45 +174,5 @@ class ASTNodeFactoryTest extends Specification {
         modifiers                                         | expectedLiteral
         []                                                | 'Comparable someField;\n'
         [nodeFactory.annotation('Immutable', emptyMap())] | '@Immutable Comparable someField;\n'
-    }
-
-    def 'should create parameterized type'() {
-        given:
-        ParameterizedType parameterizedType = nodeFactory.parameterizedType(nodeFactory.simpleType(nodeFactory.simpleName('Map')),
-                [nodeFactory.simpleType(nodeFactory.simpleName('String')), nodeFactory.simpleType(nodeFactory.simpleName('Object'))])
-
-        expect:
-        parameterizedType.toString() == 'Map<String,Object>'
-    }
-
-    def 'should clone parameterized type'() {
-        given:
-        ParameterizedType parameterizedType = nodeFactory.parameterizedType(nodeFactory.simpleType(nodeFactory.simpleName('Map')),
-                [nodeFactory.simpleType(nodeFactory.simpleName('String')), nodeFactory.simpleType(nodeFactory.simpleName('Object'))])
-
-        when:
-        Type clonedParameterizedType = nodeFactory.clone(parameterizedType)
-
-        then:
-        parameterizedType.toString() == clonedParameterizedType.toString()
-    }
-
-    def 'should create cast expression'() {
-        given:
-        CastExpression castExpression = nodeFactory.castExpression(nodeFactory.simpleType(nodeFactory.simpleName('Map')), nodeFactory.simpleName('variable'))
-
-        expect:
-        castExpression.toString() == '(Map)variable'
-    }
-
-    def 'should clone cast expression'() {
-        given:
-        CastExpression castExpression = nodeFactory.castExpression(nodeFactory.simpleType(nodeFactory.simpleName('Map')), nodeFactory.simpleName('variable'))
-
-        when:
-        Expression clonedCastExpression = nodeFactory.clone(castExpression)
-
-        then:
-        castExpression.toString() == clonedCastExpression.toString()
     }
 }

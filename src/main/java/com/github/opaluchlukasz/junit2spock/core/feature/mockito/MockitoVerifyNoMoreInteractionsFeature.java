@@ -33,6 +33,6 @@ public class MockitoVerifyNoMoreInteractionsFeature extends Feature<MethodInvoca
         List arguments = verifyMethodInvocation.arguments();
         return nodeFactory.infixExpression(TIMES,
                 nodeFactory.numberLiteral("0"),
-                nodeFactory.fieldAccess("_", (Expression) nodeFactory.clone(arguments.get(0))));
+                nodeFactory.fieldAccess("_", nodeFactory.clone((Expression) arguments.get(0))));
     }
 }

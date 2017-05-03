@@ -1,16 +1,11 @@
 package com.github.opaluchlukasz.junit2spock.core;
 
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.ArrayCreation;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
-import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
-import org.eclipse.jdt.core.dom.CastExpression;
-import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.Dimension;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
@@ -18,7 +13,6 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -27,16 +21,12 @@ import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
-import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -46,6 +36,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,6 +45,9 @@ import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.core.dom.PrimitiveType.INT;
+import static org.springframework.util.ReflectionUtils.findMethod;
+import static org.springframework.util.ReflectionUtils.invokeMethod;
+import static org.springframework.util.ReflectionUtils.makeAccessible;
 
 @Component
 public class ASTNodeFactory {
@@ -175,170 +169,17 @@ public class ASTNodeFactory {
         }
     }
 
-    public ASTNode clone(Object astNode) {
-        if (astNode instanceof Expression) {
-            return clone(((Expression) astNode));
-        }
-        if (astNode instanceof Type) {
-            return clone(((Type) astNode));
-        }
-        if (astNode instanceof Dimension) {
-            return dimension();
-        }
-        throw new UnsupportedOperationException("Unsupported astNode type:" + astNode.getClass().getName());
-    }
-
-    public Dimension dimension() {
-        return ast.get().newDimension();
-    }
-
     public ExpressionStatement expressionStatement(Expression expression) {
         return ast.get().newExpressionStatement(expression);
     }
 
-    public Type clone(Type type) {
-        if (type instanceof SimpleType) {
-            return simpleType((Name) clone(((SimpleType) type).getName()));
-        }
-        if (type instanceof PrimitiveType) {
-            return primitiveType(((PrimitiveType) type).getPrimitiveTypeCode());
-        }
-        if (type instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            List typeArguments = (List) parameterizedType.typeArguments().stream().map(typeArgument -> clone(typeArgument)).collect(toList());
-            return parameterizedType(clone(parameterizedType.getType()), typeArguments);
-        }
-        if (type instanceof ArrayType) {
-            ArrayType arrayType = (ArrayType) type;
-            return arrayType(clone(arrayType.getElementType()), arrayType.dimensions().size());
-        }
-        throw new UnsupportedOperationException("Unsupported astNode type:" + type.getClass().getName());
-    }
-
-    public ParameterizedType parameterizedType(Type type, List typeArguments) {
-        ParameterizedType cloned = ast.get().newParameterizedType(type);
-        cloned.typeArguments().addAll(typeArguments);
-        return cloned;
-    }
-
-    public ArrayType arrayType(Type type, int dimensions) {
-        return ast.get().newArrayType(type, dimensions);
-    }
-
-    public Expression clone(Expression expression) {
+    public <T extends ASTNode> T clone(T expression) {
         if (expression == null) {
             return null;
         }
-        if (expression instanceof NumberLiteral) {
-            return numberLiteral(((NumberLiteral) expression).getToken());
-        }
-        if (expression instanceof NullLiteral) {
-            return nullLiteral();
-        }
-        if (expression instanceof StringLiteral) {
-            return stringLiteral(((StringLiteral) expression).getLiteralValue());
-        }
-        if (expression instanceof BooleanLiteral) {
-            return booleanLiteral(((BooleanLiteral) expression).booleanValue());
-        }
-        if (expression instanceof CharacterLiteral) {
-            return characterLiteral(((CharacterLiteral) expression).charValue());
-        }
-        if (expression instanceof CastExpression) {
-            CastExpression toBeCloned = (CastExpression) expression;
-            return castExpression(clone(toBeCloned.getType()), clone(toBeCloned.getExpression()));
-        }
-        if (expression instanceof ArrayInitializer) {
-            ArrayInitializer arrayInitializer = (ArrayInitializer) expression;
-            List expressions = (List) arrayInitializer.expressions().stream().map(this::clone).collect(toList());
-            return arrayInitializer(expressions);
-        }
-        if (expression instanceof InstanceofExpression) {
-            InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
-            return instanceofExpression(clone(instanceofExpression.getLeftOperand()),
-                    clone(instanceofExpression.getRightOperand()));
-        }
-        if (expression instanceof PrefixExpression) {
-            PrefixExpression prefixExpression = (PrefixExpression) expression;
-            return prefixExpression(prefixExpression.getOperator(),
-                    clone(prefixExpression.getOperand()));
-        }
-        if (expression instanceof ParenthesizedExpression) {
-            ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression;
-            return parenthesizedExpression(clone(parenthesizedExpression.getExpression()));
-        }
-        if (expression instanceof PostfixExpression) {
-            PostfixExpression postfixExpression = (PostfixExpression) expression;
-            return postfixExpression(clone(postfixExpression.getOperand()),
-                    postfixExpression.getOperator());
-        }
-        if (expression instanceof InfixExpression) {
-            InfixExpression infixExpression = (InfixExpression) expression;
-            return infixExpression(infixExpression.getOperator(),
-                    clone(infixExpression.getLeftOperand()),
-                    clone(infixExpression.getRightOperand()));
-        }
-        if (expression instanceof MethodInvocation) {
-            return methodInvocation((MethodInvocation) expression);
-        }
-        if (expression instanceof SimpleName) {
-            return simpleName(((SimpleName) expression).getFullyQualifiedName());
-        }
-        if (expression instanceof QualifiedName) {
-            QualifiedName qualifiedName = (QualifiedName) expression;
-            return ast.get().newQualifiedName((Name) clone(qualifiedName.getQualifier()),
-                    (SimpleName) clone(qualifiedName.getName()));
-        }
-        if (expression instanceof TypeLiteral) {
-            TypeLiteral typeLiteral = ast.get().newTypeLiteral();
-            typeLiteral.setType(clone(((TypeLiteral) expression).getType()));
-            return typeLiteral;
-        }
-        if (expression instanceof ThisExpression) {
-            return ast.get().newThisExpression();
-        }
-        if (expression instanceof FieldAccess) {
-            return fieldAccess((FieldAccess) expression);
-        }
-        if (expression instanceof ClassInstanceCreation) {
-            return classInstanceCreation((ClassInstanceCreation) expression);
-        }
-        if (expression instanceof ArrayCreation) {
-            ArrayCreation arrayCreation = (ArrayCreation) expression;
-            List dimensions = (List) arrayCreation.dimensions().stream().map(this::clone).collect(toList());
-            return arrayCreation((ArrayType) clone(arrayCreation.getType()),
-                    dimensions,
-                    (ArrayInitializer) clone(arrayCreation.getInitializer()));
-        }
-        throw new UnsupportedOperationException("Unsupported expression type:" + expression.getClass().getName());
-    }
-
-    public CastExpression castExpression(Type type, Expression expression) {
-        CastExpression castExpression = ast.get().newCastExpression();
-        castExpression.setExpression(expression);
-        castExpression.setType(type);
-        return castExpression;
-    }
-
-    public ArrayInitializer arrayInitializer(List expressions) {
-        ArrayInitializer arrayInitializer = ast.get().newArrayInitializer();
-        arrayInitializer.expressions().addAll(expressions);
-        return arrayInitializer;
-    }
-
-    public ArrayCreation arrayCreation(ArrayType arrayType, List dimensions, ArrayInitializer arrayInitializer) {
-        ArrayCreation clonedArrayCreation = ast.get().newArrayCreation();
-        clonedArrayCreation.setType(arrayType);
-        clonedArrayCreation.setInitializer(arrayInitializer);
-        clonedArrayCreation.dimensions().addAll(dimensions);
-        return clonedArrayCreation;
-    }
-
-    public PostfixExpression postfixExpression(Expression expression, PostfixExpression.Operator operator) {
-        PostfixExpression postfixExpression = ast.get().newPostfixExpression();
-        postfixExpression.setOperator(operator);
-        postfixExpression.setOperand(expression);
-        return postfixExpression;
+        Method method = findMethod(ASTNode.class, "clone", AST.class);
+        makeAccessible(method);
+        return (T) invokeMethod(method, expression, ast.get());
     }
 
     public FieldDeclaration fieldDeclaration(VariableDeclarationFragment variableDeclarationFragment,
@@ -361,19 +202,6 @@ public class ASTNodeFactory {
         TypeDeclaration typeDeclaration = ast.get().newTypeDeclaration();
         typeDeclaration.setName(simpleName(name));
         return typeDeclaration;
-    }
-
-    public InstanceofExpression instanceofExpression(Expression expression, Type type) {
-        InstanceofExpression instanceofExpression = ast.get().newInstanceofExpression();
-        instanceofExpression.setLeftOperand(expression);
-        instanceofExpression.setRightOperand(type);
-        return instanceofExpression;
-    }
-
-    public CharacterLiteral characterLiteral(char c) {
-        CharacterLiteral characterLiteral = ast.get().newCharacterLiteral();
-        characterLiteral.setCharValue(c);
-        return characterLiteral;
     }
 
     public BooleanLiteral booleanLiteral(boolean value) {
@@ -408,37 +236,11 @@ public class ASTNodeFactory {
         return throwStatement;
     }
 
-    private MethodInvocation methodInvocation(MethodInvocation methodInvocation) {
-        MethodInvocation clonedMethodInvocation = ast.get().newMethodInvocation();
-        clonedMethodInvocation.setName(ast.get().newSimpleName(methodInvocation.getName().toString()));
-
-        List cloned = (List) methodInvocation.arguments().stream().map(this::clone).collect(toList());
-        clonedMethodInvocation.arguments().addAll(cloned);
-        clonedMethodInvocation.setExpression(clone(methodInvocation.getExpression()));
-        return clonedMethodInvocation;
-    }
-
     private MemberValuePair memberValuePair(Map.Entry<String, Expression> entrySet) {
         MemberValuePair memberValuePair = ast.get().newMemberValuePair();
         memberValuePair.setName(simpleName(entrySet.getKey()));
         memberValuePair.setValue(entrySet.getValue());
         return memberValuePair;
-    }
-
-    private Expression fieldAccess(FieldAccess toBeCopied) {
-        FieldAccess fieldAccess = ast.get().newFieldAccess();
-        fieldAccess.setExpression(clone(toBeCopied.getExpression()));
-        fieldAccess.setName((SimpleName) clone(toBeCopied.getName()));
-        return fieldAccess;
-    }
-
-    private Expression classInstanceCreation(ClassInstanceCreation toBeCloned) {
-        ClassInstanceCreation clonedClassInstanceCreation = ast.get().newClassInstanceCreation();
-        clonedClassInstanceCreation.setExpression(clone(toBeCloned.getExpression()));
-        clonedClassInstanceCreation.setType(clone(toBeCloned.getType()));
-        List cloned = (List) toBeCloned.arguments().stream().map(this::clone).collect(toList());
-        clonedClassInstanceCreation.arguments().addAll(cloned);
-        return clonedClassInstanceCreation;
     }
 
     public IfStatement ifStatement() {
