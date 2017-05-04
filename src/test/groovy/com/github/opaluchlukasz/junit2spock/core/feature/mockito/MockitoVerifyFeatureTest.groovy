@@ -146,6 +146,33 @@ class MockitoVerifyFeatureTest extends Specification {
         Iterable   | 'anyIterable'
     }
 
+    def 'should replace any() matcher with Spock\'s wildcard'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation('any', [])], verifyInvocation())
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        expression.toString() == "1 * mockedObject.method(_)"
+    }
+
+    def 'should replace any(Class) matcher with Spock\'s wildcard with cast'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation('any',
+                [nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(clazz.simpleName)))])], verifyInvocation())
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        expression.toString() == "1 * mockedObject.method(_ as ${clazz.simpleName}.class)"
+
+        where:
+        clazz << [String, Object]
+    }
+
+
     private MethodInvocation verifyInvocation() {
         nodeFactory.methodInvocation(VERIFY, [anObject('mockedObject')])
     }

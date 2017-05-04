@@ -22,6 +22,7 @@ public enum SupportedTestFeature {
             "org.mockito.Mockito.atLeast",
             "org.mockito.Mockito.atMost",
             "org.mockito.Mockito.atLeastOnce",
+            "org.mockito.Matchers.any",
             "org.mockito.Matchers.anyObject",
             "org.mockito.Matchers.anyBoolean",
             "org.mockito.Matchers.anyByte",

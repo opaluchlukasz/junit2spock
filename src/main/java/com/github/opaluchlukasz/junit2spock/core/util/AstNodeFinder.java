@@ -23,6 +23,22 @@ public final class AstNodeFinder {
                 .findFirst();
     }
 
+    public static Optional<MethodInvocation> methodInvocation(Object bodyElement) {
+        if (bodyElement instanceof MethodInvocation) {
+            return Optional.of((MethodInvocation) bodyElement);
+        }
+        if (bodyElement instanceof ExpressionStatement) {
+            Expression expression = ((ExpressionStatement) bodyElement).getExpression();
+            Optional<MethodInvocation> methodInvocation = methodInvocation(expression);
+            if (methodInvocation.isPresent()) {
+                return methodInvocation;
+            } else if (expression instanceof MethodInvocation) {
+                return methodInvocation(((MethodInvocation) expression).getExpression());
+            }
+        }
+        return empty();
+    }
+
     private static Optional<MethodInvocation> methodInvocation(Object bodyElement, String methodName) {
         if (bodyElement instanceof MethodInvocation) {
             return methodInvocationOf((MethodInvocation) bodyElement, methodName);

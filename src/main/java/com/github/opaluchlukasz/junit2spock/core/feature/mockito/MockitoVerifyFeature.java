@@ -62,15 +62,39 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
     }
 
     private Object applyMatchers(Object argument) {
-        if (methodInvocation(argument, "anyObject").isPresent()) {
+        return methodInvocation(argument).map(methodInvocation -> {
+            switch (methodInvocation.getName().getIdentifier()) {
+                case "anyObject":
+                    return wildcard();
+                case "any":
+                    return anyMatcher(methodInvocation);
+                case "anyBoolean":
+                case "anyByte":
+                case "anyChar":
+                case "anyInt":
+                case "anyLong":
+                case "anyFloat":
+                case "anyDouble":
+                case "anyShort":
+                case "anyString":
+                case "anyList":
+                case "anySet":
+                case "anyMap":
+                case "anyIterable":
+                case "anyCollection":
+                    return classMatcher(getClass(methodInvocation));
+                default:
+                    return nodeFactory.clone((ASTNode) argument);
+            }
+        }).orElseGet(() -> nodeFactory.clone((ASTNode) argument));
+    }
+
+    private Object anyMatcher(MethodInvocation methodInvocation) {
+        if (methodInvocation.arguments().size() == 1 && methodInvocation.arguments().get(0) instanceof TypeLiteral) {
+            return classMatcher(((TypeLiteral) methodInvocation.arguments().get(0)).getType().toString());
+        } else {
             return wildcard();
         }
-        Optional<MethodInvocation> methodInvocation = methodInvocation(argument, "anyBoolean", "anyByte", "anyChar", "anyInt",
-                "anyLong", "anyFloat", "anyDouble", "anyShort", "anyString", "anyList", "anySet", "anyMap", "anyCollection",
-                "anyIterable");
-        return methodInvocation
-                .map(methodInv -> classMatcher(getClass(methodInv)))
-                .orElseGet(() -> nodeFactory.clone((ASTNode) argument));
     }
 
     private String getClass(MethodInvocation methodInv) {

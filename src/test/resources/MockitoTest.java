@@ -12,6 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyByte;
 import static org.mockito.Matchers.anyChar;
@@ -55,6 +56,7 @@ public class MockitoTest {
         verify(mockedList).get(anyObject());
         verify(mocked).someMethod(anyBoolean(), anyByte(), anyChar(), anyInt(), anyLong(), anyFloat(), anyDouble());
         verify(mocked).someOtherMethod(anyShort(), anyString(), anyList(), anySet(), anyMap(), anyCollection(), anyIterable());
+        verify(mocked).someOtherOtherMethod(any(), any(String.class));
         verify(mockedList, never()).clear();
         verify(mockedList, times(cardinality())).size();
         verify(mockedList, atLeastOnce()).size();
