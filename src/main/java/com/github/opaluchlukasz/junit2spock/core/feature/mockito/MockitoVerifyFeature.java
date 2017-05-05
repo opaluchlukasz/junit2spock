@@ -83,6 +83,8 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                 case "anyIterable":
                 case "anyCollection":
                     return classMatcher(getClass(methodInvocation));
+                case "isA":
+                    return anyMatcher(methodInvocation);
                 default:
                     return nodeFactory.clone((ASTNode) argument);
             }

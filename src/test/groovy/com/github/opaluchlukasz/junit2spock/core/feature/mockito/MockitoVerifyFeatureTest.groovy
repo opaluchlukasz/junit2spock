@@ -157,9 +157,10 @@ class MockitoVerifyFeatureTest extends Specification {
         expression.toString() == "1 * mockedObject.method(_)"
     }
 
-    def 'should replace any(Class) matcher with Spock\'s wildcard with cast'() {
+    @Unroll
+    def 'should replace #methodName(#clazz) matcher with Spock\'s wildcard with cast'(Class<?> clazz, String methodName) {
         given:
-        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation('any',
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation(methodName,
                 [nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(clazz.simpleName)))])], verifyInvocation())
 
         when:
@@ -169,9 +170,8 @@ class MockitoVerifyFeatureTest extends Specification {
         expression.toString() == "1 * mockedObject.method(_ as ${clazz.simpleName}.class)"
 
         where:
-        clazz << [String, Object]
+        [clazz, methodName] << [[String, Object], ['any', 'isA']].combinations()
     }
-
 
     private MethodInvocation verifyInvocation() {
         nodeFactory.methodInvocation(VERIFY, [anObject('mockedObject')])
