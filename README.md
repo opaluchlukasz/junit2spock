@@ -1,4 +1,7 @@
 # junit2spock
+
+[![Build Status](https://travis-ci.org/opaluchlukasz/junit2spock.svg?branch=master)](https://travis-ci.org/opaluchlukasz/junit2spock)
+
 JUnit test to Spock test converter
 
 This is standard Maven project. It requires Maven 3 and Java 8.
