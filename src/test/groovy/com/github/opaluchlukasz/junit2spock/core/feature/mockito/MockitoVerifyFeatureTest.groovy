@@ -173,6 +173,53 @@ class MockitoVerifyFeatureTest extends Specification {
         [clazz, methodName] << [[String, Object], ['any', 'isA']].combinations()
     }
 
+    def 'should replace eq() matcher with plain expression'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation('eq', [argument])], verifyInvocation())
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        expression.toString() == "1 * mockedObject.method($expected)"
+
+        where:
+        argument                                 | expected
+        nodeFactory.simpleName('variable')       | 'variable'
+        nodeFactory.stringLiteral('some string') | '"some string"'
+        nodeFactory.numberLiteral('13')          | '13'
+    }
+
+    def 'should not replace eq() invocation with more than one parameter'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('method',
+                [nodeFactory.methodInvocation('eq', [nodeFactory.simpleName('var'), nodeFactory.simpleName('var2')])], verifyInvocation())
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        1 * appender.doAppend({ LoggingEvent event ->
+            event.level == WARN && event.message == 'Unsupported eq matcher arity.'
+        } as ILoggingEvent)
+        expression.toString() == '1 * mockedObject.method(eq(var,var2))'
+    }
+
+    def 'should log warning when unsupported matcher invoked'() {
+        given:
+        String matcherName = 'unsupportedMatcher'
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation(matcherName, [])], verifyInvocation())
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        1 * appender.doAppend({ LoggingEvent event ->
+            event.level == WARN && event.formattedMessage == "Unsupported Mockito matcher: $matcherName"
+        } as ILoggingEvent)
+        expression.toString() == "1 * mockedObject.method($matcherName())"
+    }
+
     private MethodInvocation verifyInvocation() {
         nodeFactory.methodInvocation(VERIFY, [anObject('mockedObject')])
     }

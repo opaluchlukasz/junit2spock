@@ -85,13 +85,16 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                     return classMatcher(getClass(methodInvocation));
                 case "isA":
                     return anyMatcher(methodInvocation);
+                case "eq":
+                    return eqMatcher(methodInvocation);
                 default:
+                    LOG.warn("Unsupported Mockito matcher: {}", methodInvocation.getName().getIdentifier());
                     return nodeFactory.clone((ASTNode) argument);
             }
         }).orElseGet(() -> nodeFactory.clone((ASTNode) argument));
     }
 
-    private Object anyMatcher(MethodInvocation methodInvocation) {
+    private ASTNode anyMatcher(MethodInvocation methodInvocation) {
         if (methodInvocation.arguments().size() == 1 && methodInvocation.arguments().get(0) instanceof TypeLiteral) {
             return classMatcher(((TypeLiteral) methodInvocation.arguments().get(0)).getType().toString());
         } else {
@@ -99,12 +102,20 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
         }
     }
 
+    private Object eqMatcher(MethodInvocation methodInvocation) {
+        if (methodInvocation.arguments().size() == 1) {
+            return nodeFactory.clone((ASTNode) methodInvocation.arguments().get(0));
+        }
+        LOG.warn("Unsupported eq matcher arity.");
+        return nodeFactory.clone(methodInvocation);
+    }
+
     private String getClass(MethodInvocation methodInv) {
         String type = methodInv.getName().getIdentifier().replaceFirst("any", "");
         return MATCHER_TYPE_OVERRIDE.getOrDefault(type, type);
     }
 
-    private Object classMatcher(String type) {
+    private InfixExpression classMatcher(String type) {
         TypeLiteral classLiteral = nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(type)));
         return nodeFactory.infixExpression(CAST, wildcard(), classLiteral);
     }
