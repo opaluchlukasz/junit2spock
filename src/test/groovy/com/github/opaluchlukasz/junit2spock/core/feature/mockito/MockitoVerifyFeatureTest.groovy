@@ -154,7 +154,33 @@ class MockitoVerifyFeatureTest extends Specification {
         InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
 
         then:
-        expression.toString() == "1 * mockedObject.method(_)"
+        expression.toString() == '1 * mockedObject.method(_)'
+    }
+
+    def 'should replace isNull() matcher with null literal'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation('isNull', [])], verifyInvocation())
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        expression.toString() == '1 * mockedObject.method(null)'
+    }
+
+    @Unroll
+    def 'should replace #matcher() matcher with negated null literal'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation(matcher, [])], verifyInvocation())
+
+        when:
+        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+
+        then:
+        expression.toString() == '1 * mockedObject.method(!null)'
+
+        where:
+        matcher << ['isNotNull', 'notNull']
     }
 
     @Unroll

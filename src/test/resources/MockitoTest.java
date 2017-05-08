@@ -30,6 +30,9 @@ import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyIterable;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Matchers.isNotNull;
+import static org.mockito.Matchers.notNull;
 
 public class MockitoTest {
 
@@ -57,7 +60,8 @@ public class MockitoTest {
         verify(mockedList).get(anyObject());
         verify(mocked).someMethod(anyBoolean(), anyByte(), anyChar(), anyInt(), anyLong(), anyFloat(), anyDouble());
         verify(mocked).someOtherMethod(anyShort(), anyString(), anyList(), anySet(), anyMap(), anyCollection(), anyIterable());
-        verify(mocked).someOtherOtherMethod(any(), any(String.class), isA(String.class), eq("some string"));
+        verify(mocked).someOtherOtherMethod(any(), any(String.class), isA(String.class), eq("some string"), isNull(),
+                isNotNull(), notNull());
         verify(mockedList, never()).clear();
         verify(mockedList, times(cardinality())).size();
         verify(mockedList, atLeastOnce()).size();

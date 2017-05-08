@@ -24,6 +24,7 @@ import static java.lang.String.format;
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.TIMES;
+import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.NOT;
 
 public class MockitoVerifyFeature extends Feature<MethodInvocation> {
 
@@ -85,8 +86,13 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
                     return classMatcher(getClass(methodInvocation));
                 case "isA":
                     return anyMatcher(methodInvocation);
+                case "isNull":
+                    return nodeFactory.nullLiteral();
                 case "eq":
                     return eqMatcher(methodInvocation);
+                case "isNotNull":
+                case "notNull":
+                    return nodeFactory.prefixExpression(NOT, nodeFactory.nullLiteral());
                 default:
                     LOG.warn("Unsupported Mockito matcher: {}", methodInvocation.getName().getIdentifier());
                     return nodeFactory.clone((ASTNode) argument);
