@@ -3,6 +3,7 @@ package foo.bar;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Deque;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
@@ -33,6 +34,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Matchers.isNotNull;
 import static org.mockito.Matchers.notNull;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anySetOf;
+import static org.mockito.Matchers.anyCollectionOf;
+import static org.mockito.Matchers.anyIterableOf;
 
 public class MockitoTest {
 
@@ -61,7 +66,7 @@ public class MockitoTest {
         verify(mocked).someMethod(anyBoolean(), anyByte(), anyChar(), anyInt(), anyLong(), anyFloat(), anyDouble());
         verify(mocked).someOtherMethod(anyShort(), anyString(), anyList(), anySet(), anyMap(), anyCollection(), anyIterable());
         verify(mocked).someOtherOtherMethod(any(), any(String.class), isA(String.class), eq("some string"), isNull(),
-                isNotNull(), notNull());
+                isNotNull(), notNull(), anyListOf(Object.class), anySetOf(Object.class), anyCollectionOf(Object.class), anyIterableOf(Object.class));
         verify(mockedList, never()).clear();
         verify(mockedList, times(cardinality())).size();
         verify(mockedList, atLeastOnce()).size();

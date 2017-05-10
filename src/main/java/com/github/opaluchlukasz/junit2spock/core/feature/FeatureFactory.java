@@ -8,6 +8,7 @@ import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNotNullFeat
 import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNullFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertTrueFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.GivenWillReturnFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MatcherHandler;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockAnnotationFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockMethodFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFeature;
@@ -21,10 +22,12 @@ import org.springframework.stereotype.Component;
 final class FeatureFactory {
 
     private final ASTNodeFactory astNodeFactory;
+    private MatcherHandler matcherHandler;
 
     @Autowired
-    FeatureFactory(ASTNodeFactory astNodeFactory) {
+    FeatureFactory(ASTNodeFactory astNodeFactory, MatcherHandler matcherHandler) {
         this.astNodeFactory = astNodeFactory;
+        this.matcherHandler = matcherHandler;
     }
 
     Feature provide(SupportedTestFeature supportedTestFeatures) {
@@ -48,7 +51,7 @@ final class FeatureFactory {
             case MOCK_ANNOTATION:
                 return new MockAnnotationFeature(astNodeFactory);
             case MOCKITO_VERIFY:
-                return new MockitoVerifyFeature(astNodeFactory);
+                return new MockitoVerifyFeature(astNodeFactory, matcherHandler);
             case MOCKITO_VERIFY_NO_MORE_INTERACTIONS:
                 return new MockitoVerifyNoMoreInteractionsFeature(astNodeFactory);
             case MOCK_METHOD:

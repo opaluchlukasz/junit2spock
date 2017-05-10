@@ -10,6 +10,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement
 import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.MethodInvocation
 import org.eclipse.jdt.core.dom.SimpleName
+import org.eclipse.jdt.core.dom.TypeLiteral
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
@@ -17,7 +18,8 @@ import spock.lang.Unroll
 
 import static ch.qos.logback.classic.Level.WARN
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFeature.VERIFY
-import static org.eclipse.jdt.core.dom.AST.*
+import static org.eclipse.jdt.core.dom.AST.JLS8
+import static org.eclipse.jdt.core.dom.AST.newAST
 import static org.slf4j.LoggerFactory.getLogger
 
 class MockitoVerifyFeatureTest extends Specification {
@@ -27,7 +29,8 @@ class MockitoVerifyFeatureTest extends Specification {
         get: ast
     })
 
-    @Subject private MockitoVerifyFeature mockitoVerifyFeature = new MockitoVerifyFeature(nodeFactory)
+    @Subject private MockitoVerifyFeature mockitoVerifyFeature = new MockitoVerifyFeature(nodeFactory,
+            new MatcherHandler(nodeFactory))
     private Appender<ILoggingEvent> appender = Mock(Appender)
     private Logger logger = (Logger) getLogger(MockitoVerifyFeature)
 
@@ -54,7 +57,7 @@ class MockitoVerifyFeatureTest extends Specification {
     def 'should return true for proper verify method invocation'() {
         given:
         ExpressionStatement expressionStatement = nodeFactory.expressionStatement(nodeFactory
-                .methodInvocation('someMethod', [], nodeFactory.methodInvocation(VERIFY, [nodeFactory.simpleName('mockedObject')])))
+                .methodInvocation('someMethod', [], nodeFactory.methodInvocation(VERIFY, [nodeFactory.simpleName('mockedType')])))
 
         expect:
         mockitoVerifyFeature.applicable(expressionStatement).isPresent()
@@ -69,8 +72,8 @@ class MockitoVerifyFeatureTest extends Specification {
 
         where:
         methodInvocation                                                                                                | expected
-        nodeFactory.methodInvocation('someMethod', [], verifyInvocation())                                              | '1 * mockedObject.someMethod()'
-        nodeFactory.methodInvocation('someMethod', [nodeFactory.numberLiteral('1'), anObject('a')], verifyInvocation()) | '1 * mockedObject.someMethod(1,a)'
+        nodeFactory.methodInvocation('someMethod', [], verifyInvocation())                                              | '1 * mockedType.someMethod()'
+        nodeFactory.methodInvocation('someMethod', [nodeFactory.numberLiteral('1'), anObject('a')], verifyInvocation()) | '1 * mockedType.someMethod(1,a)'
     }
 
     def 'should return Spock\'s mock interaction verification when using VerificationMode'() {
@@ -85,11 +88,11 @@ class MockitoVerifyFeatureTest extends Specification {
 
         where:
         verificationMode                                                          | expected
-        nodeFactory.methodInvocation('never', [])                                 | '0 * mockedObject.someMethod()'
-        nodeFactory.methodInvocation('atLeastOnce', [])                           | '(1 .. _) * mockedObject.someMethod()'
-        nodeFactory.methodInvocation('times', [nodeFactory.numberLiteral('3')])   | '3 * mockedObject.someMethod()'
-        nodeFactory.methodInvocation('atMost', [nodeFactory.numberLiteral('3')])  | '(_ .. 3) * mockedObject.someMethod()'
-        nodeFactory.methodInvocation('atLeast', [nodeFactory.numberLiteral('3')]) | '(3 .. _) * mockedObject.someMethod()'
+        nodeFactory.methodInvocation('never', [])                                 | '0 * mockedType.someMethod()'
+        nodeFactory.methodInvocation('atLeastOnce', [])                           | '(1 .. _) * mockedType.someMethod()'
+        nodeFactory.methodInvocation('times', [nodeFactory.numberLiteral('3')])   | '3 * mockedType.someMethod()'
+        nodeFactory.methodInvocation('atMost', [nodeFactory.numberLiteral('3')])  | '(_ .. 3) * mockedType.someMethod()'
+        nodeFactory.methodInvocation('atLeast', [nodeFactory.numberLiteral('3')]) | '(3 .. _) * mockedType.someMethod()'
     }
 
     def 'should log warning for unsupported VerificationMode and fallback to single invocation verification'() {
@@ -104,154 +107,62 @@ class MockitoVerifyFeatureTest extends Specification {
         1 * appender.doAppend({ LoggingEvent event ->
             event.level == WARN && event.message == "Unsupported VerificationMode: $verificationMode"
         } as ILoggingEvent)
-        expression.toString() == '1 * mockedObject.method()'
-    }
-
-    def 'should replace anyObject matcher with Spock\'s wildcard'() {
-        given:
-        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.numberLiteral("1"), nodeFactory.methodInvocation('anyObject', [])], verifyInvocation())
-
-        when:
-        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
-
-        then:
-        expression.toString() == '1 * mockedObject.method(1,_)'
+        expression.toString() == '1 * mockedType.method()'
     }
 
     @Unroll
-    def 'should replace #matcherMethod matcher with Spock\'s wildcard with cast'() {
+    def 'should replace #matcherMethod matcher with Spock\'s expression'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation(matcherMethod, [])], verifyInvocation())
+        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation(matcherMethod, arguments)], verifyInvocation())
 
         when:
-        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
+        Object expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
 
         then:
-        expression.toString() == "1 * mockedObject.method(_ as ${clazz.simpleName}.class)"
+        expression.toString() == expected
 
         where:
-        clazz      | matcherMethod
-        Byte       | 'anyByte'
-        Character  | 'anyChar'
-        Integer    | 'anyInt'
-        Long       | 'anyLong'
-        Float      | 'anyFloat'
-        Double     | 'anyDouble'
-        Short      | 'anyShort'
-        String     | 'anyString'
-        List       | 'anyList'
-        Set        | 'anySet'
-        Map        | 'anyMap'
-        Collection | 'anyCollection'
-        Iterable   | 'anyIterable'
+        matcherMethod     | arguments                                  | expected
+        'anyByte'         | []                                         | "1 * mockedType.method(_ as ${Byte.simpleName}.class)"
+        'anyChar'         | []                                         | "1 * mockedType.method(_ as ${Character.simpleName}.class)"
+        'anyInt'          | []                                         | "1 * mockedType.method(_ as ${Integer.simpleName}.class)"
+        'anyLong'         | []                                         | "1 * mockedType.method(_ as ${Long.simpleName}.class)"
+        'anyFloat'        | []                                         | "1 * mockedType.method(_ as ${Float.simpleName}.class)"
+        'anyDouble'       | []                                         | "1 * mockedType.method(_ as ${Double.simpleName}.class)"
+        'anyShort'        | []                                         | "1 * mockedType.method(_ as ${Short.simpleName}.class)"
+        'anyString'       | []                                         | "1 * mockedType.method(_ as ${String.simpleName}.class)"
+        'anyList'         | []                                         | "1 * mockedType.method(_ as ${List.simpleName}.class)"
+        'anySet'          | []                                         | "1 * mockedType.method(_ as ${Set.simpleName}.class)"
+        'anyMap'          | []                                         | "1 * mockedType.method(_ as ${Map.simpleName}.class)"
+        'anyCollection'   | []                                         | "1 * mockedType.method(_ as ${Collection.simpleName}.class)"
+        'anyIterable'     | []                                         | "1 * mockedType.method(_ as ${Iterable.simpleName}.class)"
+        'anyObject'       | []                                         | '1 * mockedType.method(_)'
+        'any'             | []                                         | '1 * mockedType.method(_)'
+        'isNull'          | []                                         | '1 * mockedType.method(null)'
+        'isNotNull'       | []                                         | '1 * mockedType.method(!null)'
+        'any'             | [typeLiteral(String)]                      | '1 * mockedType.method(_ as String.class)'
+        'any'             | [typeLiteral(Object)]                      | '1 * mockedType.method(_ as Object.class)'
+        'isA'             | [typeLiteral(String)]                      | '1 * mockedType.method(_ as String.class)'
+        'isA'             | [typeLiteral(Object)]                      | '1 * mockedType.method(_ as Object.class)'
+        'anyListOf'       | [typeLiteral(String)]                      | '1 * mockedType.method(_ as List<String>.class)'
+        'anyCollectionOf' | [typeLiteral(String)]                      | '1 * mockedType.method(_ as Collection<String>.class)'
+        'anyIterableOf'   | [typeLiteral(String)]                      | '1 * mockedType.method(_ as Iterable<String>.class)'
+        'anySetOf'        | [typeLiteral(String)]                      | '1 * mockedType.method(_ as Set<String>.class)'
+        'eq'              | [nodeFactory.simpleName('variable')]       | '1 * mockedType.method(variable)'
+        'eq'              | [nodeFactory.stringLiteral('some string')] | '1 * mockedType.method("some string")'
+        'eq'              | [nodeFactory.numberLiteral('13')]          | '1 * mockedType.method(13)'
     }
 
-    def 'should replace any() matcher with Spock\'s wildcard'() {
-        given:
-        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation('any', [])], verifyInvocation())
-
-        when:
-        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
-
-        then:
-        expression.toString() == '1 * mockedObject.method(_)'
-    }
-
-    def 'should replace isNull() matcher with null literal'() {
-        given:
-        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation('isNull', [])], verifyInvocation())
-
-        when:
-        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
-
-        then:
-        expression.toString() == '1 * mockedObject.method(null)'
-    }
-
-    @Unroll
-    def 'should replace #matcher() matcher with negated null literal'() {
-        given:
-        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation(matcher, [])], verifyInvocation())
-
-        when:
-        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
-
-        then:
-        expression.toString() == '1 * mockedObject.method(!null)'
-
-        where:
-        matcher << ['isNotNull', 'notNull']
-    }
-
-    @Unroll
-    def 'should replace #methodName(#clazz) matcher with Spock\'s wildcard with cast'(Class<?> clazz, String methodName) {
-        given:
-        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation(methodName,
-                [nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(clazz.simpleName)))])], verifyInvocation())
-
-        when:
-        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
-
-        then:
-        expression.toString() == "1 * mockedObject.method(_ as ${clazz.simpleName}.class)"
-
-        where:
-        [clazz, methodName] << [[String, Object], ['any', 'isA']].combinations()
-    }
-
-    def 'should replace eq() matcher with plain expression'() {
-        given:
-        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation('eq', [argument])], verifyInvocation())
-
-        when:
-        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
-
-        then:
-        expression.toString() == "1 * mockedObject.method($expected)"
-
-        where:
-        argument                                 | expected
-        nodeFactory.simpleName('variable')       | 'variable'
-        nodeFactory.stringLiteral('some string') | '"some string"'
-        nodeFactory.numberLiteral('13')          | '13'
-    }
-
-    def 'should not replace eq() invocation with more than one parameter'() {
-        given:
-        def methodInvocation = nodeFactory.methodInvocation('method',
-                [nodeFactory.methodInvocation('eq', [nodeFactory.simpleName('var'), nodeFactory.simpleName('var2')])], verifyInvocation())
-
-        when:
-        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
-
-        then:
-        1 * appender.doAppend({ LoggingEvent event ->
-            event.level == WARN && event.message == 'Unsupported eq matcher arity.'
-        } as ILoggingEvent)
-        expression.toString() == '1 * mockedObject.method(eq(var,var2))'
-    }
-
-    def 'should log warning when unsupported matcher invoked'() {
-        given:
-        String matcherName = 'unsupportedMatcher'
-        def methodInvocation = nodeFactory.methodInvocation('method', [nodeFactory.methodInvocation(matcherName, [])], verifyInvocation())
-
-        when:
-        InfixExpression expression = mockitoVerifyFeature.apply(nodeFactory.expressionStatement(methodInvocation))
-
-        then:
-        1 * appender.doAppend({ LoggingEvent event ->
-            event.level == WARN && event.formattedMessage == "Unsupported Mockito matcher: $matcherName"
-        } as ILoggingEvent)
-        expression.toString() == "1 * mockedObject.method($matcherName())"
+    private TypeLiteral typeLiteral(Class<?> clazz) {
+        nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(clazz.simpleName)))
     }
 
     private MethodInvocation verifyInvocation() {
-        nodeFactory.methodInvocation(VERIFY, [anObject('mockedObject')])
+        nodeFactory.methodInvocation(VERIFY, [anObject('mockedType')])
     }
 
     private MethodInvocation verifyInvocation(MethodInvocation verificationMode) {
-        nodeFactory.methodInvocation(VERIFY, [anObject('mockedObject'), verificationMode])
+        nodeFactory.methodInvocation(VERIFY, [anObject('mockedType'), verificationMode])
     }
 
     private SimpleName anObject(String name) {

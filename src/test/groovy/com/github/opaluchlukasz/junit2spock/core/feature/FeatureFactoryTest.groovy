@@ -1,6 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.feature
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MatcherHandler
 import org.eclipse.jdt.core.dom.AST
 import spock.lang.Shared
 import spock.lang.Specification
@@ -16,7 +17,7 @@ class FeatureFactoryTest extends Specification {
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
         get: ast
     })
-    @Subject private FeatureFactory featureFactory = new FeatureFactory(nodeFactory)
+    @Subject private FeatureFactory featureFactory = new FeatureFactory(nodeFactory, new MatcherHandler(nodeFactory))
 
     def 'should throw an exception for unsupported test feature'() {
         when:
