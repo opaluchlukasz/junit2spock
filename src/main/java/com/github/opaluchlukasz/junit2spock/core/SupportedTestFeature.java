@@ -39,6 +39,7 @@ public enum SupportedTestFeature {
             "org.mockito.Matchers.anySet",
             "org.mockito.Matchers.anySetOf",
             "org.mockito.Matchers.anyMap",
+            "org.mockito.Matchers.anyMapOf",
             "org.mockito.Matchers.anyCollection",
             "org.mockito.Matchers.anyCollectionOf",
             "org.mockito.Matchers.anyIterable",

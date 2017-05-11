@@ -148,6 +148,7 @@ class MockitoVerifyFeatureTest extends Specification {
         'anyCollectionOf' | [typeLiteral(String)]                      | '1 * mockedType.method(_ as Collection<String>.class)'
         'anyIterableOf'   | [typeLiteral(String)]                      | '1 * mockedType.method(_ as Iterable<String>.class)'
         'anySetOf'        | [typeLiteral(String)]                      | '1 * mockedType.method(_ as Set<String>.class)'
+        'anyMapOf'        | [typeLiteral(String), typeLiteral(Object)] | '1 * mockedType.method(_ as Map<String,Object>.class)'
         'eq'              | [nodeFactory.simpleName('variable')]       | '1 * mockedType.method(variable)'
         'eq'              | [nodeFactory.stringLiteral('some string')] | '1 * mockedType.method("some string")'
         'eq'              | [nodeFactory.numberLiteral('13')]          | '1 * mockedType.method(13)'

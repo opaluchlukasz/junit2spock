@@ -7,6 +7,7 @@ import ch.qos.logback.core.Appender
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.ASTNode
+import org.eclipse.jdt.core.dom.TypeLiteral
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
@@ -138,8 +139,7 @@ class MatcherHandlerTest extends Specification {
     @Unroll
     def 'should replace #methodName(#clazz) matcher with Spock\'s wildcard with cast'(Class<?> clazz, String methodName) {
         given:
-        def methodInvocation = nodeFactory.methodInvocation(methodName,
-                [nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(clazz.simpleName)))])
+        def methodInvocation = nodeFactory.methodInvocation(methodName, [typeLiteral(clazz)])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -154,8 +154,7 @@ class MatcherHandlerTest extends Specification {
     @Unroll
     def 'should replace #method(#clazz) matcher with Spock\'s wildcard with cast'() {
         given:
-        def methodInvocation = nodeFactory
-                .methodInvocation(method, [nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(clazz.simpleName)))])
+        def methodInvocation = nodeFactory.methodInvocation(method, [typeLiteral(clazz)])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -169,6 +168,17 @@ class MatcherHandlerTest extends Specification {
         'anyCollectionOf' | String | '_ as Collection<String>.class'
         'anyIterableOf'   | String | '_ as Iterable<String>.class'
         'anySetOf'        | String | '_ as Set<String>.class'
+    }
+
+    def 'should replace anyMap matcher with Spock\'s wildcard with cast'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('anyMapOf', [typeLiteral(String), typeLiteral(Integer)])
+
+        when:
+        ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
+
+        then:
+        expression.toString() == '_ as Map<String,Integer>.class'
     }
 
     def 'should replace eq() matcher with plain expression'() {
@@ -191,5 +201,9 @@ class MatcherHandlerTest extends Specification {
     def 'should return Spock\'s wildcard'() {
         expect:
         matcherHandler.wildcard().toString() == '_'
+    }
+
+    private TypeLiteral typeLiteral(Class<?> clazz) {
+        nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(clazz.simpleName)))
     }
 }

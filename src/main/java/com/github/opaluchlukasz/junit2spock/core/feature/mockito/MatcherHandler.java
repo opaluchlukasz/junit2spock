@@ -1,6 +1,7 @@
 package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -67,6 +68,8 @@ public class MatcherHandler {
                     return classMatcher(parametrizedTypeOf(methodInvocation, Collection.class));
                 case "anyIterableOf":
                     return classMatcher(parametrizedTypeOf(methodInvocation, Iterable.class));
+                case "anyMapOf":
+                    return classMatcher(anyMapOf(methodInvocation, Map.class));
                 case "isA":
                     return anyMatcher(methodInvocation);
                 case "isNull":
@@ -92,7 +95,19 @@ public class MatcherHandler {
             return nodeFactory.parameterizedType(nodeFactory.simpleType(nodeFactory.simpleName(clazz.getSimpleName())),
                     singletonList(nodeFactory.clone(((TypeLiteral) methodInvocation.arguments().get(0)).getType())));
         } else {
-            return nodeFactory.simpleType(nodeFactory.simpleName("List"));
+            return nodeFactory.simpleType(nodeFactory.simpleName(clazz.getSimpleName()));
+        }
+    }
+
+    private Type anyMapOf(MethodInvocation methodInvocation, Class<?> clazz) {
+        if (methodInvocation.arguments().size() == 2 &&
+                methodInvocation.arguments().get(0) instanceof TypeLiteral &&
+                methodInvocation.arguments().get(1) instanceof TypeLiteral) {
+            return nodeFactory.parameterizedType(nodeFactory.simpleType(nodeFactory.simpleName(clazz.getSimpleName())),
+                    ImmutableList.of(nodeFactory.clone(((TypeLiteral) methodInvocation.arguments().get(0)).getType()),
+                    nodeFactory.clone(((TypeLiteral) methodInvocation.arguments().get(1)).getType())));
+        } else {
+            return nodeFactory.simpleType(nodeFactory.simpleName(clazz.getSimpleName()));
         }
     }
 
