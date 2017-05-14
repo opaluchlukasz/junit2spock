@@ -10,4 +10,4 @@ deploy:
   file: 'target/junit2spock-jar-with-dependencies.jar'
   skip_cleanup: true
   on:
-    tags
+    tags: true
