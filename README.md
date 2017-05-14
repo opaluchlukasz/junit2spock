@@ -1,6 +1,7 @@
 # junit2spock
 
 [![Build Status](https://travis-ci.org/opaluchlukasz/junit2spock.svg?branch=master)](https://travis-ci.org/opaluchlukasz/junit2spock)
+[![GitHub release](https://img.shields.io/github/release/opaluchlukasz/junit2spock.svg)](https://github.com/opaluchlukasz/junit2spock/releases)
 
 ### Overview
 This project aims to ease transition from Junit to Spock by converting Junit based test suites to Spock specifications.
@@ -27,13 +28,17 @@ Even if tool converts test without syntax errors it is advisable to go through g
   * changing quotation in String literals to single quotation mark
   * removing .class in class literals
 
-### Build and Run
+### Run
+Tool requires Java 8.
 
-This is standard Maven project. It requires Maven 3 and Java 8.
-Download sources build the project and run the following command to convert Junit test classes into Spock's specs:
+Download `junit2spock-jar-with-dependencies.jar` from [latest release](https://github.com/opaluchlukasz/junit2spock/releases) and run the following command to convert Junit test classes into Spock's specs:
 ```
-java -jar target\junit2spock-jar-with-dependencies.jar path_to_junit_tests output_path
+java -jar junit2spock-jar-with-dependencies.jar path_to_junit_tests output_path
 ```
+
+### Build prerequisites
+* Java 8
+* Maven 3
 
 ### Contributions and bug reports
 Contributions as well as the bug reports are very welcome.
