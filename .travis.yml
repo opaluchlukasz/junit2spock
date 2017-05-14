@@ -3,3 +3,11 @@ jdk:
   - oraclejdk8
 sudo: false
 script: mvn clean install
+deploy:
+  provider: releases
+  api_key:
+    secure: "cScZpJ1ZZayKTZ07chQY8QVXBbZA2uMLHtS24Uo72Sp95at0NiQswNKaOS5mNsAzUpe7e7iAcrKdkLgHPbtGMzakgPnBX7aP89xiKIBjy2EvFUPMhmaM+rzldzjdBwxsvPG+HoQkmKb1skvW9mLr9aaml9wMxVaWGFUk+1xSKw281vGtcGM+yJtMSFTmo0W7AEt5Kbfa4KCOI3FuPgUuILgwkPkoLv3Kjg2JaToZ67FitvqsylmNEPoK5flbkfrGC2RgP8x8r/1Sq4je+/rQZ2MgbL94QQ3WJDOw4WqVgnLwIWtyzKCbdFcYOcoCkvzPyqzoox2duqjowf2EJTubybNgELIGgPG4N+dq3LTEHxPICvHSUXe1aeVfpfe3ezE/jQ4WvuKr2SlF6eAGCYH3DwioNXlnfMHyI4kozVK294BIEYZf8PTD6INDIePSmMHF6F1mgHcBE45sFZV7G8d8lnGCvUQ/pBZftNjuM84SySTPkdSTAI/cGRG8otXQd5DyDRrCLTZbHYkxsr8hPxyWes2rDTLplUplyWANgS2SqmsQrVxKi0K+4UKZvVEX1Itw5Rttfl25Fi3J3K9SNDIP2T+IlzAekusSFw1ZbRba7iETrA1PjuJs68D+swgA8YLsg+ar6Id05z6fNEUUXlfZ+eVbjcIqHWPUQNff3t+MbBE="
+  file: 'target/junit2spock-jar-with-dependencies.jar'
+  skip_cleanup: true
+  on:
+    tags
