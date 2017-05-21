@@ -15,7 +15,7 @@ Even if tool converts test without syntax errors it is advisable to go through g
   * replacing assertEquals, assertFalse, assertNotNull, assertNull, assertTrue with simple comparisons in then/expect block
 * Mockito
   * replacing Mockito mocks with Spock mocks
-  * replacing given/willReturn, when/thenReturn for defining returned value with stubbed interaction
+  * replacing given/willReturn, when/thenReturn for defining returned value with stubbed interaction (single value or sequence o values)
   * replacing when/thenThrow for defining mocked method throwing an exception with stubbed interaction
   * replacing verify with Spock interaction verification
     * supported VerificationModes: never, atLeastOnce, times, atMost, atLeast

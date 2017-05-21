@@ -1,8 +1,10 @@
 package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
-import com.github.opaluchlukasz.junit2spock.core.node.SpockMockBehaviour
+import com.github.opaluchlukasz.junit2spock.core.AstProvider
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
 import org.eclipse.jdt.core.dom.AST
+import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
 import spock.lang.Specification
@@ -16,11 +18,13 @@ import static org.eclipse.jdt.core.dom.AST.newAST
 class WhenThenThrowFeatureTest extends Specification {
 
     private static final AST ast = newAST(JLS8)
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+    private static final AstProvider AST_PROVIDER = {
         get: ast
-    })
+    }
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(AST_PROVIDER)
 
-    @Subject private WhenThenThrowFeature thenThrowFeature = new WhenThenThrowFeature(nodeFactory)
+    @Subject private WhenThenThrowFeature thenThrowFeature = new WhenThenThrowFeature(nodeFactory,
+            new GroovyClosureFactory(AST_PROVIDER))
 
     def 'should return false for non thenThrow method invocation'() {
         expect:
@@ -52,7 +56,7 @@ class WhenThenThrowFeatureTest extends Specification {
         MethodInvocation methodInvocation = nodeFactory
                 .methodInvocation(THEN_THROW, [nodeFactory.classInstanceCreation(exceptionType, exceptionMessage)],
                 nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation(stubbedMethod, [])]))
-        SpockMockBehaviour expression = thenThrowFeature.apply(methodInvocation)
+        InfixExpression expression = thenThrowFeature.apply(methodInvocation)
 
         expect:
         expression.toString() == "$stubbedMethod() >> {\n\t\t\t" +

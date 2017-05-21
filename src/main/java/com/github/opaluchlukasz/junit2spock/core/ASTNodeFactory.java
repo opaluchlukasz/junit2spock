@@ -81,11 +81,11 @@ public class ASTNodeFactory {
         return packageDeclaration;
     }
 
-    public MethodInvocation methodInvocation(String name, List<ASTNode> arguments) {
+    public MethodInvocation methodInvocation(String name, List<Expression> arguments) {
         return methodInvocation(name, arguments, null);
     }
 
-    public MethodInvocation methodInvocation(String name, List<ASTNode> arguments, Expression expression) {
+    public MethodInvocation methodInvocation(String name, List<Expression> arguments, Expression expression) {
         MethodInvocation methodInvocation = ast.get().newMethodInvocation();
         methodInvocation.setName(simpleName(name));
         Optional.ofNullable(expression).ifPresent(methodInvocation::setExpression);

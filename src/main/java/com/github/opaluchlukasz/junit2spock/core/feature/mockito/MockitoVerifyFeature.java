@@ -2,7 +2,6 @@ package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -52,7 +51,7 @@ public class MockitoVerifyFeature extends Feature<MethodInvocation> {
         return nodeFactory.infixExpression(TIMES,
                 cardinality(arguments.size() == 2 ? Optional.of(arguments.get(1)) : empty()),
                 nodeFactory.methodInvocation(parentMethodInvocation.getName().getFullyQualifiedName(),
-                        (List<ASTNode>) parentMethodInvocation.arguments().stream()
+                        (List<Expression>) parentMethodInvocation.arguments().stream()
                                 .map(matcherHandler::applyMatchers).collect(toList()),
                         nodeFactory.clone((Expression) arguments.get(0))));
     }

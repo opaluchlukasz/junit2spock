@@ -1,7 +1,9 @@
 package com.github.opaluchlukasz.junit2spock.core.feature
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.AstProvider
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MatcherHandler
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
 import org.eclipse.jdt.core.dom.AST
 import spock.lang.Shared
 import spock.lang.Specification
@@ -14,10 +16,13 @@ import static org.eclipse.jdt.core.dom.AST.newAST
 class FeatureFactoryTest extends Specification {
 
     private static final AST ast = newAST(JLS8)
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+    private static final AstProvider AST_PROVIDER = {
         get: ast
-    })
-    @Subject private FeatureFactory featureFactory = new FeatureFactory(nodeFactory, new MatcherHandler(nodeFactory))
+    }
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(AST_PROVIDER)
+    @Subject private FeatureFactory featureFactory = new FeatureFactory(nodeFactory,
+            new MatcherHandler(nodeFactory),
+            new GroovyClosureFactory(AST_PROVIDER))
 
     def 'should throw an exception for unsupported test feature'() {
         when:

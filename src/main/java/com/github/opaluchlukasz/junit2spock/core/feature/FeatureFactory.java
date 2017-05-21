@@ -15,6 +15,7 @@ import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFe
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyNoMoreInteractionsFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenReturnFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature;
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,12 +23,16 @@ import org.springframework.stereotype.Component;
 final class FeatureFactory {
 
     private final ASTNodeFactory astNodeFactory;
-    private MatcherHandler matcherHandler;
+    private final MatcherHandler matcherHandler;
+    private final GroovyClosureFactory groovyClosureFactory;
 
     @Autowired
-    FeatureFactory(ASTNodeFactory astNodeFactory, MatcherHandler matcherHandler) {
+    FeatureFactory(ASTNodeFactory astNodeFactory,
+                   MatcherHandler matcherHandler,
+                   GroovyClosureFactory groovyClosureFactory) {
         this.astNodeFactory = astNodeFactory;
         this.matcherHandler = matcherHandler;
+        this.groovyClosureFactory = groovyClosureFactory;
     }
 
     Feature provide(SupportedTestFeature supportedTestFeatures) {
@@ -37,7 +42,7 @@ final class FeatureFactory {
             case WILL_RETURN:
                 return new GivenWillReturnFeature(astNodeFactory);
             case THEN_THROW:
-                return new WhenThenThrowFeature(astNodeFactory);
+                return new WhenThenThrowFeature(astNodeFactory, groovyClosureFactory);
             case ASSERT_EQUALS:
                 return new AssertEqualsFeature(astNodeFactory);
             case ASSERT_NOT_NULL:

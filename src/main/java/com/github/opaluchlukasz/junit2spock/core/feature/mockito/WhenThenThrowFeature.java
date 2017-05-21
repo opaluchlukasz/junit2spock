@@ -2,7 +2,7 @@ package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
-import com.github.opaluchlukasz.junit2spock.core.node.SpockMockBehaviour;
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
+import static org.eclipse.jdt.core.dom.InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
 
 public class WhenThenThrowFeature extends Feature<MethodInvocation> {
 
@@ -18,9 +19,11 @@ public class WhenThenThrowFeature extends Feature<MethodInvocation> {
     public static final String WHEN = "when";
 
     private final ASTNodeFactory astNodeFactory;
+    private GroovyClosureFactory groovyClosureFactory;
 
-    public WhenThenThrowFeature(ASTNodeFactory astNodeFactory) {
+    public WhenThenThrowFeature(ASTNodeFactory astNodeFactory, GroovyClosureFactory groovyClosureFactory) {
         this.astNodeFactory = astNodeFactory;
+        this.groovyClosureFactory = groovyClosureFactory;
     }
 
     @Override
@@ -31,14 +34,17 @@ public class WhenThenThrowFeature extends Feature<MethodInvocation> {
     }
 
     @Override
-    public SpockMockBehaviour apply(Object object, MethodInvocation whenMethodInvocation) {
+    public Expression apply(Object object, MethodInvocation whenMethodInvocation) {
         MethodInvocation methodInvocation = methodInvocation(object, THEN_THROW).get();
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 1) {
             Expression toBeThrown = argumentAsExpression(arguments.get(0));
             Block closure = astNodeFactory.block();
             closure.statements().add(astNodeFactory.throwStatement(toBeThrown));
-            return new SpockMockBehaviour((MethodInvocation) whenMethodInvocation.arguments().get(0), closure);
+            Expression throwingClosure = groovyClosureFactory.create(closure);
+            return astNodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
+                    argumentAsExpression(whenMethodInvocation.arguments().get(0)),
+                    throwingClosure);
         }
         throw new UnsupportedOperationException("Supported only 1-arity thenThrow invocation");
     }
