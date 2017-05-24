@@ -20,8 +20,10 @@ class FeatureFactoryTest extends Specification {
         get: ast
     }
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(AST_PROVIDER)
+    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(AST_PROVIDER)
+
     @Subject private FeatureFactory featureFactory = new FeatureFactory(nodeFactory,
-            new MatcherHandler(nodeFactory),
+            new MatcherHandler(nodeFactory, groovyClosureFactory),
             new GroovyClosureFactory(AST_PROVIDER))
 
     def 'should throw an exception for unsupported test feature'() {

@@ -19,7 +19,7 @@ Even if tool converts test without syntax errors it is advisable to go through g
   * replacing when/thenThrow for defining mocked method throwing an exception with stubbed interaction
   * replacing verify with Spock interaction verification
     * supported VerificationModes: never, atLeastOnce, times, atMost, atLeast
-    * supported Matchers: any, anyByte, anyChar, anyCollection, anyCollectionOf, anyDouble, anyFloat, anyInt, anyIterable, anyIterableOf, anyList, anyListOf, anyLong, anyMap, anyMapOf, anyObject, anySet, anySetOf, anyShort, anyString, eq, isA, isNotNull, isNull
+    * supported Matchers: any, anyByte, anyChar, anyCollection, anyCollectionOf, anyDouble, anyFloat, anyInt, anyIterable, anyIterableOf, anyList, anyListOf, anyLong, anyMap, anyMapOf, anyObject, anySet, anySetOf, anyShort, anyString, eq, isA, isNotNull, isNull, startsWith
   * replacing verifyNoMoreInteractions with Spock equivalent
 * given/when/then blocks autodiscovery
 * Groovisms - Groovy's syntactic sugar

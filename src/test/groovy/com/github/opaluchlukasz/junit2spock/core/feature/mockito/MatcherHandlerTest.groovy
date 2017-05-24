@@ -5,6 +5,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.AstProvider
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.ASTNode
 import org.eclipse.jdt.core.dom.TypeLiteral
@@ -21,11 +23,13 @@ import static org.slf4j.LoggerFactory.getLogger
 class MatcherHandlerTest extends Specification {
 
     private static final AST ast = newAST(JLS8)
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+    private static final AstProvider AST_PROVIDER = {
         get: ast
-    })
+    }
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(AST_PROVIDER)
+    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(AST_PROVIDER)
 
-    @Subject private MatcherHandler matcherHandler = new MatcherHandler(nodeFactory)
+    @Subject private MatcherHandler matcherHandler = new MatcherHandler(nodeFactory, groovyClosureFactory)
 
     private Appender<ILoggingEvent> appender = Mock(Appender)
     private Logger logger = (Logger) getLogger(MatcherHandler)
@@ -47,7 +51,7 @@ class MatcherHandlerTest extends Specification {
 
         then:
         1 * appender.doAppend({ LoggingEvent event ->
-            event.level == WARN && event.message == 'Unsupported eq matcher arity.'
+            event.level == WARN && event.formattedMessage == 'Unsupported eq matcher arity.'
         } as ILoggingEvent)
         expression.toString() == 'eq(var,var2)'
     }
@@ -196,6 +200,17 @@ class MatcherHandlerTest extends Specification {
         nodeFactory.simpleName('variable')       | 'variable'
         nodeFactory.stringLiteral('some string') | '"some string"'
         nodeFactory.numberLiteral('13')          | '13'
+    }
+
+    def 'should replace startsWith matcher with closure with cast'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('startsWith', [nodeFactory.stringLiteral('some string')])
+
+        when:
+        ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
+
+        then:
+        expression.toString() == '{\n\t\t\tit.startsWith(\'some string\')\n\t\t} as String.class'
     }
 
     def 'should return Spock\'s wildcard'() {

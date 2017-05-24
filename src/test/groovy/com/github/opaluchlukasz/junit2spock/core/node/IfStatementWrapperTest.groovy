@@ -53,9 +53,7 @@ class IfStatementWrapperTest extends Specification {
     }
 
     private Block block(Statement... statements) {
-        def block = nf.block()
-        block.statements().addAll(statements)
-        block
+        nf.block(statements)
     }
 
     private IfStatement ifStatement(Expression expression, Statement thenStatement, Statement elseStatement) {

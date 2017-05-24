@@ -1,9 +1,12 @@
 package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -18,8 +21,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.github.opaluchlukasz.junit2spock.core.node.CustomInfixOperator.CAST;
+import static com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory.IT;
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.NOT;
@@ -32,10 +37,12 @@ public class MatcherHandler {
     private static final Map<String, String> MATCHER_TYPE_OVERRIDE = ImmutableMap.of("Char", "Character", "Int", "Integer");
 
     private final ASTNodeFactory nodeFactory;
+    private final GroovyClosureFactory groovyClosureFactory;
 
     @Autowired
-    public MatcherHandler(ASTNodeFactory nodeFactory) {
+    public MatcherHandler(ASTNodeFactory nodeFactory, GroovyClosureFactory groovyClosureFactory) {
         this.nodeFactory = nodeFactory;
+        this.groovyClosureFactory = groovyClosureFactory;
     }
 
     ASTNode applyMatchers(Object argument) {
@@ -79,11 +86,25 @@ public class MatcherHandler {
                 case "isNotNull":
                 case "notNull":
                     return nodeFactory.prefixExpression(NOT, nodeFactory.nullLiteral());
+                case "startsWith":
+                    return startsWithClosure(methodInvocation);
                 default:
                     LOG.warn("Unsupported Mockito matcher: {}", methodInvocation.getName().getIdentifier());
                     return nodeFactory.clone((ASTNode) argument);
             }
         }).orElseGet(() -> nodeFactory.clone((ASTNode) argument));
+    }
+
+    private Expression startsWithClosure(MethodInvocation methodInvocation) {
+        return singleArityMatcher(methodInvocation, argument -> {
+            Block block = nodeFactory.block(nodeFactory.expressionStatement(
+                    nodeFactory.methodInvocation("startsWith",
+                            singletonList(nodeFactory.clone(argument)),
+                            nodeFactory.simpleName(IT))));
+            return nodeFactory.infixExpression(CAST,
+                    groovyClosureFactory.create(block),
+                    nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName("String"))));
+        });
     }
 
     SimpleName wildcard() {
@@ -119,12 +140,16 @@ public class MatcherHandler {
         }
     }
 
-    private ASTNode eqMatcher(MethodInvocation methodInvocation) {
+    private Expression singleArityMatcher(MethodInvocation methodInvocation, Function<Expression, Expression> handler) {
         if (methodInvocation.arguments().size() == 1) {
-            return nodeFactory.clone((ASTNode) methodInvocation.arguments().get(0));
+            return handler.apply((Expression) methodInvocation.arguments().get(0));
         }
-        LOG.warn("Unsupported eq matcher arity.");
+        LOG.warn("Unsupported {} matcher arity.", methodInvocation.getName());
         return nodeFactory.clone(methodInvocation);
+    }
+
+    private ASTNode eqMatcher(MethodInvocation methodInvocation) {
+        return singleArityMatcher(methodInvocation, nodeFactory::clone);
     }
 
     private Type getClass(MethodInvocation methodInv) {

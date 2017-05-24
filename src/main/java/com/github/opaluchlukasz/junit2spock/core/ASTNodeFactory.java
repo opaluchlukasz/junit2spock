@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.Type;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -229,8 +231,10 @@ public class ASTNodeFactory {
         return ast.get().newNullLiteral();
     }
 
-    public Block block() {
-        return ast.get().newBlock();
+    public Block block(Statement... statements) {
+        Block block = ast.get().newBlock();
+        block.statements().addAll(Arrays.asList(statements));
+        return block;
     }
 
     public PrimitiveType primitiveType(PrimitiveType.Code code) {

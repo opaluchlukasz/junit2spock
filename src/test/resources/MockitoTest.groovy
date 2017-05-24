@@ -28,6 +28,9 @@ class MockitoTest extends Specification {
 		1 * mocked.someMethod(_ as Boolean,_ as Byte,_ as Character,_ as Integer,_ as Long,_ as Float,_ as Double)
 		1 * mocked.someOtherMethod(_ as Short,_ as String,_ as List,_ as Set,_ as Map,_ as Collection,_ as Iterable)
 		1 * mocked.someOtherOtherMethod(_,_ as String,_ as String,'some string',null,!null,!null,_ as List<Object>,_ as Set<Object>,_ as Collection<Object>,_ as Iterable<Object>,_ as Map<Long,List>)
+		1 * mocked.someOtherOtherOtherMethod({
+			it.startsWith('prefix')
+		} as String)
 		0 * mockedList.clear()
 		cardinality() * mockedList.size()
 		(1 .. _) * mockedList.size()

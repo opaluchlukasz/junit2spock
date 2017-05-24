@@ -18,11 +18,11 @@ public class WhenThenThrowFeature extends Feature<MethodInvocation> {
     public static final String THEN_THROW = "thenThrow";
     public static final String WHEN = "when";
 
-    private final ASTNodeFactory astNodeFactory;
-    private GroovyClosureFactory groovyClosureFactory;
+    private final ASTNodeFactory nodeFactory;
+    private final GroovyClosureFactory groovyClosureFactory;
 
-    public WhenThenThrowFeature(ASTNodeFactory astNodeFactory, GroovyClosureFactory groovyClosureFactory) {
-        this.astNodeFactory = astNodeFactory;
+    public WhenThenThrowFeature(ASTNodeFactory nodeFactory, GroovyClosureFactory groovyClosureFactory) {
+        this.nodeFactory = nodeFactory;
         this.groovyClosureFactory = groovyClosureFactory;
     }
 
@@ -39,10 +39,9 @@ public class WhenThenThrowFeature extends Feature<MethodInvocation> {
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 1) {
             Expression toBeThrown = argumentAsExpression(arguments.get(0));
-            Block closure = astNodeFactory.block();
-            closure.statements().add(astNodeFactory.throwStatement(toBeThrown));
+            Block closure = nodeFactory.block(nodeFactory.throwStatement(toBeThrown));
             Expression throwingClosure = groovyClosureFactory.create(closure);
-            return astNodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
+            return nodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
                     argumentAsExpression(whenMethodInvocation.arguments().get(0)),
                     throwingClosure);
         }
@@ -50,7 +49,7 @@ public class WhenThenThrowFeature extends Feature<MethodInvocation> {
     }
 
     private Expression argumentAsExpression(Object argument) {
-        return argument instanceof Expression ? astNodeFactory.clone((Expression) argument) :
-                astNodeFactory.simpleName(argument.toString());
+        return argument instanceof Expression ? nodeFactory.clone((Expression) argument) :
+                nodeFactory.simpleName(argument.toString());
     }
 }

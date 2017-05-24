@@ -20,8 +20,8 @@ class GroovyClosureTest extends Specification {
 
     def 'should have proper toString representation'() {
         given:
-        Block block = nodeFactory.block()
-        block.statements().add(nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', [])))
+        Block block = nodeFactory
+                .block(nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', [])))
 
         expect:
         new GroovyClosure(block).toString() == '{\n\t\t\tsomeMethod()\n\t\t}'

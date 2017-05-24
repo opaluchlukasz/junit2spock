@@ -22,6 +22,8 @@ import static org.springframework.util.ReflectionUtils.makeAccessible;
 @Component
 public class GroovyClosureFactory {
 
+    public static final String IT = "it";
+
     private final AstProvider astProvider;
 
     @Autowired

@@ -5,6 +5,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.AstProvider
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.ExpressionStatement
 import org.eclipse.jdt.core.dom.InfixExpression
@@ -25,12 +27,14 @@ import static org.slf4j.LoggerFactory.getLogger
 class MockitoVerifyFeatureTest extends Specification {
 
     private static final AST ast = newAST(JLS8)
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+    private static final AstProvider AST_PROVIDER = {
         get: ast
-    })
+    }
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(AST_PROVIDER)
+    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(AST_PROVIDER)
 
     @Subject private MockitoVerifyFeature mockitoVerifyFeature = new MockitoVerifyFeature(nodeFactory,
-            new MatcherHandler(nodeFactory))
+            new MatcherHandler(nodeFactory, groovyClosureFactory))
     private Appender<ILoggingEvent> appender = Mock(Appender)
     private Logger logger = (Logger) getLogger(MockitoVerifyFeature)
 
