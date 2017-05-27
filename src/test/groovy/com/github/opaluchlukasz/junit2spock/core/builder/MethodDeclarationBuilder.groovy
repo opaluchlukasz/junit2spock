@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.dom.Annotation
 import org.eclipse.jdt.core.dom.Expression
 import org.eclipse.jdt.core.dom.MethodDeclaration
 import org.eclipse.jdt.core.dom.Modifier
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration
 import org.eclipse.jdt.core.dom.Statement
 
 class MethodDeclarationBuilder {
@@ -14,6 +15,7 @@ class MethodDeclarationBuilder {
     private String name = 'foo'
     private List<Modifier> modifiers = []
     private List<Annotation> annotations = []
+    private List<SingleVariableDeclaration> parameters = []
     private List<ASTNode> body = new LinkedList<>()
 
     static MethodDeclarationBuilder aMethod(AST ast) {
@@ -31,6 +33,11 @@ class MethodDeclarationBuilder {
 
     MethodDeclarationBuilder withModifier(Modifier.ModifierKeyword modifier) {
         modifiers << ast.newModifier(modifier)
+        this
+    }
+
+    MethodDeclarationBuilder withParameter(SingleVariableDeclaration singleVariableDeclaration) {
+        parameters << singleVariableDeclaration
         this
     }
 
@@ -54,6 +61,7 @@ class MethodDeclarationBuilder {
         method.name = ast.newSimpleName(name)
         method.modifiers().addAll(modifiers)
         method.modifiers().addAll(annotations)
+        method.parameters().addAll(parameters)
         method.body = ast.newBlock()
         method.body.statements().addAll(body)
         method

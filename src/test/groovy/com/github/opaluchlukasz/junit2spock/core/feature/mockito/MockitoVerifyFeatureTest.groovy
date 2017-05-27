@@ -159,7 +159,7 @@ class MockitoVerifyFeatureTest extends Specification {
     }
 
     private TypeLiteral typeLiteral(Class<?> clazz) {
-        nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(clazz.simpleName)))
+        nodeFactory.typeLiteral(nodeFactory.simpleType(clazz.simpleName))
     }
 
     private MethodInvocation verifyInvocation() {

@@ -38,7 +38,7 @@ class RegularMethodModelTest extends Specification {
         given:
         def methodDeclarationBuilder = aMethod(astProvider.get())
         modifiers.each { methodDeclarationBuilder.withModifier(it) }
-        annotations.each { methodDeclarationBuilder.withAnnotation(nodeFactory.annotation(it, [:])) }
+        annotations.each { methodDeclarationBuilder.withAnnotation(nodeFactory.markerAnnotation(it, [:])) }
         def methodDeclaration = methodDeclarationBuilder.build()
 
         expect:

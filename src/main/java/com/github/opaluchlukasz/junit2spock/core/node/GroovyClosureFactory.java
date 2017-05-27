@@ -5,6 +5,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.proxy.Enhancer;
@@ -31,10 +32,10 @@ public class GroovyClosureFactory {
         this.astProvider = astProvider;
     }
 
-    public Expression create(Block body) {
+    public Expression create(Block body, SingleVariableDeclaration... arguments) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(Expression.class);
-        enhancer.setCallback(new ClosureInvocationHandler(body));
+        enhancer.setCallback(new ClosureInvocationHandler(body, arguments));
         return (Expression) enhancer.create(new Class[] {AST.class}, new Object[] {astProvider.get()});
     }
 
@@ -42,8 +43,8 @@ public class GroovyClosureFactory {
 
         private final GroovyClosure groovyClosure;
 
-        ClosureInvocationHandler(Block body) {
-            this.groovyClosure = new GroovyClosure(body);
+        ClosureInvocationHandler(Block body, SingleVariableDeclaration... arguments) {
+            this.groovyClosure = new GroovyClosure(body, arguments);
         }
 
         @Override

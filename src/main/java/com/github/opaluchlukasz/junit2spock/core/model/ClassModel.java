@@ -51,8 +51,7 @@ public class ClassModel extends TypeModel {
         this.imports = imports;
         this.innerTypes = unmodifiableList(new LinkedList<>(innerTypes));
         if (isTestClass(methods)) {
-            this.superClassType = Optional.of(astNodeFactory
-                    .simpleType(astNodeFactory.simpleName(Specification.class.getSimpleName())));
+            this.superClassType = Optional.of(astNodeFactory.simpleType(Specification.class.getSimpleName()));
             imports.add(0, astNodeFactory.importDeclaration(Specification.class));
         } else {
             this.superClassType = Optional.ofNullable(superClassType);

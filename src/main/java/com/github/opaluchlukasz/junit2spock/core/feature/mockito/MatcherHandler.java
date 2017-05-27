@@ -5,11 +5,15 @@ import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.slf4j.Logger;
@@ -88,6 +92,8 @@ public class MatcherHandler {
                     return nodeFactory.prefixExpression(NOT, nodeFactory.nullLiteral());
                 case "startsWith":
                     return startsWithClosure(methodInvocation);
+                case "intThat":
+                    return handleIntThat(methodInvocation);
                 default:
                     LOG.warn("Unsupported Mockito matcher: {}", methodInvocation.getName().getIdentifier());
                     return nodeFactory.clone((ASTNode) argument);
@@ -103,7 +109,27 @@ public class MatcherHandler {
                             nodeFactory.simpleName(IT))));
             return nodeFactory.infixExpression(CAST,
                     groovyClosureFactory.create(block),
-                    nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName("String"))));
+                    nodeFactory.typeLiteral(nodeFactory.simpleType("String")));
+        });
+    }
+
+    private Expression handleIntThat(MethodInvocation methodInvocation) {
+        return singleArityMatcher(methodInvocation, argument -> {
+            if (argument instanceof ClassInstanceCreation &&
+                    ((ClassInstanceCreation) argument).getAnonymousClassDeclaration() != null) {
+                AnonymousClassDeclaration classDeclaration = ((ClassInstanceCreation) argument).getAnonymousClassDeclaration();
+                if (classDeclaration.bodyDeclarations().size() == 1 &&
+                        classDeclaration.bodyDeclarations().get(0) instanceof MethodDeclaration &&
+                        ((MethodDeclaration) classDeclaration.bodyDeclarations().get(0))
+                                .getName().getIdentifier().equals("matches")) {
+                    MethodDeclaration methodDeclaration = (MethodDeclaration) classDeclaration.bodyDeclarations().get(0);
+                    Block block = nodeFactory.clone(methodDeclaration.getBody());
+                    return nodeFactory.infixExpression(CAST,
+                            groovyClosureFactory.create(block, nodeFactory.clone((SingleVariableDeclaration) methodDeclaration.parameters().get(0))),
+                            nodeFactory.typeLiteral(nodeFactory.simpleType("Integer")));
+                }
+            }
+            return nodeFactory.clone(methodInvocation);
         });
     }
 
@@ -113,10 +139,10 @@ public class MatcherHandler {
 
     private Type parametrizedTypeOf(MethodInvocation methodInvocation, Class<?> clazz) {
         if (methodInvocation.arguments().size() == 1 && methodInvocation.arguments().get(0) instanceof TypeLiteral) {
-            return nodeFactory.parameterizedType(nodeFactory.simpleType(nodeFactory.simpleName(clazz.getSimpleName())),
+            return nodeFactory.parameterizedType(nodeFactory.simpleType(clazz.getSimpleName()),
                     singletonList(nodeFactory.clone(((TypeLiteral) methodInvocation.arguments().get(0)).getType())));
         } else {
-            return nodeFactory.simpleType(nodeFactory.simpleName(clazz.getSimpleName()));
+            return nodeFactory.simpleType(clazz.getSimpleName());
         }
     }
 
@@ -124,11 +150,11 @@ public class MatcherHandler {
         if (methodInvocation.arguments().size() == 2 &&
                 methodInvocation.arguments().get(0) instanceof TypeLiteral &&
                 methodInvocation.arguments().get(1) instanceof TypeLiteral) {
-            return nodeFactory.parameterizedType(nodeFactory.simpleType(nodeFactory.simpleName(clazz.getSimpleName())),
+            return nodeFactory.parameterizedType(nodeFactory.simpleType(clazz.getSimpleName()),
                     ImmutableList.of(nodeFactory.clone(((TypeLiteral) methodInvocation.arguments().get(0)).getType()),
                     nodeFactory.clone(((TypeLiteral) methodInvocation.arguments().get(1)).getType())));
         } else {
-            return nodeFactory.simpleType(nodeFactory.simpleName(clazz.getSimpleName()));
+            return nodeFactory.simpleType(clazz.getSimpleName());
         }
     }
 
@@ -154,7 +180,7 @@ public class MatcherHandler {
 
     private Type getClass(MethodInvocation methodInv) {
         String type = methodInv.getName().getIdentifier().replaceFirst("any", "");
-        return nodeFactory.simpleType(nodeFactory.simpleName(MATCHER_TYPE_OVERRIDE.getOrDefault(type, type)));
+        return nodeFactory.simpleType(MATCHER_TYPE_OVERRIDE.getOrDefault(type, type));
     }
 
     private InfixExpression classMatcher(Type type) {

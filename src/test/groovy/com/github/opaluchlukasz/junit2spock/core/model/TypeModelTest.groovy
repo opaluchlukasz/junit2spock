@@ -40,13 +40,13 @@ class TypeModelTest extends Specification {
         def testClassName = 'TestClass'
 
         when:
-        ClassModel classModel = new TypeModelBuilder(nodeFactory)
+        TypeModel typeModel = new TypeModelBuilder(nodeFactory)
                 .withTypeName(nodeFactory.simpleName(testClassName))
-                .withSuperType(nodeFactory.simpleType(nodeFactory.simpleName('Object')))
+                .withSuperType(nodeFactory.simpleType('Object'))
                 .build()
 
         then:
-        classModel.asGroovyClass(0).contains("class $testClassName extends Object")
+        typeModel.asGroovyClass(0).contains("class $testClassName extends Object")
     }
 
 

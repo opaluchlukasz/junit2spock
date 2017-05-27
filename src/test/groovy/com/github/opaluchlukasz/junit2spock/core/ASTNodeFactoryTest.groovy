@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.dom.PrefixExpression
 import org.eclipse.jdt.core.dom.PrimitiveType
 import org.eclipse.jdt.core.dom.SimpleName
 import org.eclipse.jdt.core.dom.SimpleType
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration
 import org.eclipse.jdt.core.dom.StringLiteral
 import org.eclipse.jdt.core.dom.TypeLiteral
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement
@@ -54,13 +55,13 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create simple type'() {
         given:
-        def clazz = nodeFactory.simpleName('foo')
-        def type = nodeFactory.simpleType(clazz)
+        def clazz = 'foo'
+        def type = nodeFactory.simpleType('foo')
 
         expect:
         type.isSimpleType()
-        type.name.fullyQualifiedName == clazz.fullyQualifiedName
-        type.toString() == clazz.fullyQualifiedName
+        type.name.fullyQualifiedName == clazz
+        type.toString() == clazz
     }
 
     def 'should create primitive type'() {
@@ -86,7 +87,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create type literal'() {
         given:
-        def someType = nodeFactory.simpleType(nodeFactory.simpleName('SomeType'))
+        def someType = nodeFactory.simpleType('SomeType')
         TypeLiteral typeLiteral = nodeFactory.typeLiteral(someType)
 
         expect:
@@ -131,7 +132,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create marker annotation'() {
         given:
-        Annotation annotation = nodeFactory.annotation('Some', [] as Map)
+        Annotation annotation = nodeFactory.markerAnnotation('Some', [] as Map)
 
         expect:
         annotation.toString() == '@Some'
@@ -139,7 +140,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create annotation with parameters'() {
         given:
-        Annotation annotation = nodeFactory.annotation('Some', ['foo': nodeFactory.stringLiteral('bar')] as Map)
+        Annotation annotation = nodeFactory.markerAnnotation('Some', ['foo': nodeFactory.stringLiteral('bar')] as Map)
 
         expect:
         annotation.toString() == '@Some(foo="bar")'
@@ -166,23 +167,32 @@ class ASTNodeFactoryTest extends Specification {
         given:
         def variableDeclarationFragment = nodeFactory.variableDeclarationFragment('someField')
         FieldDeclaration fieldDeclaration = nodeFactory
-                .fieldDeclaration(variableDeclarationFragment, nodeFactory.simpleType(nodeFactory.simpleName('Comparable')), *modifiers)
+                .fieldDeclaration(variableDeclarationFragment, nodeFactory.simpleType('Comparable'), *modifiers)
 
         expect:
         fieldDeclaration.toString() == expectedLiteral
 
         where:
-        modifiers                                         | expectedLiteral
-        []                                                | 'Comparable someField;\n'
-        [nodeFactory.annotation('Immutable', emptyMap())] | '@Immutable Comparable someField;\n'
+        modifiers                                               | expectedLiteral
+        []                                                      | 'Comparable someField;\n'
+        [nodeFactory.markerAnnotation('Immutable', emptyMap())] | '@Immutable Comparable someField;\n'
     }
 
     def 'should create parameterized type'() {
         given:
-        ParameterizedType parameterizedType = nodeFactory.parameterizedType(nodeFactory.simpleType(nodeFactory.simpleName('Map')),
-                [nodeFactory.simpleType(nodeFactory.simpleName('String')), nodeFactory.simpleType(nodeFactory.simpleName('Object'))])
+        ParameterizedType parameterizedType = nodeFactory.parameterizedType(nodeFactory.simpleType('Map'),
+                [nodeFactory.simpleType('String'), nodeFactory.simpleType('Object')])
 
         expect:
         parameterizedType.toString() == 'Map<String,Object>'
+    }
+
+    def 'should create single variable declaration'() {
+        given:
+        SingleVariableDeclaration singleVariableDeclaration = nodeFactory
+                .singleVariableDeclaration(nodeFactory.simpleType('SomeClass'), 'instance')
+
+        expect:
+        singleVariableDeclaration.toString() == 'SomeClass instance'
     }
 }

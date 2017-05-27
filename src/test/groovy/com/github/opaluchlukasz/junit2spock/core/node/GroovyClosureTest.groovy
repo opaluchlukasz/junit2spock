@@ -18,12 +18,26 @@ class GroovyClosureTest extends Specification {
     }
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(AST_PROVIDER)
 
-    def 'should have proper toString representation'() {
+    def 'should return closure without arguments when none provided'() {
         given:
-        Block block = nodeFactory
-                .block(nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', [])))
+        Block block = nodeFactory.block(nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', [])))
 
         expect:
         new GroovyClosure(block).toString() == '{\n\t\t\tsomeMethod()\n\t\t}'
+    }
+
+    def 'should return closure with arguments'() {
+        given:
+        Block block = nodeFactory.block(nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', [])))
+        GroovyClosure closure = new GroovyClosure(block, *arguments)
+
+        expect:
+        closure.toString() == expected
+
+        where:
+        arguments | expected
+        [nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(String.simpleName), 'a')] | '{ String a ->\n\t\t\tsomeMethod()\n\t\t}'
+        [nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(String.simpleName), 'a'),
+         nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(Integer.simpleName), 'b')] | '{ String a, Integer b ->\n\t\t\tsomeMethod()\n\t\t}'
     }
 }

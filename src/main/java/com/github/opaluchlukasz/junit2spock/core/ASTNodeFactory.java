@@ -3,6 +3,7 @@ package com.github.opaluchlukasz.junit2spock.core;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -25,8 +26,10 @@ import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.ThrowStatement;
@@ -131,6 +134,15 @@ public class ASTNodeFactory {
         return classInstanceCreation;
     }
 
+    public ClassInstanceCreation anonymousClassInstanceCreation(Type type, ASTNode... bodyDeclarations) {
+        ClassInstanceCreation classInstanceCreation = ast.get().newClassInstanceCreation();
+        classInstanceCreation.setType(type);
+        AnonymousClassDeclaration anonymousClassDeclaration = ast.get().newAnonymousClassDeclaration();
+        anonymousClassDeclaration.bodyDeclarations().addAll(asList(bodyDeclarations));
+        classInstanceCreation.setAnonymousClassDeclaration(anonymousClassDeclaration);
+        return classInstanceCreation;
+    }
+
     public VariableDeclarationStatement variableDeclarationStatement(String name, Type type, Expression initializer) {
         VariableDeclarationFragment variableDeclarationFragment = variableDeclarationFragment(name);
         variableDeclarationFragment.setInitializer(initializer);
@@ -153,21 +165,21 @@ public class ASTNodeFactory {
         return infixExpression;
     }
 
-    private Annotation annotation(String name) {
+    public Annotation markerAnnotation(String name) {
         MarkerAnnotation annotation = ast.get().newMarkerAnnotation();
         annotation.setTypeName(simpleName(name));
         return annotation;
     }
 
-    public ParameterizedType parameterizedType(Type type, List typeArguments) {
+    public ParameterizedType parameterizedType(Type type, List<Type> typeArguments) {
         ParameterizedType cloned = ast.get().newParameterizedType(type);
         cloned.typeArguments().addAll(typeArguments);
         return cloned;
     }
 
-    public Annotation annotation(String name, Map<String, Expression> values) {
+    public Annotation markerAnnotation(String name, Map<String, Expression> values) {
         if (values.isEmpty()) {
-            return annotation(name);
+            return markerAnnotation(name);
         } else {
             NormalAnnotation annotation = ast.get().newNormalAnnotation();
             annotation.setTypeName(simpleName(name));
@@ -217,8 +229,8 @@ public class ASTNodeFactory {
         return ast.get().newBooleanLiteral(value);
     }
 
-    public SimpleType simpleType(Name name) {
-        return ast.get().newSimpleType(name);
+    public SimpleType simpleType(String name) {
+        return ast.get().newSimpleType(simpleName(name));
     }
 
     public TypeLiteral typeLiteral(Type type) {
@@ -245,6 +257,19 @@ public class ASTNodeFactory {
         ThrowStatement throwStatement = ast.get().newThrowStatement();
         throwStatement.setExpression(toBeThrown);
         return throwStatement;
+    }
+
+    public SingleVariableDeclaration singleVariableDeclaration(Type type, String name) {
+        SingleVariableDeclaration singleVariableDeclaration = ast.get().newSingleVariableDeclaration();
+        singleVariableDeclaration.setType(type);
+        singleVariableDeclaration.setName(simpleName(name));
+        return singleVariableDeclaration;
+    }
+
+    public ReturnStatement returnStatement(Expression expression) {
+        ReturnStatement returnStatement = ast.get().newReturnStatement();
+        returnStatement.setExpression(expression);
+        return returnStatement;
     }
 
     private MemberValuePair memberValuePair(Map.Entry<String, Expression> entrySet) {

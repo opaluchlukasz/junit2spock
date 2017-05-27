@@ -1,5 +1,8 @@
 package foo.bar
 import spock.lang.Specification
+import org.mockito.Mockito.ArgumentMatcher
+import org.mockito.internal.matchers.LessOrEqual
+import static org.mockito.Matchers.intThat
 
 class MockitoTest extends Specification {
 	SomeClass mocked=Mock(SomeClass)
@@ -31,6 +34,10 @@ class MockitoTest extends Specification {
 		1 * mocked.someOtherOtherOtherMethod({
 			it.startsWith('prefix')
 		} as String)
+		1 * mocked.method1({ Integer actual ->
+			return actual < 4
+		} as Integer)
+		1 * mocked.method1(intThat(new LessOrEqual<>(4)))
 		0 * mockedList.clear()
 		cardinality() * mockedList.size()
 		(1 .. _) * mockedList.size()

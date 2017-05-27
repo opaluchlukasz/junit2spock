@@ -2,6 +2,8 @@ package foo.bar;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito.ArgumentMatcher;
+import org.mockito.internal.matchers.LessOrEqual;
 
 import java.util.List;
 
@@ -28,6 +30,7 @@ import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.anyShort;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.intThat;
 import static org.mockito.Matchers.isNotNull;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Matchers.notNull;
@@ -69,6 +72,13 @@ public class MockitoTest {
                 isNotNull(), notNull(), anyListOf(Object.class), anySetOf(Object.class), anyCollectionOf(Object.class),
                 anyIterableOf(Object.class), anyMapOf(Long.class, List.class));
         verify(mocked).someOtherOtherOtherMethod(startsWith("prefix"));
+        verify(mocked).method1(intThat(new ArgumentMatcher<Integer>() {
+            @Override
+            public boolean matches(Integer actual) {
+                return actual < 4;
+            }
+        }));
+        verify(mocked).method1(intThat(new LessOrEqual<>(4)));
         verify(mockedList, never()).clear();
         verify(mockedList, times(cardinality())).size();
         verify(mockedList, atLeastOnce()).size();

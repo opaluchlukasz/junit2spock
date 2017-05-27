@@ -9,6 +9,7 @@ import com.github.opaluchlukasz.junit2spock.core.AstProvider
 import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.ASTNode
+import org.eclipse.jdt.core.dom.ClassInstanceCreation
 import org.eclipse.jdt.core.dom.TypeLiteral
 import spock.lang.Shared
 import spock.lang.Specification
@@ -16,8 +17,10 @@ import spock.lang.Subject
 import spock.lang.Unroll
 
 import static ch.qos.logback.classic.Level.WARN
+import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
+import static org.eclipse.jdt.core.dom.InfixExpression.Operator.GREATER
 import static org.slf4j.LoggerFactory.getLogger
 
 class MatcherHandlerTest extends Specification {
@@ -213,12 +216,33 @@ class MatcherHandlerTest extends Specification {
         expression.toString() == '{\n\t\t\tit.startsWith(\'some string\')\n\t\t} as String.class'
     }
 
+    def 'should replace intThat matcher using anonymous ArgumentMatcher with closure with cast'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('intThat',
+                [anonymousClassInstanceCreation(Integer, aMethod(ast)
+                        .withName('matches')
+                        .withParameter(nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(Integer.simpleName), 'a'))
+                        .withBodyStatement(nodeFactory.returnStatement(nodeFactory.infixExpression(GREATER, nodeFactory.simpleName('a'), nodeFactory.numberLiteral('13'))))
+                        .build())])
+
+        when:
+        ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
+
+        then:
+        expression.toString() == '{ Integer a ->\n\t\t\treturn a > 13\n\t\t} as Integer.class'
+    }
+
+    private ClassInstanceCreation anonymousClassInstanceCreation(Class<?> clazz, ASTNode... bodyDeclarations) {
+        nodeFactory.anonymousClassInstanceCreation(nodeFactory
+                .parameterizedType(nodeFactory.simpleType('ArgumentMatcher'), [nodeFactory.simpleType(clazz.simpleName)]), bodyDeclarations)
+    }
+
     def 'should return Spock\'s wildcard'() {
         expect:
         matcherHandler.wildcard().toString() == '_'
     }
 
     private TypeLiteral typeLiteral(Class<?> clazz) {
-        nodeFactory.typeLiteral(nodeFactory.simpleType(nodeFactory.simpleName(clazz.simpleName)))
+        nodeFactory.typeLiteral(nodeFactory.simpleType(clazz.simpleName))
     }
 }

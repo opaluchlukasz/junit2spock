@@ -20,7 +20,7 @@ class TypeUtilTest extends Specification {
 
     def 'should return false if type is not primitive'() {
         expect:
-        !isVoid(nodeFactory.simpleType(nodeFactory.simpleName('Object')))
+        !isVoid(nodeFactory.simpleType('Object'))
     }
 
     def 'should return false for primitive type other than void'() {

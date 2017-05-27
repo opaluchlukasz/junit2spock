@@ -22,14 +22,14 @@ class MockMethodFeatureTest extends Specification {
 
         where:
         node << [new Object(), nodeFactory.fieldDeclaration(nodeFactory.variableDeclarationFragment('variable'),
-                nodeFactory.simpleType(nodeFactory.simpleName('SomeClass')))]
+                nodeFactory.simpleType('SomeClass'))]
     }
 
     def 'should return false for mock method declarations'() {
         given:
         def someVar = 'someVar'
         def mockMethod = nodeFactory.methodInvocation('mock', [])
-        def type = nodeFactory.simpleType(nodeFactory.simpleName('SomeClass'))
+        def type = nodeFactory.simpleType('SomeClass')
         VariableDeclarationStatement statement = nodeFactory.variableDeclarationStatement(someVar, type, mockMethod)
 
         expect:
@@ -40,7 +40,7 @@ class MockMethodFeatureTest extends Specification {
         given:
         def someVar = 'someVar'
         def mockMethod = nodeFactory.methodInvocation('mock', [])
-        def type = nodeFactory.simpleType(nodeFactory.simpleName('SomeClass'))
+        def type = nodeFactory.simpleType('SomeClass')
         VariableDeclarationStatement statement = nodeFactory.variableDeclarationStatement(someVar, type, mockMethod)
 
         expect:

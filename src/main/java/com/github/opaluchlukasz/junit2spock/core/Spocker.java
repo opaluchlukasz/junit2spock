@@ -2,7 +2,6 @@ package com.github.opaluchlukasz.junit2spock.core;
 
 import com.github.opaluchlukasz.junit2spock.core.model.TypeModel;
 import com.github.opaluchlukasz.junit2spock.core.visitor.TypeVisitor;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import static org.eclipse.jdt.core.JavaCore.COMPILER_COMPLIANCE;
 import static org.eclipse.jdt.core.JavaCore.COMPILER_SOURCE;
 import static org.eclipse.jdt.core.JavaCore.VERSION_1_8;
 import static org.eclipse.jdt.core.JavaCore.getOptions;
+import static org.eclipse.jdt.core.dom.AST.JLS8;
 import static org.eclipse.jdt.core.dom.ASTParser.K_COMPILATION_UNIT;
 
 @Component
@@ -37,7 +37,7 @@ public class Spocker {
         source = source.replaceAll("//(?i)\\s*" + quote("when") + SEPARATOR, "whenBlockStart();");
         source = source.replaceAll("//(?i)\\s*" + quote("then") + SEPARATOR, "thenBlockStart();");
 
-        ASTParser parser = ASTParser.newParser(AST.JLS8);
+        ASTParser parser = ASTParser.newParser(JLS8);
         parser.setSource(source.toCharArray());
         parser.setKind(K_COMPILATION_UNIT);
         parser.setCompilerOptions(compilerOptions());

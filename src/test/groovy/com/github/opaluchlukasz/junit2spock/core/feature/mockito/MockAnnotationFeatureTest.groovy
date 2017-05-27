@@ -22,13 +22,13 @@ class MockAnnotationFeatureTest extends Specification {
 
         where:
         node << [new Object(), nodeFactory.fieldDeclaration(nodeFactory.variableDeclarationFragment('variable'),
-                nodeFactory.simpleType(nodeFactory.simpleName('SomeClass')))]
+                nodeFactory.simpleType('SomeClass'))]
     }
 
     def 'should return false for mock declarations'() {
         given:
         FieldDeclaration fieldDeclaration = nodeFactory.fieldDeclaration(nodeFactory.variableDeclarationFragment('variable'),
-                nodeFactory.simpleType(nodeFactory.simpleName('SomeClass')), nodeFactory.annotation('Mock'))
+                nodeFactory.simpleType('SomeClass'), nodeFactory.markerAnnotation('Mock'))
 
         expect:
         mockDeclarationFeature.applicable(fieldDeclaration).isPresent()
@@ -37,7 +37,7 @@ class MockAnnotationFeatureTest extends Specification {
     def 'should return Spock\'s mock for mockito mock'() {
         given:
         FieldDeclaration fieldDeclaration = nodeFactory.fieldDeclaration(nodeFactory.variableDeclarationFragment('variable'),
-                nodeFactory.simpleType(nodeFactory.simpleName('SomeClass')), nodeFactory.annotation('Mock'))
+                nodeFactory.simpleType('SomeClass'), nodeFactory.markerAnnotation('Mock'))
 
         expect:
         mockDeclarationFeature.apply(fieldDeclaration).toString() == 'SomeClass variable=Mock(SomeClass.class);\n'

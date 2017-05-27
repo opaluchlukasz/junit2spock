@@ -49,7 +49,7 @@ class IfStatementWrapperTest extends Specification {
     }
 
     private ThrowStatement throwStatement() {
-        nf.throwStatement(nf.classInstanceCreation(nf.simpleType(nf.simpleName('Foo'))))
+        nf.throwStatement(nf.classInstanceCreation(nf.simpleType('Foo')))
     }
 
     private Block block(Statement... statements) {
