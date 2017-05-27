@@ -8,10 +8,16 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static java.util.regex.Pattern.quote;
+import static org.eclipse.jdt.core.JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM;
+import static org.eclipse.jdt.core.JavaCore.COMPILER_COMPLIANCE;
+import static org.eclipse.jdt.core.JavaCore.COMPILER_SOURCE;
+import static org.eclipse.jdt.core.JavaCore.VERSION_1_8;
+import static org.eclipse.jdt.core.JavaCore.getOptions;
 import static org.eclipse.jdt.core.dom.ASTParser.K_COMPILATION_UNIT;
 
 @Component
@@ -34,6 +40,7 @@ public class Spocker {
         ASTParser parser = ASTParser.newParser(AST.JLS8);
         parser.setSource(source.toCharArray());
         parser.setKind(K_COMPILATION_UNIT);
+        parser.setCompilerOptions(compilerOptions());
 
         CompilationUnit cu = (CompilationUnit) parser.createAST(null);
         astProxy.setTarget(cu.getAST());
@@ -41,5 +48,13 @@ public class Spocker {
         TypeVisitor visitor = testClassVisitorSupplier.get();
         cu.accept(visitor);
         return visitor.typeModel();
+    }
+
+    private Map<String, String> compilerOptions() {
+        Map<String, String> compilerOptions = getOptions();
+        compilerOptions.put(COMPILER_COMPLIANCE, VERSION_1_8);
+        compilerOptions.put(COMPILER_CODEGEN_TARGET_PLATFORM, VERSION_1_8);
+        compilerOptions.put(COMPILER_SOURCE, VERSION_1_8);
+        return compilerOptions;
     }
 }

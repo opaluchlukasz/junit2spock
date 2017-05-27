@@ -3,6 +3,7 @@ package foo.bar;
 import org.junit.Before;
 import org.junit.Test;
 
+import static java.lang.Integer.parseInt;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -14,7 +15,7 @@ public class Junit4Test {
     public void multiplicationOfZeroIntegersShouldReturnZero() {
         MyClass tester = new MyClass();
 
-        junit.framework.Assert.assertEquals("10 x 0 must be 0", 0, tester.multiply(10, 0));
+        junit.framework.Assert.assertEquals("10 x 0 must be 0", 0, tester.multiply(parseInt("10"), 0));
         assertEquals("0 x 10 must be 0", 0, tester.multiply(0, 10));
         assertEquals("0 x 0 must be 0", 0, hashocde());
         assertEquals("some string", new String("some string"));

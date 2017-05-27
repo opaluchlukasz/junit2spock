@@ -1,5 +1,6 @@
 package foo.bar
 import spock.lang.Specification
+import static java.lang.Integer.parseInt
 
 class Junit4Test extends Specification {
 
@@ -8,7 +9,7 @@ class Junit4Test extends Specification {
 		MyClass tester=new MyClass()
 
 		expect:
-		tester.multiply(10,0) == 0
+		tester.multiply(parseInt('10'),0) == 0
 		tester.multiply(0,10) == 0
 		hashocde() == 0
 		new String('some string') == 'some string'

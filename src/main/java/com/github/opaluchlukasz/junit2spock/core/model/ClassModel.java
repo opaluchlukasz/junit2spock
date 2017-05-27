@@ -53,7 +53,7 @@ public class ClassModel extends TypeModel {
         if (isTestClass(methods)) {
             this.superClassType = Optional.of(astNodeFactory
                     .simpleType(astNodeFactory.simpleName(Specification.class.getSimpleName())));
-            imports.add(astNodeFactory.importDeclaration(Specification.class));
+            imports.add(0, astNodeFactory.importDeclaration(Specification.class));
         } else {
             this.superClassType = Optional.ofNullable(superClassType);
         }
