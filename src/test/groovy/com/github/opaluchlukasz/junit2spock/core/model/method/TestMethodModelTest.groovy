@@ -102,7 +102,7 @@ class TestMethodModelTest extends Specification {
     def 'should add thrown method invocation when expected exception declared'() {
         given:
         def exceptionName = nodeFactory.simpleType(NullPointerException.getSimpleName())
-        def testAnnotation = nodeFactory.markerAnnotation('Test', ['expected': nodeFactory.typeLiteral(exceptionName)])
+        def testAnnotation = nodeFactory.annotation('Test', ['expected': nodeFactory.typeLiteral(exceptionName)])
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast.get())
                 .withAnnotation(testAnnotation)
                 .build()

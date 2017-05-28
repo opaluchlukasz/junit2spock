@@ -10,6 +10,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
+import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCreationBuilder.aClassInstanceCreationBuilder
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.THEN_THROW
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.WHEN
 import static org.eclipse.jdt.core.dom.AST.JLS8
@@ -54,7 +55,8 @@ class WhenThenThrowFeatureTest extends Specification {
         def exceptionType = nodeFactory.simpleType('RuntimeException')
         def exceptionMessage = nodeFactory.stringLiteral('some message')
         MethodInvocation methodInvocation = nodeFactory
-                .methodInvocation(THEN_THROW, [nodeFactory.classInstanceCreation(exceptionType, exceptionMessage)],
+                .methodInvocation(THEN_THROW, [aClassInstanceCreationBuilder(ast)
+                .withType(exceptionType).withArgument(exceptionMessage).build()],
                 nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation(stubbedMethod, [])]))
         InfixExpression expression = thenThrowFeature.apply(methodInvocation)
 

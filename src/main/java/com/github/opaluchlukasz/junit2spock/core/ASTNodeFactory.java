@@ -3,25 +3,20 @@ package com.github.opaluchlukasz.junit2spock.core;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
-import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -47,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.core.dom.PrimitiveType.INT;
@@ -78,12 +72,6 @@ public class ASTNodeFactory {
 
     public SimpleName simpleName(String name) {
         return ast.get().newSimpleName(name);
-    }
-
-    public PackageDeclaration packageDeclaration(Name name) {
-        PackageDeclaration packageDeclaration = ast.get().newPackageDeclaration();
-        packageDeclaration.setName(name);
-        return packageDeclaration;
     }
 
     public MethodInvocation methodInvocation(String name, List<Expression> arguments) {
@@ -127,22 +115,6 @@ public class ASTNodeFactory {
         return variableDeclarationStatement(name, primitiveType(INT), null);
     }
 
-    public ClassInstanceCreation classInstanceCreation(Type type, ASTNode... arguments) {
-        ClassInstanceCreation classInstanceCreation = ast.get().newClassInstanceCreation();
-        classInstanceCreation.setType(type);
-        classInstanceCreation.arguments().addAll(asList(arguments));
-        return classInstanceCreation;
-    }
-
-    public ClassInstanceCreation anonymousClassInstanceCreation(Type type, ASTNode... bodyDeclarations) {
-        ClassInstanceCreation classInstanceCreation = ast.get().newClassInstanceCreation();
-        classInstanceCreation.setType(type);
-        AnonymousClassDeclaration anonymousClassDeclaration = ast.get().newAnonymousClassDeclaration();
-        anonymousClassDeclaration.bodyDeclarations().addAll(asList(bodyDeclarations));
-        classInstanceCreation.setAnonymousClassDeclaration(anonymousClassDeclaration);
-        return classInstanceCreation;
-    }
-
     public VariableDeclarationStatement variableDeclarationStatement(String name, Type type, Expression initializer) {
         VariableDeclarationFragment variableDeclarationFragment = variableDeclarationFragment(name);
         variableDeclarationFragment.setInitializer(initializer);
@@ -177,7 +149,7 @@ public class ASTNodeFactory {
         return cloned;
     }
 
-    public Annotation markerAnnotation(String name, Map<String, Expression> values) {
+    public Annotation annotation(String name, Map<String, Expression> values) {
         if (values.isEmpty()) {
             return markerAnnotation(name);
         } else {
@@ -277,9 +249,5 @@ public class ASTNodeFactory {
         memberValuePair.setName(simpleName(entrySet.getKey()));
         memberValuePair.setValue(entrySet.getValue());
         return memberValuePair;
-    }
-
-    public IfStatement ifStatement() {
-        return ast.get().newIfStatement();
     }
 }

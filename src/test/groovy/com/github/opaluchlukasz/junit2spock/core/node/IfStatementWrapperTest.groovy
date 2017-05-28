@@ -16,6 +16,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.REGULAR_METHOD
+import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCreationBuilder.aClassInstanceCreationBuilder
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
@@ -49,15 +50,15 @@ class IfStatementWrapperTest extends Specification {
     }
 
     private ThrowStatement throwStatement() {
-        nf.throwStatement(nf.classInstanceCreation(nf.simpleType('Foo')))
+        nf.throwStatement(aClassInstanceCreationBuilder(ast).withType(nf.simpleType('Foo')).build())
     }
 
     private Block block(Statement... statements) {
         nf.block(statements)
     }
 
-    private IfStatement ifStatement(Expression expression, Statement thenStatement, Statement elseStatement) {
-        IfStatement ifStatement = nf.ifStatement()
+    private static IfStatement ifStatement(Expression expression, Statement thenStatement, Statement elseStatement) {
+        IfStatement ifStatement =  ast.newIfStatement()
         ifStatement.setExpression(expression)
         if (thenStatement != null) {
             ifStatement.setThenStatement(thenStatement)

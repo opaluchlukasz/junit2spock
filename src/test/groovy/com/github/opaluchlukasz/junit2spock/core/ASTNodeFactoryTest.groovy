@@ -21,7 +21,6 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static java.util.Collections.emptyMap
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.LESS_EQUALS
@@ -132,7 +131,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create marker annotation'() {
         given:
-        Annotation annotation = nodeFactory.markerAnnotation('Some', [] as Map)
+        Annotation annotation = nodeFactory.annotation('Some', [] as Map)
 
         expect:
         annotation.toString() == '@Some'
@@ -140,7 +139,7 @@ class ASTNodeFactoryTest extends Specification {
 
     def 'should create annotation with parameters'() {
         given:
-        Annotation annotation = nodeFactory.markerAnnotation('Some', ['foo': nodeFactory.stringLiteral('bar')] as Map)
+        Annotation annotation = nodeFactory.annotation('Some', ['foo': nodeFactory.stringLiteral('bar')] as Map)
 
         expect:
         annotation.toString() == '@Some(foo="bar")'
@@ -175,7 +174,7 @@ class ASTNodeFactoryTest extends Specification {
         where:
         modifiers                                               | expectedLiteral
         []                                                      | 'Comparable someField;\n'
-        [nodeFactory.markerAnnotation('Immutable', emptyMap())] | '@Immutable Comparable someField;\n'
+        [nodeFactory.markerAnnotation('Immutable')] | '@Immutable Comparable someField;\n'
     }
 
     def 'should create parameterized type'() {

@@ -17,6 +17,7 @@ import spock.lang.Subject
 import spock.lang.Unroll
 
 import static ch.qos.logback.classic.Level.WARN
+import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCreationBuilder.aClassInstanceCreationBuilder
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
@@ -232,9 +233,11 @@ class MatcherHandlerTest extends Specification {
         expression.toString() == '{ Integer a ->\n\t\t\treturn a > 13\n\t\t} as Integer.class'
     }
 
-    private ClassInstanceCreation anonymousClassInstanceCreation(Class<?> clazz, ASTNode... bodyDeclarations) {
-        nodeFactory.anonymousClassInstanceCreation(nodeFactory
-                .parameterizedType(nodeFactory.simpleType('ArgumentMatcher'), [nodeFactory.simpleType(clazz.simpleName)]), bodyDeclarations)
+    private ClassInstanceCreation anonymousClassInstanceCreation(Class<?> clazz, ASTNode bodyDeclaration) {
+        aClassInstanceCreationBuilder(ast)
+                .withType(nodeFactory.parameterizedType(nodeFactory.simpleType('ArgumentMatcher'), [nodeFactory.simpleType(clazz.simpleName)]))
+                .withBodyDeclaration(bodyDeclaration)
+                .build()
     }
 
     def 'should return Spock\'s wildcard'() {

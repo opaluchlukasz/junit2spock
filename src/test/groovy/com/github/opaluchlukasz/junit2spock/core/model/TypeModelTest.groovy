@@ -5,6 +5,8 @@ import com.github.opaluchlukasz.junit2spock.core.AstProvider
 import com.github.opaluchlukasz.junit2spock.core.model.method.TestMethodModel
 import com.github.opaluchlukasz.junit2spock.core.util.TestConfig
 import org.eclipse.jdt.core.dom.MethodDeclaration
+import org.eclipse.jdt.core.dom.Name
+import org.eclipse.jdt.core.dom.PackageDeclaration
 import org.eclipse.jdt.core.dom.SimpleName
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
@@ -26,13 +28,13 @@ class TypeModelTest extends Specification {
         MethodDeclaration methodDeclaration = aMethod(astProvider.get()).build()
 
         when:
-        ClassModel classModel = new TypeModelBuilder(nodeFactory)
+        TypeModel typeModel = new TypeModelBuilder(nodeFactory)
                 .withTypeName(nodeFactory.simpleName(CLASS_NAME))
                 .withMethod(new TestMethodModel(nodeFactory, methodDeclaration))
                 .build()
 
         then:
-        classModel.asGroovyClass(0).contains("class $CLASS_NAME extends Specification")
+        typeModel.asGroovyClass(0).contains("class $CLASS_NAME extends Specification")
     }
 
     def 'should not extend declared supertype class when there are no test methods in class'() {
@@ -76,7 +78,7 @@ class TypeModelTest extends Specification {
         when:
         TypeModel classModel = new TypeModelBuilder(nodeFactory)
                 .withTypeName(nodeFactory.simpleName(CLASS_NAME))
-                .withPackageDeclaration(nodeFactory.packageDeclaration(simpleName('foo')))
+                .withPackageDeclaration(packageDeclaration(simpleName('foo')))
                 .build()
 
         then:
@@ -87,8 +89,7 @@ class TypeModelTest extends Specification {
         when:
         TypeModel classModel = new TypeModelBuilder(nodeFactory)
                 .withTypeName(nodeFactory.simpleName(CLASS_NAME))
-                .withPackageDeclaration(nodeFactory
-                .packageDeclaration(astProvider.get().newQualifiedName(simpleName('foo'), simpleName('bar'))))
+                .withPackageDeclaration(packageDeclaration(astProvider.get().newQualifiedName(simpleName('foo'), simpleName('bar'))))
                 .build()
 
         then:
@@ -107,5 +108,11 @@ class TypeModelTest extends Specification {
 
     private SimpleName simpleName(String name) {
         nodeFactory.simpleName(name)
+    }
+
+    private PackageDeclaration packageDeclaration(Name name) {
+        PackageDeclaration packageDeclaration = astProvider.get().newPackageDeclaration()
+        packageDeclaration.setName(name)
+        packageDeclaration
     }
 }
