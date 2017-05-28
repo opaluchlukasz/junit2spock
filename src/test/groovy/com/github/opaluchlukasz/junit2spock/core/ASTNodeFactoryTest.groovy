@@ -172,8 +172,8 @@ class ASTNodeFactoryTest extends Specification {
         fieldDeclaration.toString() == expectedLiteral
 
         where:
-        modifiers                                               | expectedLiteral
-        []                                                      | 'Comparable someField;\n'
+        modifiers                                   | expectedLiteral
+        []                                          | 'Comparable someField;\n'
         [nodeFactory.markerAnnotation('Immutable')] | '@Immutable Comparable someField;\n'
     }
 

@@ -217,10 +217,10 @@ class MatcherHandlerTest extends Specification {
         expression.toString() == '{\n\t\t\tit.startsWith(\'some string\')\n\t\t} as String.class'
     }
 
-    def 'should replace intThat matcher using anonymous ArgumentMatcher with closure with cast'() {
+    def 'should replace intThat matcher using anonymous ArgumentMatcher with closure with a cast'() {
         given:
         def methodInvocation = nodeFactory.methodInvocation('intThat',
-                [anonymousClassInstanceCreation(Integer, aMethod(ast)
+                [anonymousArgumentMatcherClass(Integer, aMethod(ast)
                         .withName('matches')
                         .withParameter(nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(Integer.simpleName), 'a'))
                         .withBodyStatement(nodeFactory.returnStatement(nodeFactory.infixExpression(GREATER, nodeFactory.simpleName('a'), nodeFactory.numberLiteral('13'))))
@@ -233,16 +233,32 @@ class MatcherHandlerTest extends Specification {
         expression.toString() == '{ Integer a ->\n\t\t\treturn a > 13\n\t\t} as Integer.class'
     }
 
-    private ClassInstanceCreation anonymousClassInstanceCreation(Class<?> clazz, ASTNode bodyDeclaration) {
-        aClassInstanceCreationBuilder(ast)
-                .withType(nodeFactory.parameterizedType(nodeFactory.simpleType('ArgumentMatcher'), [nodeFactory.simpleType(clazz.simpleName)]))
-                .withBodyDeclaration(bodyDeclaration)
-                .build()
+    def 'should replace argThat matcher using anonymous ArgumentMatcher with closure with a cast'() {
+        given:
+        def methodInvocation = nodeFactory.methodInvocation('argThat',
+                [anonymousArgumentMatcherClass(List, aMethod(ast)
+                        .withName('matches')
+                        .withParameter(nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(List.simpleName), 'a'))
+                        .withBodyStatement(nodeFactory.returnStatement(nodeFactory.methodInvocation('isEmpty', [], nodeFactory.simpleName('a'))))
+                        .build())])
+
+        when:
+        ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
+
+        then:
+        expression.toString() == '{ List a ->\n\t\t\treturn a.isEmpty()\n\t\t} as List.class'
     }
 
     def 'should return Spock\'s wildcard'() {
         expect:
         matcherHandler.wildcard().toString() == '_'
+    }
+
+    private ClassInstanceCreation anonymousArgumentMatcherClass(Class<?> clazz, ASTNode bodyDeclaration) {
+        aClassInstanceCreationBuilder(ast)
+                .withType(nodeFactory.parameterizedType(nodeFactory.simpleType('ArgumentMatcher'), [nodeFactory.simpleType(clazz.simpleName)]))
+                .withBodyDeclaration(bodyDeclaration)
+                .build()
     }
 
     private TypeLiteral typeLiteral(Class<?> clazz) {

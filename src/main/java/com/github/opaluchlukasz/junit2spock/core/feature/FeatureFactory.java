@@ -38,9 +38,9 @@ final class FeatureFactory {
     Feature provide(SupportedTestFeature supportedTestFeatures) {
         switch (supportedTestFeatures) {
             case THEN_RETURN:
-                return new WhenThenReturnFeature(astNodeFactory);
+                return new WhenThenReturnFeature(astNodeFactory, matcherHandler);
             case WILL_RETURN:
-                return new GivenWillReturnFeature(astNodeFactory);
+                return new GivenWillReturnFeature(astNodeFactory, matcherHandler);
             case THEN_THROW:
                 return new WhenThenThrowFeature(astNodeFactory, groovyClosureFactory);
             case ASSERT_EQUALS:

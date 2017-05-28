@@ -5,9 +5,9 @@ import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 public class GivenWillReturnFeature extends MockitoReturnFeature {
 
     public static final String WILL_RETURN = "willReturn";
-    public static final String GIVEN = "given";
+    private static final String GIVEN = "given";
 
-    public GivenWillReturnFeature(ASTNodeFactory astNodeFactory) {
-        super(astNodeFactory, GIVEN, WILL_RETURN);
+    public GivenWillReturnFeature(ASTNodeFactory astNodeFactory, MatcherHandler matcherHandler) {
+        super(astNodeFactory, matcherHandler, GIVEN, WILL_RETURN);
     }
 }

@@ -15,12 +15,14 @@ import static org.eclipse.jdt.core.dom.InfixExpression.Operator.RIGHT_SHIFT_SIGN
 
 public class MockitoReturnFeature extends Feature<MethodInvocation> {
 
-    private final ASTNodeFactory astNodeFactory;
+    private final ASTNodeFactory nodeFactory;
+    private final MatcherHandler matcherHandler;
     private final String when;
     private final String thenReturn;
 
-    public MockitoReturnFeature(ASTNodeFactory astNodeFactory, String when, String thenReturn) {
-        this.astNodeFactory = astNodeFactory;
+    public MockitoReturnFeature(ASTNodeFactory nodeFactory, MatcherHandler matcherHandler, String when, String thenReturn) {
+        this.nodeFactory = nodeFactory;
+        this.matcherHandler = matcherHandler;
         this.when = when;
         this.thenReturn = thenReturn;
     }
@@ -35,19 +37,27 @@ public class MockitoReturnFeature extends Feature<MethodInvocation> {
     @Override
     public Object apply(Object object, MethodInvocation whenMethodInvocation) {
         MethodInvocation methodInvocation = methodInvocation(object, thenReturn).get();
+        MethodInvocation mockedMethodInvocation = (MethodInvocation) whenMethodInvocation.arguments().get(0);
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 1) {
-            return astNodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
-                    argumentAsExpression(whenMethodInvocation.arguments().get(0)),
+            return nodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
+                    mockedMethodWithMatchers(mockedMethodInvocation),
                     argumentAsExpression(arguments.get(0)));
         } else {
-            return new SpockMockReturnSequences(argumentAsExpression(whenMethodInvocation.arguments().get(0)),
+            return new SpockMockReturnSequences(mockedMethodWithMatchers(mockedMethodInvocation),
                     (List<Object>) arguments.stream().map(this::argumentAsExpression).collect(toList()));
         }
     }
 
+    private MethodInvocation mockedMethodWithMatchers(MethodInvocation mockedMethodInvocation) {
+        return nodeFactory.methodInvocation(mockedMethodInvocation.getName().getFullyQualifiedName(),
+                (List<Expression>) mockedMethodInvocation.arguments().stream()
+                        .map(matcherHandler::applyMatchers).collect(toList()),
+                nodeFactory.clone(mockedMethodInvocation.getExpression()));
+    }
+
     private Expression argumentAsExpression(Object argument) {
-        return argument instanceof Expression ? astNodeFactory.clone((Expression) argument) :
-                astNodeFactory.simpleName(argument.toString());
+        return argument instanceof Expression ? nodeFactory.clone((Expression) argument) :
+                nodeFactory.simpleName(argument.toString());
     }
 }

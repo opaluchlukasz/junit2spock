@@ -1,6 +1,8 @@
 package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
+import com.github.opaluchlukasz.junit2spock.core.AstProvider
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
@@ -13,11 +15,14 @@ import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThen
 class MockitoReturnFeatureTest extends Specification {
 
     private static final AST ast = AST.newAST(AST.JLS8)
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory({
+    @Shared private AstProvider astProvider = {
         get: ast
-    })
+    }
+    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(astProvider)
+    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider)
+    @Shared private MatcherHandler matcherHandler = new MatcherHandler(nodeFactory, groovyClosureFactory)
 
-    @Subject private MockitoReturnFeature returnFeature = new MockitoReturnFeature(nodeFactory, WHEN, THEN_RETURN)
+    @Subject private MockitoReturnFeature returnFeature = new MockitoReturnFeature(nodeFactory, matcherHandler, WHEN, THEN_RETURN)
 
     def 'should return false for non thenReturn method invocation'() {
         expect:

@@ -7,7 +7,7 @@ public class WhenThenReturnFeature extends MockitoReturnFeature {
     public static final String THEN_RETURN = "thenReturn";
     public static final String WHEN = "when";
 
-    public WhenThenReturnFeature(ASTNodeFactory astNodeFactory) {
-        super(astNodeFactory, WHEN, THEN_RETURN);
+    public WhenThenReturnFeature(ASTNodeFactory astNodeFactory, MatcherHandler matcherHandler) {
+        super(astNodeFactory, matcherHandler, WHEN, THEN_RETURN);
     }
 }

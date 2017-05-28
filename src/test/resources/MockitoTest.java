@@ -48,6 +48,8 @@ public class MockitoTest {
     public SomeClass mocked;
     @Mock
     public List<String> mockedList;
+    @Mock
+    public PersonDao personDao;
 
     @Before
     public void before() {
@@ -55,6 +57,12 @@ public class MockitoTest {
         when(mockedList.get(2)).thenReturn("second", "third", "four");
         when(mockedList.get(3)).thenThrow(new IndexOutOfBoundsException("out of bound"));
         given(mockedList.get(0)).willReturn("some");
+        given(personDao.save(argThat(new ArgumentMatcher<Person>() {
+            @Override
+            public boolean matches(Object argument) {
+                return "Spock".equalsIgnoreCase(((Person)argument).getName());
+            }
+        }))).willReturn(true);
     }
 
     @Test

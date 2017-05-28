@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
@@ -93,7 +94,8 @@ public class MatcherHandler {
                 case "startsWith":
                     return startsWithClosure(methodInvocation);
                 case "intThat":
-                    return handleIntThat(methodInvocation);
+                case "argThat":
+                    return handleArgThat(methodInvocation);
                 default:
                     LOG.warn("Unsupported Mockito matcher: {}", methodInvocation.getName().getIdentifier());
                     return nodeFactory.clone((ASTNode) argument);
@@ -109,28 +111,37 @@ public class MatcherHandler {
                             nodeFactory.simpleName(IT))));
             return nodeFactory.infixExpression(CAST,
                     groovyClosureFactory.create(block),
-                    nodeFactory.typeLiteral(nodeFactory.simpleType("String")));
+                    nodeFactory.typeLiteral(nodeFactory.simpleType(String.class.getSimpleName())));
         });
     }
 
-    private Expression handleIntThat(MethodInvocation methodInvocation) {
+    private Expression handleArgThat(MethodInvocation methodInvocation) {
         return singleArityMatcher(methodInvocation, argument -> {
-            if (argument instanceof ClassInstanceCreation &&
-                    ((ClassInstanceCreation) argument).getAnonymousClassDeclaration() != null) {
-                AnonymousClassDeclaration classDeclaration = ((ClassInstanceCreation) argument).getAnonymousClassDeclaration();
-                if (classDeclaration.bodyDeclarations().size() == 1 &&
-                        classDeclaration.bodyDeclarations().get(0) instanceof MethodDeclaration &&
-                        ((MethodDeclaration) classDeclaration.bodyDeclarations().get(0))
-                                .getName().getIdentifier().equals("matches")) {
-                    MethodDeclaration methodDeclaration = (MethodDeclaration) classDeclaration.bodyDeclarations().get(0);
-                    Block block = nodeFactory.clone(methodDeclaration.getBody());
-                    return nodeFactory.infixExpression(CAST,
-                            groovyClosureFactory.create(block, nodeFactory.clone((SingleVariableDeclaration) methodDeclaration.parameters().get(0))),
-                            nodeFactory.typeLiteral(nodeFactory.simpleType("Integer")));
+            if (argument instanceof ClassInstanceCreation) {
+                ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) argument;
+                if (classInstanceCreation.getAnonymousClassDeclaration() != null) {
+                    AnonymousClassDeclaration classDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+                    if (classDeclaration.bodyDeclarations().size() == 1 &&
+                            classDeclaration.bodyDeclarations().get(0) instanceof MethodDeclaration &&
+                            ((MethodDeclaration) classDeclaration.bodyDeclarations().get(0))
+                                    .getName().getIdentifier().equals("matches")) {
+                        MethodDeclaration methodDeclaration = (MethodDeclaration) classDeclaration.bodyDeclarations().get(0);
+                        Block block = nodeFactory.clone(methodDeclaration.getBody());
+                        return nodeFactory.infixExpression(CAST,
+                                groovyClosureFactory
+                                        .create(block, nodeFactory.clone((SingleVariableDeclaration) methodDeclaration.parameters().get(0))),
+                                nodeFactory.typeLiteral(matcherType(classInstanceCreation)));
+                    }
                 }
             }
             return nodeFactory.clone(methodInvocation);
         });
+    }
+
+    private Type matcherType(ClassInstanceCreation classInstanceCreation) {
+        Type type = classInstanceCreation.getType();
+        return type instanceof ParameterizedType ?
+                nodeFactory.clone((Type) ((ParameterizedType) type).typeArguments().get(0)) : nodeFactory.simpleType(Object.class.getSimpleName());
     }
 
     SimpleName wildcard() {

@@ -7,6 +7,7 @@ import static org.mockito.Matchers.intThat
 class MockitoTest extends Specification {
 	SomeClass mocked=Mock(SomeClass)
 	List<String> mockedList=Mock(List)
+	PersonDao personDao=Mock(PersonDao)
 
 	def setup() {
 		mockedList.get(1) >> 'second'
@@ -15,6 +16,9 @@ class MockitoTest extends Specification {
 			throw new IndexOutOfBoundsException('out of bound')
 		}
 		mockedList.get(0) >> 'some'
+		personDao.save({ Object argument ->
+			return 'Spock'.equalsIgnoreCase(((Person)argument).getName())
+		} as Person) >> true
 	}
 
 	def 'mocking test'() {
