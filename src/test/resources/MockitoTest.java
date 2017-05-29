@@ -66,7 +66,7 @@ public class MockitoTest {
     }
 
     @Test
-    public void mockingTest() {
+    public void mocking_test() {
         LinkedList mockedList = mock(LinkedList.class);
         if (mockedList != null) {
             when(mockedList.get(0)).thenReturn("first");

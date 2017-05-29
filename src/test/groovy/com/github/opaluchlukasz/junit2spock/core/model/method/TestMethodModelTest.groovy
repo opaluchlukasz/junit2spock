@@ -117,10 +117,21 @@ class TestMethodModelTest extends Specification {
         ((SimpleName) methodInvocation.arguments().get(0)).identifier == nodeFactory.simpleName(exceptionName.name.fullyQualifiedName).identifier
     }
 
-    def 'should return human readable test name'() {
+    def 'should return human readable test name when camel case convention used'() {
         given:
         MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast.get())
                 .withName('shouldReturnTrueWhenConditionIsMet')
+                .build()
+        TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
+
+        expect:
+        testMethodModel.methodName == "'should return true when condition is met'"
+    }
+
+    def 'should return human readable test name when underscore convention used'() {
+        given:
+        MethodDeclaration methodDeclaration = aMethod(nodeFactory.ast.get())
+                .withName('should_return_true_when_condition_is_met')
                 .build()
         TestMethodModel testMethodModel = aTestMethodModel(methodDeclaration)
 
