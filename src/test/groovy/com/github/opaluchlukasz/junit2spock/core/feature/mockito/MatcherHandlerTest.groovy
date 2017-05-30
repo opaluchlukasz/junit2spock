@@ -21,6 +21,7 @@ import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCre
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
+import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.GREATER
 import static org.slf4j.LoggerFactory.getLogger
 
@@ -30,10 +31,10 @@ class MatcherHandlerTest extends Specification {
     private static final AstProvider AST_PROVIDER = {
         get: ast
     }
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(AST_PROVIDER)
+    @Shared private ASTNodeFactory nf = new ASTNodeFactory(AST_PROVIDER)
     @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(AST_PROVIDER)
 
-    @Subject private MatcherHandler matcherHandler = new MatcherHandler(nodeFactory, groovyClosureFactory)
+    @Subject private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
 
     private Appender<ILoggingEvent> appender = Mock(Appender)
     private Logger logger = (Logger) getLogger(MatcherHandler)
@@ -48,7 +49,7 @@ class MatcherHandlerTest extends Specification {
 
     def 'should not replace eq() invocation with more than one parameter'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation('eq', [nodeFactory.simpleName('var'), nodeFactory.simpleName('var2')])
+        def methodInvocation = nf.methodInvocation('eq', [nf.simpleName('var'), nf.simpleName('var2')])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -63,7 +64,7 @@ class MatcherHandlerTest extends Specification {
     def 'should log warning when unsupported matcher invoked'() {
         given:
         String matcherName = 'unsupportedMatcher'
-        def methodInvocation = nodeFactory.methodInvocation(matcherName, [])
+        def methodInvocation = nf.methodInvocation(matcherName, [])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -78,7 +79,7 @@ class MatcherHandlerTest extends Specification {
     @Unroll
     def 'should replace #methodName matcher with Spock\'s wildcard'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation(methodName, [])
+        def methodInvocation = nf.methodInvocation(methodName, [])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -93,7 +94,7 @@ class MatcherHandlerTest extends Specification {
     @Unroll
     def 'should replace #matcherMethod matcher with Spock\'s expression'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation(matcherMethod, [])
+        def methodInvocation = nf.methodInvocation(matcherMethod, [])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -120,7 +121,7 @@ class MatcherHandlerTest extends Specification {
 
     def 'should replace isNull() matcher with null literal'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation('isNull', [])
+        def methodInvocation = nf.methodInvocation('isNull', [])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -132,7 +133,7 @@ class MatcherHandlerTest extends Specification {
     @Unroll
     def 'should replace #matcher() matcher with negated null literal'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation(matcher, [])
+        def methodInvocation = nf.methodInvocation(matcher, [])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -147,7 +148,7 @@ class MatcherHandlerTest extends Specification {
     @Unroll
     def 'should replace #methodName(#clazz) matcher with Spock\'s wildcard with cast'(Class<?> clazz, String methodName) {
         given:
-        def methodInvocation = nodeFactory.methodInvocation(methodName, [typeLiteral(clazz)])
+        def methodInvocation = nf.methodInvocation(methodName, [typeLiteral(clazz)])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -162,7 +163,7 @@ class MatcherHandlerTest extends Specification {
     @Unroll
     def 'should replace #method(#clazz) matcher with Spock\'s wildcard with cast'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation(method, [typeLiteral(clazz)])
+        def methodInvocation = nf.methodInvocation(method, [typeLiteral(clazz)])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -180,7 +181,7 @@ class MatcherHandlerTest extends Specification {
 
     def 'should replace anyMap matcher with Spock\'s wildcard with cast'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation('anyMapOf', [typeLiteral(String), typeLiteral(Integer)])
+        def methodInvocation = nf.methodInvocation('anyMapOf', [typeLiteral(String), typeLiteral(Integer)])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -191,7 +192,7 @@ class MatcherHandlerTest extends Specification {
 
     def 'should replace eq() matcher with plain expression'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation('eq', [argument])
+        def methodInvocation = nf.methodInvocation('eq', [argument])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -200,15 +201,15 @@ class MatcherHandlerTest extends Specification {
         expression.toString() == expected
 
         where:
-        argument                                 | expected
-        nodeFactory.simpleName('variable')       | 'variable'
-        nodeFactory.stringLiteral('some string') | '"some string"'
-        nodeFactory.numberLiteral('13')          | '13'
+        argument                        | expected
+        nf.simpleName('variable')       | 'variable'
+        nf.stringLiteral('some string') | '"some string"'
+        nf.numberLiteral('13')          | '13'
     }
 
     def 'should replace startsWith matcher with closure with cast'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation('startsWith', [nodeFactory.stringLiteral('some string')])
+        def methodInvocation = nf.methodInvocation('startsWith', [nf.stringLiteral('some string')])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
@@ -217,36 +218,33 @@ class MatcherHandlerTest extends Specification {
         expression.toString() == '{\n\t\t\tit.startsWith(\'some string\')\n\t\t} as String.class'
     }
 
-    def 'should replace intThat matcher using anonymous ArgumentMatcher with closure with a cast'() {
+    @Unroll
+    def 'should replace #methodName matcher using anonymous ArgumentMatcher with closure with a cast'() {
         given:
-        def methodInvocation = nodeFactory.methodInvocation('intThat',
-                [anonymousArgumentMatcherClass(Integer, aMethod(ast)
+        def methodInvocation = nf.methodInvocation(methodName,
+                [anonymousArgumentMatcherClass(type, aMethod(ast)
                         .withName('matches')
-                        .withParameter(nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(Integer.simpleName), 'a'))
-                        .withBodyStatement(nodeFactory.returnStatement(nodeFactory.infixExpression(GREATER, nodeFactory.simpleName('a'), nodeFactory.numberLiteral('13'))))
+                        .withParameter(nf.singleVariableDeclaration(nf.simpleType(type.simpleName), 'a'))
+                        .withBodyStatement(nf.returnStatement(bodyStatement))
                         .build())])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
 
         then:
-        expression.toString() == '{ Integer a ->\n\t\t\treturn a > 13\n\t\t} as Integer.class'
-    }
+        expression.toString() == expected
 
-    def 'should replace argThat matcher using anonymous ArgumentMatcher with closure with a cast'() {
-        given:
-        def methodInvocation = nodeFactory.methodInvocation('argThat',
-                [anonymousArgumentMatcherClass(List, aMethod(ast)
-                        .withName('matches')
-                        .withParameter(nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(List.simpleName), 'a'))
-                        .withBodyStatement(nodeFactory.returnStatement(nodeFactory.methodInvocation('isEmpty', [], nodeFactory.simpleName('a'))))
-                        .build())])
-
-        when:
-        ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
-
-        then:
-        expression.toString() == '{ List a ->\n\t\t\treturn a.isEmpty()\n\t\t} as List.class'
+        where:
+        methodName    | type      | bodyStatement                                                            | expected
+        'argThat'     | List      | nf.methodInvocation('isEmpty', [], nf.simpleName('a'))                   | '{ List a ->\n\t\t\treturn a.isEmpty()\n\t\t} as List.class'
+        'booleanThat' | Boolean   | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.booleanLiteral(false)) | '{ Boolean a ->\n\t\t\treturn a == false\n\t\t} as Boolean.class'
+        'byteThat'    | Byte      | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0'))    | '{ Byte a ->\n\t\t\treturn a == 0\n\t\t} as Byte.class'
+        'charThat'    | Character | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0'))    | '{ Character a ->\n\t\t\treturn a == 0\n\t\t} as Character.class'
+        'doubleThat'  | Double    | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0d'))   | '{ Double a ->\n\t\t\treturn a == 0d\n\t\t} as Double.class'
+        'floatThat'   | Float     | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0f'))   | '{ Float a ->\n\t\t\treturn a == 0f\n\t\t} as Float.class'
+        'intThat'     | Integer   | nf.infixExpression(GREATER, nf.simpleName('a'), nf.numberLiteral('13'))  | '{ Integer a ->\n\t\t\treturn a > 13\n\t\t} as Integer.class'
+        'longThat'    | Long      | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0l'))   | '{ Long a ->\n\t\t\treturn a == 0l\n\t\t} as Long.class'
+        'shortThat'   | Short     | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0'))    | '{ Short a ->\n\t\t\treturn a == 0\n\t\t} as Short.class'
     }
 
     def 'should return Spock\'s wildcard'() {
@@ -256,12 +254,12 @@ class MatcherHandlerTest extends Specification {
 
     private ClassInstanceCreation anonymousArgumentMatcherClass(Class<?> clazz, ASTNode bodyDeclaration) {
         aClassInstanceCreationBuilder(ast)
-                .withType(nodeFactory.parameterizedType(nodeFactory.simpleType('ArgumentMatcher'), [nodeFactory.simpleType(clazz.simpleName)]))
+                .withType(nf.parameterizedType(nf.simpleType('ArgumentMatcher'), [nf.simpleType(clazz.simpleName)]))
                 .withBodyDeclaration(bodyDeclaration)
                 .build()
     }
 
     private TypeLiteral typeLiteral(Class<?> clazz) {
-        nodeFactory.typeLiteral(nodeFactory.simpleType(clazz.simpleName))
+        nf.typeLiteral(nf.simpleType(clazz.simpleName))
     }
 }

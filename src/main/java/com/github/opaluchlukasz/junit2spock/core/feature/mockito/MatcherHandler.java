@@ -93,8 +93,15 @@ public class MatcherHandler {
                     return nodeFactory.prefixExpression(NOT, nodeFactory.nullLiteral());
                 case "startsWith":
                     return startsWithClosure(methodInvocation);
-                case "intThat":
                 case "argThat":
+                case "booleanThat":
+                case "byteThat":
+                case "charThat":
+                case "doubleThat":
+                case "floatThat":
+                case "intThat":
+                case "longThat":
+                case "shortThat":
                     return handleArgThat(methodInvocation);
                 default:
                     LOG.warn("Unsupported Mockito matcher: {}", methodInvocation.getName().getIdentifier());
