@@ -53,6 +53,7 @@ public class MatcherHandler {
     ASTNode applyMatchers(Object argument) {
         return methodInvocation(argument).map(methodInvocation -> {
             switch (methodInvocation.getName().getIdentifier()) {
+                case "anyVararg":
                 case "anyObject":
                     return wildcard();
                 case "any":

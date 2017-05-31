@@ -88,7 +88,7 @@ class MatcherHandlerTest extends Specification {
         expression.toString() == '_'
 
         where:
-        methodName << ['any', 'anyObject']
+        methodName << ['any', 'anyObject', 'anyVararg']
     }
 
     @Unroll
