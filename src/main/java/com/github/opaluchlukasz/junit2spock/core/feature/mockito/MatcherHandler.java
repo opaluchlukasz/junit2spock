@@ -91,8 +91,10 @@ public class MatcherHandler {
                 case "isNotNull":
                 case "notNull":
                     return nodeFactory.prefixExpression(NOT, nodeFactory.nullLiteral());
+                case "contains":
+                case "endsWith":
                 case "startsWith":
-                    return startsWithClosure(methodInvocation);
+                    return stringMatcher(methodInvocation);
                 case "argThat":
                 case "booleanThat":
                 case "byteThat":
@@ -110,10 +112,10 @@ public class MatcherHandler {
         }).orElseGet(() -> nodeFactory.clone((ASTNode) argument));
     }
 
-    private Expression startsWithClosure(MethodInvocation methodInvocation) {
+    private Expression stringMatcher(MethodInvocation methodInvocation) {
         return singleArityMatcher(methodInvocation, argument -> {
             Block block = nodeFactory.block(nodeFactory.expressionStatement(
-                    nodeFactory.methodInvocation("startsWith",
+                    nodeFactory.methodInvocation(methodInvocation.getName().getIdentifier(),
                             singletonList(nodeFactory.clone(argument)),
                             nodeFactory.simpleName(IT))));
             return nodeFactory.infixExpression(CAST,

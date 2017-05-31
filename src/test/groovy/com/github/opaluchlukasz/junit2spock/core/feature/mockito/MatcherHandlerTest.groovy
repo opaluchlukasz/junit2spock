@@ -207,15 +207,22 @@ class MatcherHandlerTest extends Specification {
         nf.numberLiteral('13')          | '13'
     }
 
-    def 'should replace startsWith matcher with closure with cast'() {
+    @Unroll
+    def 'should replace #methodName matcher with closure with cast'() {
         given:
-        def methodInvocation = nf.methodInvocation('startsWith', [nf.stringLiteral('some string')])
+        def methodInvocation = nf.methodInvocation(methodName, [nf.stringLiteral('some string')])
 
         when:
         ASTNode expression = matcherHandler.applyMatchers(methodInvocation)
 
         then:
-        expression.toString() == '{\n\t\t\tit.startsWith(\'some string\')\n\t\t} as String.class'
+        expression.toString() == expected
+
+        where:
+        methodName   | expected
+        'contains'   | '{\n\t\t\tit.contains(\'some string\')\n\t\t} as String.class'
+        'endsWith'   | '{\n\t\t\tit.endsWith(\'some string\')\n\t\t} as String.class'
+        'startsWith' | '{\n\t\t\tit.startsWith(\'some string\')\n\t\t} as String.class'
     }
 
     @Unroll
