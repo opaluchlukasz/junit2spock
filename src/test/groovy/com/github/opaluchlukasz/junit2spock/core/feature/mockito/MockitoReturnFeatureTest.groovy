@@ -11,18 +11,20 @@ import spock.lang.Subject
 
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenReturnFeature.THEN_RETURN
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenReturnFeature.WHEN
+import static org.eclipse.jdt.core.dom.AST.newAST
 
 class MockitoReturnFeatureTest extends Specification {
 
-    private static final AST ast = AST.newAST(AST.JLS8)
+    private static final String STUBBED_METHOD_NAME = 'someMethod'
+    private static final AST ast = newAST(AST.JLS8)
     @Shared private AstProvider astProvider = {
         get: ast
     }
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(astProvider)
+    @Shared private ASTNodeFactory nf = new ASTNodeFactory(astProvider)
     @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider)
-    @Shared private MatcherHandler matcherHandler = new MatcherHandler(nodeFactory, groovyClosureFactory)
+    @Shared private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
 
-    @Subject private MockitoReturnFeature returnFeature = new MockitoReturnFeature(nodeFactory, matcherHandler, WHEN, THEN_RETURN)
+    @Subject private MockitoReturnFeature returnFeature = new MockitoReturnFeature(nf, matcherHandler, WHEN, THEN_RETURN)
 
     def 'should return false for non thenReturn method invocation'() {
         expect:
@@ -30,17 +32,17 @@ class MockitoReturnFeatureTest extends Specification {
 
         where:
         node << [new Object(),
-                 nodeFactory.methodInvocation('someMethod', []),
-                 nodeFactory.methodInvocation(THEN_RETURN, []),
-                 nodeFactory.methodInvocation(THEN_RETURN, [], nodeFactory.methodInvocation(WHEN, [])),
-                 nodeFactory.methodInvocation(THEN_RETURN, [], nodeFactory.methodInvocation(WHEN, []))]
+                 nf.methodInvocation(STUBBED_METHOD_NAME, []),
+                 nf.methodInvocation(THEN_RETURN, []),
+                 nf.methodInvocation(THEN_RETURN, [], nf.methodInvocation(WHEN, [])),
+                 nf.methodInvocation(THEN_RETURN, [], nf.methodInvocation(WHEN, []))]
     }
 
     def 'should return true for proper thenReturn method invocation'() {
         given:
-        MethodInvocation methodInvocation = nodeFactory
+        MethodInvocation methodInvocation = nf
                 .methodInvocation(THEN_RETURN, [],
-                        nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation('someMethod', [])]))
+                        nf.methodInvocation(WHEN, [nf.methodInvocation('someMethod', [])]))
 
         expect:
         returnFeature.applicable(methodInvocation).isPresent()
@@ -48,25 +50,36 @@ class MockitoReturnFeatureTest extends Specification {
 
     def 'should return Spock\' expression for proper thenReturn method invocation'() {
         given:
-        def stubbedMethod = 'someMethod'
-        MethodInvocation methodInvocation = nodeFactory
-                .methodInvocation(THEN_RETURN, [nodeFactory.booleanLiteral(true)],
-                nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation(stubbedMethod, [])]))
+        MethodInvocation methodInvocation = nf
+                .methodInvocation(THEN_RETURN, [nf.booleanLiteral(true)],
+                nf.methodInvocation(WHEN, [nf.methodInvocation(STUBBED_METHOD_NAME, [])]))
         Object expression = returnFeature.apply(methodInvocation)
 
         expect:
-        expression.toString() == "$stubbedMethod() >> true" as String
+        expression.toString() == "$STUBBED_METHOD_NAME() >> true" as String
     }
 
     def 'should return Spock\' expression for sequenced of returned data'() {
         given:
-        def stubbedMethod = 'someMethod'
-        MethodInvocation methodInvocation = nodeFactory
-                .methodInvocation(THEN_RETURN, [nodeFactory.booleanLiteral(true), nodeFactory.booleanLiteral(false)],
-                nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation(stubbedMethod, [])]))
+        MethodInvocation methodInvocation = nf
+                .methodInvocation(THEN_RETURN, [nf.booleanLiteral(true), nf.booleanLiteral(false)],
+                nf.methodInvocation(WHEN, [nf.methodInvocation(STUBBED_METHOD_NAME, [])]))
         Object expression = returnFeature.apply(methodInvocation)
 
         expect:
-        expression.toString() == "$stubbedMethod() >>> [true, false]" as String
+        expression.toString() == "$STUBBED_METHOD_NAME() >>> [true, false]" as String
+    }
+
+    def 'should apply matchers to stubbed method invocation'() {
+        given:
+        MethodInvocation methodInvocation = nf
+                .methodInvocation(THEN_RETURN, [nf.booleanLiteral(true)],
+                nf.methodInvocation(WHEN, [nf.methodInvocation(STUBBED_METHOD_NAME, [nf.methodInvocation('anyString', [])])]))
+
+        when:
+        Object expression = returnFeature.apply(methodInvocation)
+
+        then:
+        expression.toString() == "$STUBBED_METHOD_NAME(_ as String.class) >> true" as String
     }
 }

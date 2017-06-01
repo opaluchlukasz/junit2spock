@@ -4,6 +4,7 @@ import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import com.github.opaluchlukasz.junit2spock.core.AstProvider
 import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
 import org.eclipse.jdt.core.dom.AST
+import org.eclipse.jdt.core.dom.Expression
 import org.eclipse.jdt.core.dom.InfixExpression
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
@@ -13,19 +14,23 @@ import spock.lang.Subject
 import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCreationBuilder.aClassInstanceCreationBuilder
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.THEN_THROW
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.WHEN
+import static java.util.Arrays.asList
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
 
 class WhenThenThrowFeatureTest extends Specification {
 
+    private static final String STUBBED_METHOD_NAME = 'someMethod'
     private static final AST ast = newAST(JLS8)
-    private static final AstProvider AST_PROVIDER = {
+    @Shared private AstProvider astProvider = {
         get: ast
     }
-    @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(AST_PROVIDER)
+    @Shared private ASTNodeFactory nf = new ASTNodeFactory(astProvider)
+    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider)
+    @Shared private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
 
-    @Subject private WhenThenThrowFeature thenThrowFeature = new WhenThenThrowFeature(nodeFactory,
-            new GroovyClosureFactory(AST_PROVIDER))
+    @Subject private WhenThenThrowFeature thenThrowFeature = new WhenThenThrowFeature(nf, matcherHandler,
+            groovyClosureFactory)
 
     def 'should return false for non thenThrow method invocation'() {
         expect:
@@ -33,17 +38,17 @@ class WhenThenThrowFeatureTest extends Specification {
 
         where:
         node << [new Object(),
-                 nodeFactory.methodInvocation('someMethod', []),
-                 nodeFactory.methodInvocation(THEN_THROW, []),
-                 nodeFactory.methodInvocation(THEN_THROW, [], nodeFactory.methodInvocation(WHEN, [])),
-                 nodeFactory.methodInvocation(THEN_THROW, [], nodeFactory.methodInvocation(WHEN, []))]
+                 nf.methodInvocation(STUBBED_METHOD_NAME, []),
+                 nf.methodInvocation(THEN_THROW, []),
+                 nf.methodInvocation(THEN_THROW, [], nf.methodInvocation(WHEN, [])),
+                 nf.methodInvocation(THEN_THROW, [], nf.methodInvocation(WHEN, []))]
     }
 
     def 'should return true for proper thenThrow method invocation'() {
         given:
-        MethodInvocation methodInvocation = nodeFactory
+        MethodInvocation methodInvocation = nf
                 .methodInvocation(THEN_THROW, [],
-                        nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation('someMethod', [])]))
+                        nf.methodInvocation(WHEN, [nf.methodInvocation(STUBBED_METHOD_NAME, [])]))
 
         expect:
         thenThrowFeature.applicable(methodInvocation).isPresent()
@@ -51,25 +56,33 @@ class WhenThenThrowFeatureTest extends Specification {
 
     def 'should return Spock\' expression for proper thenThrow method invocation'() {
         given:
-        def stubbedMethod = 'someMethod'
-        def exceptionType = nodeFactory.simpleType('RuntimeException')
-        def exceptionMessage = nodeFactory.stringLiteral('some message')
-        MethodInvocation methodInvocation = nodeFactory
-                .methodInvocation(THEN_THROW, [aClassInstanceCreationBuilder(ast)
-                .withType(exceptionType).withArgument(exceptionMessage).build()],
-                nodeFactory.methodInvocation(WHEN, [nodeFactory.methodInvocation(stubbedMethod, [])]))
+        MethodInvocation methodInvocation = thenThrowMethodInvocation()
+
         InfixExpression expression = thenThrowFeature.apply(methodInvocation)
 
         expect:
-        expression.toString() == "$stubbedMethod() >> {\n\t\t\t" +
+        expression.toString() == "$STUBBED_METHOD_NAME() >> {\n\t\t\t" +
+                "throw new RuntimeException('some message')\n" +
+                "\t\t}" as String
+    }
+
+    def 'should apply matchers to stubbed method invocation'() {
+        given:
+        MethodInvocation methodInvocation = thenThrowMethodInvocation(nf.methodInvocation('any', []))
+
+        when:
+        InfixExpression expression = thenThrowFeature.apply(methodInvocation)
+
+        then:
+        expression.toString() == "$STUBBED_METHOD_NAME(_) >> {\n\t\t\t" +
                 "throw new RuntimeException('some message')\n" +
                 "\t\t}" as String
     }
 
     def 'should throw an exception for incorrect thenThrow method invocation'() {
         given:
-        MethodInvocation methodInvocation = nodeFactory.methodInvocation(THEN_THROW,
-                [nodeFactory.numberLiteral('0'), nodeFactory.numberLiteral('0')])
+        MethodInvocation methodInvocation = nf.methodInvocation(THEN_THROW,
+                [nf.numberLiteral('0'), nf.numberLiteral('0')])
 
         when:
         thenThrowFeature.apply(methodInvocation, methodInvocation)
@@ -77,5 +90,12 @@ class WhenThenThrowFeatureTest extends Specification {
         then:
         UnsupportedOperationException ex = thrown()
         ex.message == 'Supported only 1-arity thenThrow invocation'
+    }
+
+    private MethodInvocation thenThrowMethodInvocation(Expression... stubbedMethodArguments) {
+        def exceptionType = nf.simpleType('RuntimeException')
+        def exceptionMessage = nf.stringLiteral('some message')
+        nf.methodInvocation(THEN_THROW, [aClassInstanceCreationBuilder(ast).withType(exceptionType).withArgument(exceptionMessage).build()],
+                nf.methodInvocation(WHEN, [nf.methodInvocation(STUBBED_METHOD_NAME, asList(stubbedMethodArguments))]))
     }
 }

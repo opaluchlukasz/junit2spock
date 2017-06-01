@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `anyVararg`, `contains`, `endsWith`, `startsWith` matchers support
 - `argThat`, `booleanThat`, `byteThat`, `charThat`, `doubleThat`, `floatThat`, `intThat`, `longThat`, `shortThat` matchers support (partial)
 - underscore test naming convention support
-- matcher support for `given/willReturn`, `when/thenReturn` Mockito methods
+- matcher support for `given/willReturn`, `when/thenReturn`, `when/thenThrow` Mockito methods
 
 ### Fixed 
 - fix for replacing static imports with regular imports bug

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
 
 public class WhenThenThrowFeature extends Feature<MethodInvocation> {
@@ -19,10 +20,14 @@ public class WhenThenThrowFeature extends Feature<MethodInvocation> {
     public static final String WHEN = "when";
 
     private final ASTNodeFactory nodeFactory;
+    private final MatcherHandler matcherHandler;
+
     private final GroovyClosureFactory groovyClosureFactory;
 
-    public WhenThenThrowFeature(ASTNodeFactory nodeFactory, GroovyClosureFactory groovyClosureFactory) {
+    public WhenThenThrowFeature(ASTNodeFactory nodeFactory, MatcherHandler matcherHandler,
+                                GroovyClosureFactory groovyClosureFactory) {
         this.nodeFactory = nodeFactory;
+        this.matcherHandler = matcherHandler;
         this.groovyClosureFactory = groovyClosureFactory;
     }
 
@@ -38,14 +43,22 @@ public class WhenThenThrowFeature extends Feature<MethodInvocation> {
         MethodInvocation methodInvocation = methodInvocation(object, THEN_THROW).get();
         List arguments = methodInvocation.arguments();
         if (arguments.size() == 1) {
+            MethodInvocation mockedMethodInvocation = (MethodInvocation) whenMethodInvocation.arguments().get(0);
             Expression toBeThrown = argumentAsExpression(arguments.get(0));
             Block closure = nodeFactory.block(nodeFactory.throwStatement(toBeThrown));
             Expression throwingClosure = groovyClosureFactory.create(closure);
             return nodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
-                    argumentAsExpression(whenMethodInvocation.arguments().get(0)),
+                    mockedMethodWithMatchers(mockedMethodInvocation),
                     throwingClosure);
         }
         throw new UnsupportedOperationException("Supported only 1-arity thenThrow invocation");
+    }
+
+    private MethodInvocation mockedMethodWithMatchers(MethodInvocation mockedMethodInvocation) {
+        return nodeFactory.methodInvocation(mockedMethodInvocation.getName().getFullyQualifiedName(),
+                (List<Expression>) mockedMethodInvocation.arguments().stream()
+                        .map(matcherHandler::applyMatchers).collect(toList()),
+                nodeFactory.clone(mockedMethodInvocation.getExpression()));
     }
 
     private Expression argumentAsExpression(Object argument) {

@@ -42,7 +42,7 @@ final class FeatureFactory {
             case WILL_RETURN:
                 return new GivenWillReturnFeature(astNodeFactory, matcherHandler);
             case THEN_THROW:
-                return new WhenThenThrowFeature(astNodeFactory, groovyClosureFactory);
+                return new WhenThenThrowFeature(astNodeFactory, matcherHandler, groovyClosureFactory);
             case ASSERT_EQUALS:
                 return new AssertEqualsFeature(astNodeFactory);
             case ASSERT_NOT_NULL:
