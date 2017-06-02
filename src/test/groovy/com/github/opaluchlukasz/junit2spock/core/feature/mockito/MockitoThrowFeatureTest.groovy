@@ -18,7 +18,7 @@ import static java.util.Arrays.asList
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
 
-class WhenThenThrowFeatureTest extends Specification {
+class MockitoThrowFeatureTest extends Specification {
 
     private static final String STUBBED_METHOD_NAME = 'someMethod'
     private static final AST ast = newAST(JLS8)
@@ -29,12 +29,12 @@ class WhenThenThrowFeatureTest extends Specification {
     @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider)
     @Shared private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
 
-    @Subject private WhenThenThrowFeature thenThrowFeature = new WhenThenThrowFeature(nf, matcherHandler,
-            groovyClosureFactory)
+    @Subject private MockitoThrowFeature mockitoThrowFeature = new MockitoThrowFeature(nf, matcherHandler,
+            groovyClosureFactory, WHEN, THEN_THROW)
 
     def 'should return false for non thenThrow method invocation'() {
         expect:
-        !thenThrowFeature.applicable(node).isPresent()
+        !mockitoThrowFeature.applicable(node).isPresent()
 
         where:
         node << [new Object(),
@@ -51,14 +51,14 @@ class WhenThenThrowFeatureTest extends Specification {
                         nf.methodInvocation(WHEN, [nf.methodInvocation(STUBBED_METHOD_NAME, [])]))
 
         expect:
-        thenThrowFeature.applicable(methodInvocation).isPresent()
+        mockitoThrowFeature.applicable(methodInvocation).isPresent()
     }
 
     def 'should return Spock\' expression for proper thenThrow method invocation'() {
         given:
         MethodInvocation methodInvocation = thenThrowMethodInvocation()
 
-        InfixExpression expression = thenThrowFeature.apply(methodInvocation)
+        InfixExpression expression = mockitoThrowFeature.apply(methodInvocation)
 
         expect:
         expression.toString() == "$STUBBED_METHOD_NAME() >> {\n\t\t\t" +
@@ -71,7 +71,7 @@ class WhenThenThrowFeatureTest extends Specification {
         MethodInvocation methodInvocation = thenThrowMethodInvocation(nf.methodInvocation('any', []))
 
         when:
-        InfixExpression expression = thenThrowFeature.apply(methodInvocation)
+        InfixExpression expression = mockitoThrowFeature.apply(methodInvocation)
 
         then:
         expression.toString() == "$STUBBED_METHOD_NAME(_) >> {\n\t\t\t" +
@@ -85,7 +85,7 @@ class WhenThenThrowFeatureTest extends Specification {
                 [nf.numberLiteral('0'), nf.numberLiteral('0')])
 
         when:
-        thenThrowFeature.apply(methodInvocation, methodInvocation)
+        mockitoThrowFeature.apply(methodInvocation, methodInvocation)
 
         then:
         UnsupportedOperationException ex = thrown()

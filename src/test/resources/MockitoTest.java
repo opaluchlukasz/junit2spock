@@ -56,6 +56,7 @@ public class MockitoTest {
         when(mockedList.get(1)).thenReturn("second");
         when(mockedList.get(2)).thenReturn("second", "third", "four");
         when(mockedList.get(3)).thenThrow(new IndexOutOfBoundsException("out of bound"));
+        given(mockedList.get(eq(4))).willThrow(new IndexOutOfBoundsException());
         given(mockedList.get(0)).willReturn("some");
         given(personDao.save(argThat(new ArgumentMatcher<Person>() {
             @Override
@@ -76,9 +77,9 @@ public class MockitoTest {
         verify(mockedList).get(anyObject());
         verify(mocked).someMethod(anyBoolean(), anyByte(), anyChar(), anyInt(), anyLong(), anyFloat(), anyDouble());
         verify(mocked).someOtherMethod(anyShort(), anyString(), anyList(), anySet(), anyMap(), anyCollection(), anyIterable());
-        verify(mocked).someOtherOtherMethod(any(), any(String.class), isA(String.class), eq("some string"), isNull(),
-                isNotNull(), notNull(), anyListOf(Object.class), anySetOf(Object.class), anyCollectionOf(Object.class),
-                anyIterableOf(Object.class), anyMapOf(Long.class, List.class));
+        verify(mocked).someOtherOtherMethod(any(), any(String.class), isA(String.class), isNull(), isNotNull(), notNull(),
+                anyListOf(Object.class), anySetOf(Object.class), anyCollectionOf(Object.class),
+                anyMapOf(Long.class, List.class));
         verify(mocked).someOtherOtherOtherMethod(startsWith("prefix"));
         verify(mocked).method1(intThat(new ArgumentMatcher<Integer>() {
             @Override

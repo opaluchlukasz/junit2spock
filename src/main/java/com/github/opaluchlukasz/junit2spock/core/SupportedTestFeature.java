@@ -60,6 +60,7 @@ public enum SupportedTestFeature {
     THEN_RETURN(of("org.mockito.Mockito.when"), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
     WILL_RETURN(of("org.mockito.BDDMockito.given"), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
     THEN_THROW(emptySet(), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
+    WILL_THROW(emptySet(), of(FIXTURE_METHOD, TEST_METHOD, REGULAR_METHOD)),
     TEST_ANNOTATION(of("org.junit.Test"), emptySet()),
     ASSERT_EQUALS(of("org.junit.Assert.assertEquals", "junit.framework.Assert.assertEquals",
             "org.junit.Assert.assertArrayEquals", "junit.framework.Assert.assertArrayEquals"), of(TEST_METHOD)),

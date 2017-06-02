@@ -8,6 +8,7 @@ import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNotNullFeat
 import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNullFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertTrueFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.GivenWillReturnFeature;
+import com.github.opaluchlukasz.junit2spock.core.feature.mockito.GivenWillThrowFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MatcherHandler;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockAnnotationFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockMethodFeature;
@@ -43,6 +44,8 @@ final class FeatureFactory {
                 return new GivenWillReturnFeature(astNodeFactory, matcherHandler);
             case THEN_THROW:
                 return new WhenThenThrowFeature(astNodeFactory, matcherHandler, groovyClosureFactory);
+            case WILL_THROW:
+                return new GivenWillThrowFeature(astNodeFactory, matcherHandler, groovyClosureFactory);
             case ASSERT_EQUALS:
                 return new AssertEqualsFeature(astNodeFactory);
             case ASSERT_NOT_NULL:

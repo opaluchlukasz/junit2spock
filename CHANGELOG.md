@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `argThat`, `booleanThat`, `byteThat`, `charThat`, `doubleThat`, `floatThat`, `intThat`, `longThat`, `shortThat` matchers support (partial)
 - underscore test naming convention support
 - matcher support for `given/willReturn`, `when/thenReturn`, `when/thenThrow` Mockito methods
+- `given/willThrow` support
 
 ### Fixed 
 - fix for replacing static imports with regular imports bug

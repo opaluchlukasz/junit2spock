@@ -13,6 +13,7 @@ import static com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNotN
 import static com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertNullFeature.ASSERT_NULL;
 import static com.github.opaluchlukasz.junit2spock.core.feature.junit.AssertTrueFeature.ASSERT_TRUE;
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.GivenWillReturnFeature.WILL_RETURN;
+import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.GivenWillThrowFeature.WILL_THROW;
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFeature.VERIFY;
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyNoMoreInteractionsFeature.VERIFY_NO_MORE_INTERACTIONS;
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenReturnFeature.THEN_RETURN;
@@ -30,11 +31,11 @@ public class CodeBasedSpockBlocksStrategy implements SpockBlockApplier {
 
     public static final String[] THEN_BLOCK_START = new String[]{ASSERT_EQUALS, ASSERT_NOT_NULL, ASSERT_ARRAY_EQUALS, ASSERT_TRUE,
         ASSERT_FALSE, ASSERT_NULL, THROWN, ASSERT_THAT, VERIFY, VERIFY_NO_MORE_INTERACTIONS};
-    private static final String[] MOCKING  = {THEN_RETURN, THEN_THROW, WILL_RETURN};
+    private static final String[] MOCKING  = {THEN_RETURN, THEN_THROW, WILL_RETURN, WILL_THROW};
 
     private final List<Object> body;
 
-    public CodeBasedSpockBlocksStrategy(List<Object> body) {
+    CodeBasedSpockBlocksStrategy(List<Object> body) {
         this.body = body;
     }
 
