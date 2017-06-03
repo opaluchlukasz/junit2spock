@@ -59,6 +59,6 @@ class GroovyClosureTest extends Specification {
         GroovyClosure closure = new GroovyClosure(nodeFactory, statements)
 
         expect:
-        closure.toString() == "{\n\t\t\tif (a == b) {$SEPARATOR\t\t\t\treturn false\n\t\t\t} else {$SEPARATOR\t\t\t\treturn true\n\t\t\t}\r\n\t\t}"
+        closure.toString() == "{\n\t\t\tif (a == b) {$SEPARATOR\t\t\t\treturn false\n\t\t\t} else {$SEPARATOR\t\t\t\treturn true\n\t\t\t}$SEPARATOR\t\t}"
     }
 }
