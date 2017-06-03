@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -15,6 +14,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.slf4j.Logger;
@@ -115,12 +115,11 @@ public class MatcherHandler {
 
     private Expression stringMatcher(MethodInvocation methodInvocation) {
         return singleArityMatcher(methodInvocation, argument -> {
-            Block block = nodeFactory.block(nodeFactory.expressionStatement(
-                    nodeFactory.methodInvocation(methodInvocation.getName().getIdentifier(),
-                            singletonList(nodeFactory.clone(argument)),
-                            nodeFactory.simpleName(IT))));
             return nodeFactory.infixExpression(CAST,
-                    groovyClosureFactory.create(block),
+                    groovyClosureFactory.create(singletonList(nodeFactory.expressionStatement(
+                            nodeFactory.methodInvocation(methodInvocation.getName().getIdentifier(),
+                                    singletonList(nodeFactory.clone(argument)),
+                                    nodeFactory.simpleName(IT))))),
                     nodeFactory.typeLiteral(nodeFactory.simpleType(String.class.getSimpleName())));
         });
     }
@@ -136,10 +135,10 @@ public class MatcherHandler {
                             ((MethodDeclaration) classDeclaration.bodyDeclarations().get(0))
                                     .getName().getIdentifier().equals("matches")) {
                         MethodDeclaration methodDeclaration = (MethodDeclaration) classDeclaration.bodyDeclarations().get(0);
-                        Block block = nodeFactory.clone(methodDeclaration.getBody());
+                        List<Statement> statements = nodeFactory.clone(methodDeclaration.getBody()).statements();
                         return nodeFactory.infixExpression(CAST,
                                 groovyClosureFactory
-                                        .create(block, nodeFactory.clone((SingleVariableDeclaration) methodDeclaration.parameters().get(0))),
+                                        .create(statements, nodeFactory.clone((SingleVariableDeclaration) methodDeclaration.parameters().get(0))),
                                 nodeFactory.typeLiteral(matcherType(classInstanceCreation)));
                     }
                 }

@@ -31,7 +31,7 @@ class MockitoVerifyFeatureTest extends Specification {
         get: ast
     }
     @Shared private ASTNodeFactory nodeFactory = new ASTNodeFactory(AST_PROVIDER)
-    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(AST_PROVIDER)
+    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(AST_PROVIDER, nodeFactory)
 
     @Subject private MockitoVerifyFeature mockitoVerifyFeature = new MockitoVerifyFeature(nodeFactory,
             new MatcherHandler(nodeFactory, groovyClosureFactory))

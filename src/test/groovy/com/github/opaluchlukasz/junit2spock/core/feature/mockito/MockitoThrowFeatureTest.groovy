@@ -11,7 +11,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCreationBuilder.aClassInstanceCreationBuilder
+import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCreationBuilder.aClassInstanceCreation
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.THEN_THROW
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.WHEN
 import static java.util.Arrays.asList
@@ -26,7 +26,7 @@ class MockitoThrowFeatureTest extends Specification {
         get: ast
     }
     @Shared private ASTNodeFactory nf = new ASTNodeFactory(astProvider)
-    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider)
+    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider, nf)
     @Shared private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
 
     @Subject private MockitoThrowFeature mockitoThrowFeature = new MockitoThrowFeature(nf, matcherHandler,
@@ -95,7 +95,7 @@ class MockitoThrowFeatureTest extends Specification {
     private MethodInvocation thenThrowMethodInvocation(Expression... stubbedMethodArguments) {
         def exceptionType = nf.simpleType('RuntimeException')
         def exceptionMessage = nf.stringLiteral('some message')
-        nf.methodInvocation(THEN_THROW, [aClassInstanceCreationBuilder(ast).withType(exceptionType).withArgument(exceptionMessage).build()],
+        nf.methodInvocation(THEN_THROW, [aClassInstanceCreation(ast).withType(exceptionType).withArgument(exceptionMessage).build()],
                 nf.methodInvocation(WHEN, [nf.methodInvocation(STUBBED_METHOD_NAME, asList(stubbedMethodArguments))]))
     }
 }

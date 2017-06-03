@@ -20,7 +20,7 @@ class MockitoTest extends Specification {
 		}
 		mockedList.get(0) >> 'some'
 		personDao.save({ Object argument ->
-			return 'Spock'.equalsIgnoreCase(((Person)argument).getName())
+			'Spock'.equalsIgnoreCase(((Person)argument).getName())
 		} as Person) >> true
 	}
 
@@ -42,7 +42,7 @@ class MockitoTest extends Specification {
 			it.startsWith('prefix')
 		} as String)
 		1 * mocked.method1({ Integer actual ->
-			return actual < 4
+			actual < 4
 		} as Integer)
 		1 * mocked.method1(intThat(new LessOrEqual<>(4)))
 		0 * mockedList.clear()

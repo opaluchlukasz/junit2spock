@@ -21,7 +21,7 @@ class MockitoReturnFeatureTest extends Specification {
         get: ast
     }
     @Shared private ASTNodeFactory nf = new ASTNodeFactory(astProvider)
-    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider)
+    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider, nf)
     @Shared private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
 
     @Subject private MockitoReturnFeature returnFeature = new MockitoReturnFeature(nf, matcherHandler, WHEN, THEN_RETURN)

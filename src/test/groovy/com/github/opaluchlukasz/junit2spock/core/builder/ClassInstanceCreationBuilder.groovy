@@ -8,12 +8,12 @@ import org.eclipse.jdt.core.dom.Type
 
 class ClassInstanceCreationBuilder {
 
-    private AST ast
+    private final AST ast
     private Type type
     private List<ASTNode> bodyDeclarations = new LinkedList<>()
     private List<ASTNode> arguments = new LinkedList<>()
 
-    static ClassInstanceCreationBuilder aClassInstanceCreationBuilder(AST ast) {
+    static ClassInstanceCreationBuilder aClassInstanceCreation(AST ast) {
         new ClassInstanceCreationBuilder(ast)
     }
 

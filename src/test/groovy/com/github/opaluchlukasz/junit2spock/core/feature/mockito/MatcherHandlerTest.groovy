@@ -17,7 +17,7 @@ import spock.lang.Subject
 import spock.lang.Unroll
 
 import static ch.qos.logback.classic.Level.WARN
-import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCreationBuilder.aClassInstanceCreationBuilder
+import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCreationBuilder.aClassInstanceCreation
 import static com.github.opaluchlukasz.junit2spock.core.builder.MethodDeclarationBuilder.aMethod
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
@@ -32,7 +32,7 @@ class MatcherHandlerTest extends Specification {
         get: ast
     }
     @Shared private ASTNodeFactory nf = new ASTNodeFactory(AST_PROVIDER)
-    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(AST_PROVIDER)
+    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(AST_PROVIDER, nf)
 
     @Subject private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
 
@@ -243,15 +243,15 @@ class MatcherHandlerTest extends Specification {
 
         where:
         methodName    | type      | bodyStatement                                                            | expected
-        'argThat'     | List      | nf.methodInvocation('isEmpty', [], nf.simpleName('a'))                   | '{ List a ->\n\t\t\treturn a.isEmpty()\n\t\t} as List.class'
-        'booleanThat' | Boolean   | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.booleanLiteral(false)) | '{ Boolean a ->\n\t\t\treturn a == false\n\t\t} as Boolean.class'
-        'byteThat'    | Byte      | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0'))    | '{ Byte a ->\n\t\t\treturn a == 0\n\t\t} as Byte.class'
-        'charThat'    | Character | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0'))    | '{ Character a ->\n\t\t\treturn a == 0\n\t\t} as Character.class'
-        'doubleThat'  | Double    | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0d'))   | '{ Double a ->\n\t\t\treturn a == 0d\n\t\t} as Double.class'
-        'floatThat'   | Float     | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0f'))   | '{ Float a ->\n\t\t\treturn a == 0f\n\t\t} as Float.class'
-        'intThat'     | Integer   | nf.infixExpression(GREATER, nf.simpleName('a'), nf.numberLiteral('13'))  | '{ Integer a ->\n\t\t\treturn a > 13\n\t\t} as Integer.class'
-        'longThat'    | Long      | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0l'))   | '{ Long a ->\n\t\t\treturn a == 0l\n\t\t} as Long.class'
-        'shortThat'   | Short     | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0'))    | '{ Short a ->\n\t\t\treturn a == 0\n\t\t} as Short.class'
+        'argThat'     | List      | nf.methodInvocation('isEmpty', [], nf.simpleName('a'))                   | '{ List a ->\n\t\t\ta.isEmpty()\n\t\t} as List.class'
+        'booleanThat' | Boolean   | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.booleanLiteral(false)) | '{ Boolean a ->\n\t\t\ta == false\n\t\t} as Boolean.class'
+        'byteThat'    | Byte      | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0'))    | '{ Byte a ->\n\t\t\ta == 0\n\t\t} as Byte.class'
+        'charThat'    | Character | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0'))    | '{ Character a ->\n\t\t\ta == 0\n\t\t} as Character.class'
+        'doubleThat'  | Double    | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0d'))   | '{ Double a ->\n\t\t\ta == 0d\n\t\t} as Double.class'
+        'floatThat'   | Float     | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0f'))   | '{ Float a ->\n\t\t\ta == 0f\n\t\t} as Float.class'
+        'intThat'     | Integer   | nf.infixExpression(GREATER, nf.simpleName('a'), nf.numberLiteral('13'))  | '{ Integer a ->\n\t\t\ta > 13\n\t\t} as Integer.class'
+        'longThat'    | Long      | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0l'))   | '{ Long a ->\n\t\t\ta == 0l\n\t\t} as Long.class'
+        'shortThat'   | Short     | nf.infixExpression(EQUALS, nf.simpleName('a'), nf.numberLiteral('0'))    | '{ Short a ->\n\t\t\ta == 0\n\t\t} as Short.class'
     }
 
     def 'should return Spock\'s wildcard'() {
@@ -260,7 +260,7 @@ class MatcherHandlerTest extends Specification {
     }
 
     private ClassInstanceCreation anonymousArgumentMatcherClass(Class<?> clazz, ASTNode bodyDeclaration) {
-        aClassInstanceCreationBuilder(ast)
+        aClassInstanceCreation(ast)
                 .withType(nf.parameterizedType(nf.simpleType('ArgumentMatcher'), [nf.simpleType(clazz.simpleName)]))
                 .withBodyDeclaration(bodyDeclaration)
                 .build()

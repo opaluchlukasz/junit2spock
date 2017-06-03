@@ -3,7 +3,6 @@ package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
 import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory;
-import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
 
@@ -45,8 +45,8 @@ public class MockitoThrowFeature extends Feature<MethodInvocation> {
         if (arguments.size() == 1) {
             MethodInvocation mockedMethodInvocation = (MethodInvocation) whenMethodInvocation.arguments().get(0);
             Expression toBeThrown = argumentAsExpression(arguments.get(0));
-            Block closure = nodeFactory.block(nodeFactory.throwStatement(toBeThrown));
-            Expression throwingClosure = groovyClosureFactory.create(closure);
+            Expression throwingClosure = groovyClosureFactory
+                    .create(singletonList(nodeFactory.throwStatement(toBeThrown)));
             return nodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
                     mockedMethodWithMatchers(mockedMethodInvocation),
                     throwingClosure);

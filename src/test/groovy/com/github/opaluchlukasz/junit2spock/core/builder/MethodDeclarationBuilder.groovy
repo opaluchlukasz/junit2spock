@@ -11,7 +11,7 @@ import org.eclipse.jdt.core.dom.Statement
 
 class MethodDeclarationBuilder {
 
-    private AST ast
+    private final AST ast
     private String name = 'foo'
     private List<Modifier> modifiers = []
     private List<Annotation> annotations = []

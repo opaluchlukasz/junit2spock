@@ -1,11 +1,12 @@
 package com.github.opaluchlukasz.junit2spock.core.node;
 
+import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.AstProvider;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.proxy.Enhancer;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import static com.github.opaluchlukasz.junit2spock.core.node.GroovyClosure.NODE_TYPE;
 import static org.springframework.util.ReflectionUtils.findField;
@@ -26,16 +28,18 @@ public class GroovyClosureFactory {
     public static final String IT = "it";
 
     private final AstProvider astProvider;
+    private final ASTNodeFactory astNodeFactory;
 
     @Autowired
-    public GroovyClosureFactory(AstProvider astProvider) {
+    public GroovyClosureFactory(AstProvider astProvider, ASTNodeFactory astNodeFactory) {
         this.astProvider = astProvider;
+        this.astNodeFactory = astNodeFactory;
     }
 
-    public Expression create(Block body, SingleVariableDeclaration... arguments) {
+    public Expression create(List<Statement> statements, SingleVariableDeclaration... arguments) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(Expression.class);
-        enhancer.setCallback(new ClosureInvocationHandler(body, arguments));
+        enhancer.setCallback(new ClosureInvocationHandler(astNodeFactory, statements, arguments));
         return (Expression) enhancer.create(new Class[] {AST.class}, new Object[] {astProvider.get()});
     }
 
@@ -43,8 +47,10 @@ public class GroovyClosureFactory {
 
         private final GroovyClosure groovyClosure;
 
-        ClosureInvocationHandler(Block body, SingleVariableDeclaration... arguments) {
-            this.groovyClosure = new GroovyClosure(body, arguments);
+        ClosureInvocationHandler(ASTNodeFactory astNodeFactory,
+                                 List<Statement> statements,
+                                 SingleVariableDeclaration... arguments) {
+            this.groovyClosure = new GroovyClosure(astNodeFactory, statements, arguments);
         }
 
         @Override
