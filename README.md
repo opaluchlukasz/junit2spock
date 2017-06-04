@@ -10,16 +10,17 @@ Even if tool converts test without syntax errors it is advisable to go through g
 
 ### Supported Features
 * JUnit 4
-  * converting Junit @Test to specification method
-  * converting methods marked with @Before, @After, @BeforeClass, @AfterClass annotations to fixture methods
-  * replacing assertEquals, assertFalse, assertNotNull, assertNull, assertTrue with simple comparisons in then/expect block
+  * converting Junit `@Test` to specification method
+  * converting methods marked with `@Before`, `@After`, `@BeforeClass`, `@AfterClass` annotations to fixture methods
+  * replacing `assertEquals`, `assertFalse`, `assertNotNull`, `assertNull`, `assertTrue` with simple comparisons in then/expect block
 * Mockito
   * replacing Mockito mocks with Spock mocks
-  * replacing given/willReturn, when/thenReturn for defining returned value with stubbed interaction (single value or sequence o values)
-  * replacing when/thenThrow for defining mocked method throwing an exception with stubbed interaction
+  * replacing `given/willReturn`, `when/thenReturn` for defining returned value with stubbed interaction (single value or sequence o values)
+  * replacing `given/willThrow`, `when/thenThrow` for defining mocked method throwing an exception with stubbed interaction
   * replacing verify with Spock interaction verification
-    * supported VerificationModes: never, atLeastOnce, times, atMost, atLeast
-    * supported Matchers: any, anyByte, anyChar, anyCollection, anyCollectionOf, anyDouble, anyFloat, anyInt, anyIterable, anyIterableOf, anyList, anyListOf, anyLong, anyMap, anyMapOf, anyObject, anySet, anySetOf, anyShort, anyString, eq, isA, isNotNull, isNull, startsWith
+    * supported VerificationModes: `never`, `atLeastOnce`, `times`, `atMost`, `atLeast`
+    * supported Matchers: `any`, `anyByte`, `anyChar`, `anyCollection`, `anyCollectionOf`, `anyDouble`, `anyFloat`, `anyInt`, `anyIterable`, `anyIterableOf`, `anyList`, `anyListOf`, `anyLong`, `anyMap`, `anyMapOf`, `anyObject`, `anySet`, `anySetOf`, `anyShort`, `anyString`, `anyVararg`, `contains`, `endsWith`, `eq`, `isA`, `isNotNull`, `isNull`, `startsWith`
+    * partial support of matchers: `argThat`, `booleanThat`, `byteThat`, `charThat`, `doubleThat`, `floatThat`, `intThat`, `longThat`, `shortThat`
   * replacing verifyNoMoreInteractions with Spock equivalent
 * given/when/then blocks autodiscovery
 * Groovisms - Groovy's syntactic sugar
