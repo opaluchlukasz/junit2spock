@@ -24,7 +24,7 @@ class SpockerTest extends Specification {
         normalize(spocker.toGroovyTypeModel(source).asGroovyClass(0)) == expected
 
         where:
-        input << ['MockitoTest', 'Junit4Test', 'IfStatementWrapperTest', 'InnerType']
+        input << ['MockitoTest', 'Junit4Test', 'WrappersTest', 'InnerType']
     }
 
     def 'should return interface for java interface'() {

@@ -18,7 +18,6 @@ import static org.eclipse.jdt.core.dom.AST.newAST
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.EQUALS
 
 @ContextConfiguration(classes = TestConfig.class)
-
 class GroovyClosureTest extends Specification {
 
     private static final AST ast = newAST(JLS8)
@@ -32,7 +31,7 @@ class GroovyClosureTest extends Specification {
         List<Statement> statements = [nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', []))]
 
         expect:
-        new GroovyClosure(nodeFactory, statements).toString() == '{\n\t\t\tsomeMethod()\n\t\t}'
+        new GroovyClosure(nodeFactory, statements).toString() == "{$SEPARATOR\t\t\tsomeMethod()\n\t\t}"
     }
 
     def 'should return closure with arguments'() {
@@ -45,9 +44,9 @@ class GroovyClosureTest extends Specification {
 
         where:
         arguments                                                                                | expected
-        [nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(String.simpleName), 'a')]  | '{ String a ->\n\t\t\tsomeMethod()\n\t\t}'
+        [nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(String.simpleName), 'a')]  | "{ String a ->$SEPARATOR\t\t\tsomeMethod()\n\t\t}"
         [nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(String.simpleName), 'a'),
-         nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(Integer.simpleName), 'b')] | '{ String a, Integer b ->\n\t\t\tsomeMethod()\n\t\t}'
+         nodeFactory.singleVariableDeclaration(nodeFactory.simpleType(Integer.simpleName), 'b')] | "{ String a, Integer b ->$SEPARATOR\t\t\tsomeMethod()\n\t\t}"
     }
 
     def 'should handle IfStatement within the closure'() {
@@ -59,6 +58,6 @@ class GroovyClosureTest extends Specification {
         GroovyClosure closure = new GroovyClosure(nodeFactory, statements)
 
         expect:
-        closure.toString() == "{\n\t\t\tif (a == b) {$SEPARATOR\t\t\t\treturn false\n\t\t\t} else {$SEPARATOR\t\t\t\treturn true\n\t\t\t}$SEPARATOR\t\t}"
+        closure.toString() == "{$SEPARATOR\t\t\tif (a == b) {$SEPARATOR\t\t\t\treturn false\n\t\t\t} else {$SEPARATOR\t\t\t\treturn true\n\t\t\t}$SEPARATOR\t\t}"
     }
 }

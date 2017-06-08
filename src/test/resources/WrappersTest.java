@@ -5,10 +5,12 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.when;
 
-public class IfStatementWrapperTest {
+public class WrappersTest {
+
+    private Object object;
 
     @Test
-    public void mockingTest() {
+    public void ifWrapperTest() {
         LinkedList mockedList = mock(LinkedList.class);
         if (mockedList != null) {
             if (mockedList != null) {
@@ -20,5 +22,16 @@ public class IfStatementWrapperTest {
         }
 
         assertTrue(mockedList.get(0) == "first");
+    }
+
+    @Test(expected = Exception.class)
+    public void tryWrapperTest() {
+        try (BufferedReader br = new BufferedReader(new FileReader(""))) {
+            object.toString();
+        } catch (NullPointerException | IllegalArgumentException exception) {
+            throw exception;
+        } catch (Exception exception) {
+            throw exception;
+        }
     }
 }

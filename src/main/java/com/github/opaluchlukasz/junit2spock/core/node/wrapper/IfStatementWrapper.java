@@ -1,34 +1,27 @@
-package com.github.opaluchlukasz.junit2spock.core.node;
+package com.github.opaluchlukasz.junit2spock.core.node.wrapper;
 
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
-import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.Statement;
 
 import java.util.LinkedList;
-import java.util.function.Consumer;
 
-import static com.github.opaluchlukasz.junit2spock.core.groovism.GroovismChainProvider.provide;
+import static com.github.opaluchlukasz.junit2spock.core.node.wrapper.WrapperDecorator.wrap;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
 import static java.util.regex.Pattern.quote;
 
-public class IfStatementWrapper {
+public class IfStatementWrapper extends BaseWrapper {
 
     private final Expression expression;
     private final LinkedList thenBlock;
     private final LinkedList elseBlock;
-    private final int indentationLevel;
-    private final Applicable applicable;
-    private final Groovism groovism;
 
     public IfStatementWrapper(IfStatement statement, int indentationLevel, Applicable applicable) {
+        super(indentationLevel, applicable);
         this.expression = statement.getExpression();
-        this.indentationLevel = indentationLevel;
-        this.applicable = applicable;
-        this.groovism = provide();
         this.thenBlock = new LinkedList<>();
         this.elseBlock = new LinkedList<>();
 
@@ -40,45 +33,25 @@ public class IfStatementWrapper {
 
     private void statementsFrom(Statement statement, LinkedList extracted) {
         if (statement instanceof Block) {
-            ((Block) statement).statements().forEach(stmt -> extracted.add(wrap(stmt, indentationLevel + 1)));
+            ((Block) statement).statements().forEach(stmt -> extracted.add(wrap(stmt, indentationLevel() + 1, applicable())));
         } else if (statement != null) {
-            extracted.add(wrap(statement, indentationLevel));
+            extracted.add(wrap(statement, indentationLevel(), applicable()));
         }
-    }
-
-    private Object wrap(Object statement, int indentation) {
-        if (statement instanceof IfStatement) {
-            return new IfStatementWrapper((IfStatement) statement, indentation, applicable);
-        }
-        return statement;
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(indentation(indentationLevel + 1)).append("if (").append(expression.toString()).append(") {").append(SEPARATOR);
+        stringBuilder.append(indentation(indentationLevel() + 1)).append("if (").append(expression.toString()).append(") {").append(SEPARATOR);
         thenBlock.forEach(printStatement(stringBuilder));
-        stringBuilder.append(indentation(indentationLevel + 1)).append("}");
+        stringBuilder.append(indentation(indentationLevel() + 1)).append("}");
         if (elseBlock.size() == 1 && elseBlock.get(0) instanceof IfStatementWrapper) {
             stringBuilder.append(" else ").append(elseBlock.get(0).toString().replaceFirst(quote("\t"), ""));
         } else if (!elseBlock.isEmpty()) {
             stringBuilder.append(" else {").append(SEPARATOR);
             elseBlock.forEach(printStatement(stringBuilder));
-            stringBuilder.append(indentation(indentationLevel + 1)).append("}");
+            stringBuilder.append(indentation(indentationLevel() + 1)).append("}");
         }
         return stringBuilder.append(SEPARATOR).toString();
-    }
-
-    private Consumer printStatement(StringBuilder builder) {
-        return stmt -> {
-            if (stmt instanceof IfStatementWrapper) {
-                builder.append(stmt.toString());
-            } else {
-                builder.append(indentation(indentationLevel + 2)).append(groovism.apply(stmt.toString()));
-                if (!stmt.toString().endsWith("\n")) {
-                    builder.append(SEPARATOR);
-                }
-            }
-        };
     }
 }

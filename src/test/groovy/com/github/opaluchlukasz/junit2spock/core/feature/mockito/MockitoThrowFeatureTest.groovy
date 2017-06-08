@@ -14,6 +14,7 @@ import spock.lang.Subject
 import static com.github.opaluchlukasz.junit2spock.core.builder.ClassInstanceCreationBuilder.aClassInstanceCreation
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.THEN_THROW
 import static com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature.WHEN
+import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR
 import static java.util.Arrays.asList
 import static org.eclipse.jdt.core.dom.AST.JLS8
 import static org.eclipse.jdt.core.dom.AST.newAST
@@ -61,7 +62,7 @@ class MockitoThrowFeatureTest extends Specification {
         InfixExpression expression = mockitoThrowFeature.apply(methodInvocation)
 
         expect:
-        expression.toString() == "$STUBBED_METHOD_NAME() >> {\n\t\t\t" +
+        expression.toString() == "$STUBBED_METHOD_NAME() >> {$SEPARATOR\t\t\t" +
                 "throw new RuntimeException('some message')\n" +
                 "\t\t}" as String
     }
@@ -74,7 +75,7 @@ class MockitoThrowFeatureTest extends Specification {
         InfixExpression expression = mockitoThrowFeature.apply(methodInvocation)
 
         then:
-        expression.toString() == "$STUBBED_METHOD_NAME(_) >> {\n\t\t\t" +
+        expression.toString() == "$STUBBED_METHOD_NAME(_) >> {$SEPARATOR\t\t\t" +
                 "throw new RuntimeException('some message')\n" +
                 "\t\t}" as String
     }

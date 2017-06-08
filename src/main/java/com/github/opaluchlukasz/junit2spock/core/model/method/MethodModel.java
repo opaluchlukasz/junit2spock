@@ -3,8 +3,7 @@ package com.github.opaluchlukasz.junit2spock.core.model.method;
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.Applicable;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
-import com.github.opaluchlukasz.junit2spock.core.node.IfStatementWrapper;
-import org.eclipse.jdt.core.dom.IfStatement;
+import com.github.opaluchlukasz.junit2spock.core.node.wrapper.IfStatementWrapper;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import java.util.LinkedList;
@@ -12,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.groovism.GroovismChainProvider.provide;
+import static com.github.opaluchlukasz.junit2spock.core.node.wrapper.WrapperDecorator.wrap;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indent;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
@@ -31,15 +31,8 @@ public abstract class MethodModel {
         this.methodDeclaration = methodDeclaration;
         groovism = provide();
         if (methodDeclaration.getBody() != null && methodDeclaration.getBody().statements() != null) {
-            methodDeclaration.getBody().statements().forEach(statement -> body.add(wrap(statement)));
+            methodDeclaration.getBody().statements().forEach(statement -> body.add(wrap(statement, 1, methodType())));
         }
-    }
-
-    private Object wrap(Object statement) {
-        if (statement instanceof IfStatement) {
-            return new IfStatementWrapper((IfStatement) statement, 1, methodType());
-        }
-        return statement;
     }
 
     public String asGroovyMethod(int baseIndentationInTabs) {

@@ -1,4 +1,4 @@
-package com.github.opaluchlukasz.junit2spock.core.node
+package com.github.opaluchlukasz.junit2spock.core.node.wrapper
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import com.github.opaluchlukasz.junit2spock.core.util.TestConfig

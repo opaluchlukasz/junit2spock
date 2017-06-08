@@ -2,7 +2,7 @@ package com.github.opaluchlukasz.junit2spock.core.node;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.groovism.Groovism;
-import org.eclipse.jdt.core.dom.IfStatement;
+import com.github.opaluchlukasz.junit2spock.core.node.wrapper.IfStatementWrapper;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
@@ -13,6 +13,7 @@ import java.util.List;
 
 import static com.github.opaluchlukasz.junit2spock.core.Applicable.REGULAR_METHOD;
 import static com.github.opaluchlukasz.junit2spock.core.groovism.GroovismChainProvider.provide;
+import static com.github.opaluchlukasz.junit2spock.core.node.wrapper.WrapperDecorator.wrap;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
@@ -26,7 +27,7 @@ public class GroovyClosure {
 
     GroovyClosure(ASTNodeFactory nodeFactory, List<Statement> statements, SingleVariableDeclaration... arguments) {
 
-        statements.forEach(statement -> this.body.add(wrap(statement)));
+        statements.forEach(statement -> this.body.add(wrap(statement, 2, REGULAR_METHOD)));
 
         if (body.size() > 0) {
             Object statement = body.get(body.size() - 1);
@@ -39,13 +40,6 @@ public class GroovyClosure {
 
         this.arguments = arguments;
         this.groovism = provide();
-    }
-
-    private Object wrap(Object statement) {
-        if (statement instanceof IfStatement) {
-            return new IfStatementWrapper((IfStatement) statement, 2, REGULAR_METHOD);
-        }
-        return statement;
     }
 
     @Override
@@ -63,8 +57,8 @@ public class GroovyClosure {
     }
 
     private String prefix() {
-        return arguments.length == 0 ? "{\n" : Arrays.stream(arguments)
+        return arguments.length == 0 ? "{"  + SEPARATOR : Arrays.stream(arguments)
                 .map(Object::toString)
-                .collect(joining(", ", "{ ", " ->\n"));
+                .collect(joining(", ", "{ ", " ->" + SEPARATOR));
     }
 }
