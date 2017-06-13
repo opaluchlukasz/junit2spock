@@ -2,7 +2,7 @@ package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
 import com.github.opaluchlukasz.junit2spock.core.feature.Feature;
-import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory;
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureBuilder;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.core.dom.InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
 
@@ -18,15 +17,15 @@ public class MockitoThrowFeature extends Feature<MethodInvocation> {
 
     private final ASTNodeFactory nodeFactory;
     private final MatcherHandler matcherHandler;
-    private final GroovyClosureFactory groovyClosureFactory;
+    private final GroovyClosureBuilder groovyClosureBuilder;
     private final String when;
     private final String thenThrow;
 
     MockitoThrowFeature(ASTNodeFactory nodeFactory, MatcherHandler matcherHandler,
-                               GroovyClosureFactory groovyClosureFactory, String when, String thenThrow) {
+                        GroovyClosureBuilder groovyClosureBuilder, String when, String thenThrow) {
         this.nodeFactory = nodeFactory;
         this.matcherHandler = matcherHandler;
-        this.groovyClosureFactory = groovyClosureFactory;
+        this.groovyClosureBuilder = groovyClosureBuilder;
         this.when = when;
         this.thenThrow = thenThrow;
     }
@@ -45,8 +44,10 @@ public class MockitoThrowFeature extends Feature<MethodInvocation> {
         if (arguments.size() == 1) {
             MethodInvocation mockedMethodInvocation = (MethodInvocation) whenMethodInvocation.arguments().get(0);
             Expression toBeThrown = argumentAsExpression(arguments.get(0));
-            Expression throwingClosure = groovyClosureFactory
-                    .create(singletonList(nodeFactory.throwStatement(toBeThrown)));
+            Expression throwingClosure = groovyClosureBuilder.aClosure()
+                    .withBodyStatement(nodeFactory.throwStatement(toBeThrown))
+                    .build()
+                    .asExpression();
             return nodeFactory.infixExpression(RIGHT_SHIFT_SIGNED,
                     mockedMethodWithMatchers(mockedMethodInvocation),
                     throwingClosure);

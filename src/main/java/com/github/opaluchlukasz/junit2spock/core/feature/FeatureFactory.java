@@ -16,7 +16,7 @@ import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyFe
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.MockitoVerifyNoMoreInteractionsFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenReturnFeature;
 import com.github.opaluchlukasz.junit2spock.core.feature.mockito.WhenThenThrowFeature;
-import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory;
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,15 +25,15 @@ final class FeatureFactory {
 
     private final ASTNodeFactory astNodeFactory;
     private final MatcherHandler matcherHandler;
-    private final GroovyClosureFactory groovyClosureFactory;
+    private final GroovyClosureBuilder groovyClosureBuilder;
 
     @Autowired
     FeatureFactory(ASTNodeFactory astNodeFactory,
                    MatcherHandler matcherHandler,
-                   GroovyClosureFactory groovyClosureFactory) {
+                   GroovyClosureBuilder groovyClosureBuilder) {
         this.astNodeFactory = astNodeFactory;
         this.matcherHandler = matcherHandler;
-        this.groovyClosureFactory = groovyClosureFactory;
+        this.groovyClosureBuilder = groovyClosureBuilder;
     }
 
     Feature provide(SupportedTestFeature supportedTestFeatures) {
@@ -43,9 +43,9 @@ final class FeatureFactory {
             case WILL_RETURN:
                 return new GivenWillReturnFeature(astNodeFactory, matcherHandler);
             case THEN_THROW:
-                return new WhenThenThrowFeature(astNodeFactory, matcherHandler, groovyClosureFactory);
+                return new WhenThenThrowFeature(astNodeFactory, matcherHandler, groovyClosureBuilder);
             case WILL_THROW:
-                return new GivenWillThrowFeature(astNodeFactory, matcherHandler, groovyClosureFactory);
+                return new GivenWillThrowFeature(astNodeFactory, matcherHandler, groovyClosureBuilder);
             case ASSERT_EQUALS:
                 return new AssertEqualsFeature(astNodeFactory);
             case ASSERT_NOT_NULL:

@@ -6,7 +6,7 @@ import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import com.github.opaluchlukasz.junit2spock.core.AstProvider
-import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureBuilder
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.ASTNode
 import org.eclipse.jdt.core.dom.ClassInstanceCreation
@@ -33,9 +33,9 @@ class MatcherHandlerTest extends Specification {
         get: ast
     }
     @Shared private ASTNodeFactory nf = new ASTNodeFactory(AST_PROVIDER)
-    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(AST_PROVIDER, nf)
+    @Shared private GroovyClosureBuilder groovyClosureBuilder = new GroovyClosureBuilder(AST_PROVIDER, nf)
 
-    @Subject private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
+    @Subject private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureBuilder)
 
     private Appender<ILoggingEvent> appender = Mock(Appender)
     private Logger logger = (Logger) getLogger(MatcherHandler)

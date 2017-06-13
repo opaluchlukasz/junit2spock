@@ -1,20 +1,15 @@
 package com.github.opaluchlukasz.junit2spock.core.feature.mockito;
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory;
-import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory;
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosure;
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.slf4j.Logger;
@@ -25,11 +20,13 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
+import static com.github.opaluchlukasz.junit2spock.core.node.ClosureHelper.asClosure;
 import static com.github.opaluchlukasz.junit2spock.core.node.CustomInfixOperator.CAST;
-import static com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory.IT;
+import static com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureBuilder.IT;
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.NOT;
@@ -42,12 +39,12 @@ public class MatcherHandler {
     private static final Map<String, String> MATCHER_TYPE_OVERRIDE = ImmutableMap.of("Char", "Character", "Int", "Integer");
 
     private final ASTNodeFactory nodeFactory;
-    private final GroovyClosureFactory groovyClosureFactory;
+    private final GroovyClosureBuilder groovyClosureBuilder;
 
     @Autowired
-    public MatcherHandler(ASTNodeFactory nodeFactory, GroovyClosureFactory groovyClosureFactory) {
+    public MatcherHandler(ASTNodeFactory nodeFactory, GroovyClosureBuilder groovyClosureBuilder) {
         this.nodeFactory = nodeFactory;
-        this.groovyClosureFactory = groovyClosureFactory;
+        this.groovyClosureBuilder = groovyClosureBuilder;
     }
 
     ASTNode applyMatchers(Object argument) {
@@ -114,43 +111,21 @@ public class MatcherHandler {
     }
 
     private Expression stringMatcher(MethodInvocation methodInvocation) {
-        return singleArityMatcher(methodInvocation, argument -> {
-            return nodeFactory.infixExpression(CAST,
-                    groovyClosureFactory.create(singletonList(nodeFactory.expressionStatement(
-                            nodeFactory.methodInvocation(methodInvocation.getName().getIdentifier(),
-                                    singletonList(nodeFactory.clone(argument)),
-                                    nodeFactory.simpleName(IT))))),
-                    nodeFactory.typeLiteral(nodeFactory.simpleType(String.class.getSimpleName())));
-        });
+        return singleArityMatcher(methodInvocation, argument ->
+                groovyClosureBuilder.aClosure()
+                        .withBodyStatement(nodeFactory.expressionStatement(
+                                nodeFactory.methodInvocation(methodInvocation.getName().getIdentifier(),
+                                singletonList(nodeFactory.clone(argument)), nodeFactory.simpleName(IT))))
+                        .withTypeLiteral(nodeFactory.typeLiteral(nodeFactory.simpleType(String.class.getSimpleName())))
+                        .build()
+                        .asExpression());
     }
 
     private Expression handleArgThat(MethodInvocation methodInvocation) {
         return singleArityMatcher(methodInvocation, argument -> {
-            if (argument instanceof ClassInstanceCreation) {
-                ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) argument;
-                if (classInstanceCreation.getAnonymousClassDeclaration() != null) {
-                    AnonymousClassDeclaration classDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
-                    if (classDeclaration.bodyDeclarations().size() == 1 &&
-                            classDeclaration.bodyDeclarations().get(0) instanceof MethodDeclaration &&
-                            ((MethodDeclaration) classDeclaration.bodyDeclarations().get(0))
-                                    .getName().getIdentifier().equals("matches")) {
-                        MethodDeclaration methodDeclaration = (MethodDeclaration) classDeclaration.bodyDeclarations().get(0);
-                        List<Statement> statements = nodeFactory.clone(methodDeclaration.getBody()).statements();
-                        return nodeFactory.infixExpression(CAST,
-                                groovyClosureFactory
-                                        .create(statements, nodeFactory.clone((SingleVariableDeclaration) methodDeclaration.parameters().get(0))),
-                                nodeFactory.typeLiteral(matcherType(classInstanceCreation)));
-                    }
-                }
-            }
-            return nodeFactory.clone(methodInvocation);
+            Optional<GroovyClosure> expression = asClosure(nodeFactory, groovyClosureBuilder, argument, "matches");
+            return expression.map(GroovyClosure::asExpression).orElse(nodeFactory.clone(methodInvocation));
         });
-    }
-
-    private Type matcherType(ClassInstanceCreation classInstanceCreation) {
-        Type type = classInstanceCreation.getType();
-        return type instanceof ParameterizedType ?
-                nodeFactory.clone((Type) ((ParameterizedType) type).typeArguments().get(0)) : nodeFactory.simpleType(Object.class.getSimpleName());
     }
 
     SimpleName wildcard() {

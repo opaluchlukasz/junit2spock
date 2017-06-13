@@ -4,6 +4,7 @@ import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import com.github.opaluchlukasz.junit2spock.core.AstProvider
 import com.github.opaluchlukasz.junit2spock.core.util.TestConfig
 import org.eclipse.jdt.core.dom.AST
+import org.eclipse.jdt.core.dom.Expression
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Shared
 import spock.lang.Specification
@@ -31,13 +32,22 @@ class GroovyClosureTest extends Specification {
         List<Statement> statements = [nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', []))]
 
         expect:
-        new GroovyClosure(nodeFactory, statements).toString() == "{$SEPARATOR\t\t\tsomeMethod()\n\t\t}"
+        new GroovyClosure(nodeFactory, AST_PROVIDER, statements, null, []).toString() == "{$SEPARATOR\t\t\tsomeMethod()\n\t\t}"
+    }
+
+    def 'should return closure with a cast'() {
+        given:
+        List<Statement> statements = [nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', []))]
+
+        expect:
+        new GroovyClosure(nodeFactory, AST_PROVIDER, statements, nodeFactory.typeLiteral(nodeFactory.simpleType('Boolean')), [])
+                .toString() == "{$SEPARATOR\t\t\tsomeMethod()\n\t\t} as Boolean.class"
     }
 
     def 'should return closure with arguments'() {
         given:
         List<Statement> statements = [nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', []))]
-        GroovyClosure closure = new GroovyClosure(nodeFactory, statements, *arguments)
+        GroovyClosure closure = new GroovyClosure(nodeFactory, AST_PROVIDER, statements, null, arguments)
 
         expect:
         closure.toString() == expected
@@ -55,9 +65,26 @@ class GroovyClosureTest extends Specification {
                                               .withThenStatement(aBlock(ast).withStatement(nodeFactory.returnStatement(nodeFactory.booleanLiteral(false))).build())
                                               .withElseStatement(aBlock(ast).withStatement(nodeFactory.returnStatement(nodeFactory.booleanLiteral(true))).build())
                                               .build()]
-        GroovyClosure closure = new GroovyClosure(nodeFactory, statements)
+        GroovyClosure closure = new GroovyClosure(nodeFactory, AST_PROVIDER, statements, null, [])
 
         expect:
         closure.toString() == "{$SEPARATOR\t\t\tif (a == b) {$SEPARATOR\t\t\t\treturn false\n\t\t\t} else {$SEPARATOR\t\t\t\treturn true\n\t\t\t}$SEPARATOR\t\t}"
+    }
+
+    def 'should return an expression'() {
+        given:
+        List<Statement> statements = [nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', []))]
+
+        expect:
+        new GroovyClosure(nodeFactory, AST_PROVIDER, statements, null, []).asExpression() instanceof Expression
+    }
+
+    def 'should return same toString representation for expression and closure'() {
+        given:
+        List<Statement> statements = [nodeFactory.expressionStatement(nodeFactory.methodInvocation('someMethod', []))]
+        GroovyClosure closure = new GroovyClosure(nodeFactory, AST_PROVIDER, statements, null, [])
+
+        expect:
+        closure.asExpression().toString().equals(closure.toString())
     }
 }

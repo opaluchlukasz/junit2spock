@@ -2,7 +2,7 @@ package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import com.github.opaluchlukasz.junit2spock.core.AstProvider
-import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureBuilder
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.MethodInvocation
 import spock.lang.Shared
@@ -21,8 +21,8 @@ class MockitoReturnFeatureTest extends Specification {
         get: ast
     }
     @Shared private ASTNodeFactory nf = new ASTNodeFactory(astProvider)
-    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider, nf)
-    @Shared private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
+    @Shared private GroovyClosureBuilder groovyClosureBuilder = new GroovyClosureBuilder(astProvider, nf)
+    @Shared private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureBuilder)
 
     @Subject private MockitoReturnFeature returnFeature = new MockitoReturnFeature(nf, matcherHandler, WHEN, THEN_RETURN)
 

@@ -9,7 +9,7 @@ import static com.github.opaluchlukasz.junit2spock.core.groovism.GroovismChainPr
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.SEPARATOR;
 import static com.github.opaluchlukasz.junit2spock.core.util.StringUtil.indentation;
 
-class BaseWrapper {
+public class BaseWrapper {
 
     private final int indentationLevel;
     private final Applicable applicable;

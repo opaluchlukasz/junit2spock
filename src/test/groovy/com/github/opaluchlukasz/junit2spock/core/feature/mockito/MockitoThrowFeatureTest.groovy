@@ -2,7 +2,7 @@ package com.github.opaluchlukasz.junit2spock.core.feature.mockito
 
 import com.github.opaluchlukasz.junit2spock.core.ASTNodeFactory
 import com.github.opaluchlukasz.junit2spock.core.AstProvider
-import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureFactory
+import com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureBuilder
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.Expression
 import org.eclipse.jdt.core.dom.InfixExpression
@@ -27,11 +27,11 @@ class MockitoThrowFeatureTest extends Specification {
         get: ast
     }
     @Shared private ASTNodeFactory nf = new ASTNodeFactory(astProvider)
-    @Shared private GroovyClosureFactory groovyClosureFactory = new GroovyClosureFactory(astProvider, nf)
-    @Shared private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureFactory)
+    @Shared private GroovyClosureBuilder groovyClosureBuilder = new GroovyClosureBuilder(astProvider, nf)
+    @Shared private MatcherHandler matcherHandler = new MatcherHandler(nf, groovyClosureBuilder)
 
     @Subject private MockitoThrowFeature mockitoThrowFeature = new MockitoThrowFeature(nf, matcherHandler,
-            groovyClosureFactory, WHEN, THEN_THROW)
+            groovyClosureBuilder, WHEN, THEN_THROW)
 
     def 'should return false for non thenThrow method invocation'() {
         expect:
