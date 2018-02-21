@@ -28,6 +28,10 @@ import static com.github.opaluchlukasz.junit2spock.core.node.ClosureHelper.asClo
 import static com.github.opaluchlukasz.junit2spock.core.node.CustomInfixOperator.CAST;
 import static com.github.opaluchlukasz.junit2spock.core.node.GroovyClosureBuilder.IT;
 import static com.github.opaluchlukasz.junit2spock.core.util.AstNodeFinder.methodInvocation;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+import static io.vavr.Predicates.isIn;
 import static java.util.Collections.singletonList;
 import static org.eclipse.jdt.core.dom.PrefixExpression.Operator.NOT;
 
@@ -48,66 +52,29 @@ public class MatcherHandler {
     }
 
     ASTNode applyMatchers(Object argument) {
-        return methodInvocation(argument).map(methodInvocation -> {
-            switch (methodInvocation.getName().getIdentifier()) {
-                case "anyVararg":
-                case "anyObject":
-                    return wildcard();
-                case "any":
-                    return anyMatcher(methodInvocation);
-                case "anyBoolean":
-                case "anyByte":
-                case "anyChar":
-                case "anyInt":
-                case "anyLong":
-                case "anyFloat":
-                case "anyDouble":
-                case "anyShort":
-                case "anyString":
-                case "anyList":
-                case "anySet":
-                case "anyMap":
-                case "anyIterable":
-                case "anyCollection":
-                    return classMatcher(getClass(methodInvocation));
-                case "anyListOf":
-                    return classMatcher(parametrizedTypeOf(methodInvocation, List.class));
-                case "anySetOf":
-                    return classMatcher(parametrizedTypeOf(methodInvocation, Set.class));
-                case "anyCollectionOf":
-                    return classMatcher(parametrizedTypeOf(methodInvocation, Collection.class));
-                case "anyIterableOf":
-                    return classMatcher(parametrizedTypeOf(methodInvocation, Iterable.class));
-                case "anyMapOf":
-                    return classMatcher(anyMapOf(methodInvocation, Map.class));
-                case "isA":
-                    return anyMatcher(methodInvocation);
-                case "isNull":
-                    return nodeFactory.nullLiteral();
-                case "eq":
-                    return eqMatcher(methodInvocation);
-                case "isNotNull":
-                case "notNull":
-                    return nodeFactory.prefixExpression(NOT, nodeFactory.nullLiteral());
-                case "contains":
-                case "endsWith":
-                case "startsWith":
-                    return stringMatcher(methodInvocation);
-                case "argThat":
-                case "booleanThat":
-                case "byteThat":
-                case "charThat":
-                case "doubleThat":
-                case "floatThat":
-                case "intThat":
-                case "longThat":
-                case "shortThat":
-                    return handleArgThat(methodInvocation);
-                default:
+        return methodInvocation(argument).map(methodInvocation -> Match(methodInvocation.getName().getIdentifier()).of(
+                Case($(isIn("anyVararg", "anyObject")), this::wildcard),
+                Case($(isIn("any")), () -> anyMatcher(methodInvocation)),
+                Case($(isIn("anyBoolean", "anyByte", "anyChar", "anyInt", "anyLong", "anyFloat", "anyDouble",
+                        "anyShort", "anyString", "anyList", "anySet", "anyMap", "anyIterable", "anyCollection")),
+                    methodName -> classMatcher(getClass(methodName))),
+                Case($(isIn("anyListOf")), () -> classMatcher(parametrizedTypeOf(methodInvocation, List.class))),
+                Case($(isIn("anySetOf")), () -> classMatcher(parametrizedTypeOf(methodInvocation, Set.class))),
+                Case($(isIn("anyCollectionOf")), () -> classMatcher(parametrizedTypeOf(methodInvocation, Collection.class))),
+                Case($(isIn("anyIterableOf")), () -> classMatcher(parametrizedTypeOf(methodInvocation, Iterable.class))),
+                Case($(isIn("anyMapOf")), () -> classMatcher(anyMapOf(methodInvocation, Map.class))),
+                Case($(isIn("isA")), () -> anyMatcher(methodInvocation)),
+                Case($(isIn("isNull")), nodeFactory::nullLiteral),
+                Case($(isIn("eq")), () -> eqMatcher(methodInvocation)),
+                Case($(isIn("isNotNull", "notNull")), () -> nodeFactory.prefixExpression(NOT, nodeFactory.nullLiteral())),
+                Case($(isIn("contains", "endsWith", "startsWith")), () -> stringMatcher(methodInvocation)),
+                Case($(isIn("argThat", "booleanThat", "byteThat", "charThat", "doubleThat", "floatThat", "intThat",
+                        "longThat", "shortThat")), () -> handleArgThat(methodInvocation)),
+                Case($(), () -> {
                     LOG.warn("Unsupported Mockito matcher: {}", methodInvocation.getName().getIdentifier());
                     return nodeFactory.clone((ASTNode) argument);
-            }
-        }).orElseGet(() -> nodeFactory.clone((ASTNode) argument));
+                })
+        )).orElseGet(() -> nodeFactory.clone((ASTNode) argument));
     }
 
     private Expression stringMatcher(MethodInvocation methodInvocation) {
@@ -173,8 +140,8 @@ public class MatcherHandler {
         return singleArityMatcher(methodInvocation, nodeFactory::clone);
     }
 
-    private Type getClass(MethodInvocation methodInv) {
-        String type = methodInv.getName().getIdentifier().replaceFirst("any", "");
+    private Type getClass(String methodName) {
+        String type = methodName.replaceFirst("any", "");
         return nodeFactory.simpleType(MATCHER_TYPE_OVERRIDE.getOrDefault(type, type));
     }
 
